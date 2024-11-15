@@ -180,7 +180,7 @@
                                     <tr>
                                         <td style="">Partai Politik</td>
                                         <td style="">:</td>
-                                        <td style="">{!! $sertPeserta->satker_nama !!} Tes</td>
+                                        <td style="">{!! $sertPeserta->satker_nama !!}</td>
                                     </tr>
                                     <tr>
                                         <td style="">Instansi</td>
