@@ -1,14 +1,14 @@
 @php
     $colSatker = "Satuan Kerja";
     $isASN = true;
-    $canAddEdit = false;
+    $canAddEdit = true;
     if(stripos($jadwal->nama, 'DPRD') !== false)
     {
         $colSatker = "Partai";
         $isASN = false;
     }
-    if(!is_null($sertifikat))
-        $canAddEdit = !$sertifikat->is_final;
+    if(!is_null($sertifikat) && $sertifikat->is_final == true)
+        $canAddEdit = false;
 @endphp
 
 @extends('layouts.backend')
