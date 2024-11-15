@@ -1,3 +1,12 @@
+@php
+    $colSatker = "Satuan Kerja";
+    $isASN = true;
+    if(stripos($jadwal->nama, 'DPRD') !== false)
+    {
+        $colSatker = "Partai";
+        $isASN = false;
+    }
+@endphp
 @extends('layouts.backend')
 
 @section('sidebar')
@@ -418,10 +427,12 @@
                             <tr>
                                 <th class="font-w700 text-center" style="width: 30px; vertical-align: middle;" rowspan="2">#</th>
                                 <th class="font-w700 text-center" style="width: 60px; vertical-align: middle;" rowspan="2">Nomor</th>
+                                @if($isASN)
                                 <th class="font-w700 text-center" style="width: 12%; vertical-align: middle;" rowspan="2">NIP</th>
                                 <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">ASN</th>
+                                @endif
                                 <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">Nama</th>
-                                <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">Satuan Kerja</th>
+                                <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">{{ $colSatker }}</th>
                                 <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">Instansi</th>
                                 <th class="font-w700 text-center" colspan="2">Status Kirim</th>
                                 <th class="font-w700 text-center" style="width: 10%; vertical-align: middle;" rowspan="2">Aksi</th>
@@ -439,6 +450,7 @@
                                     {{-- <img src="{{ is_null($sp->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($sp->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;"> --}}
                                     {{ $sp->nomor }}
                                 </td>
+                                @if($isASN)
                                 <td class="font-w600">
                                     {{ $sp->nip }}
                                 </td>
@@ -451,6 +463,7 @@
                                         Non-PNS
                                     @endif
                                 </td>
+                                @endif
                                 <td class="font-w600">
                                     {{ $sp->nama_lengkap }}
                                 </td>

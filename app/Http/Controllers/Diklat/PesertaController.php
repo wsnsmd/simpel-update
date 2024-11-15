@@ -38,6 +38,12 @@ class PesertaController extends Controller
 
     public function create($id, $slug)
     {
+        $sertifikat = DB::table('sertifikat')
+                        ->where('diklat_jadwal_id', $id)
+                        ->first();
+        if($sertifikat)
+            abort(403);
+
         $this->checkAuth($id);
 
         $jadwal = DB::table('diklat_jadwal')->where('id', $id)->first();
@@ -232,6 +238,12 @@ class PesertaController extends Controller
 
     public function edit($jadwal, $slug, $id)
     {
+        $sertifikat = DB::table('sertifikat')
+                        ->where('diklat_jadwal_id', $jadwal)
+                        ->first();
+        if($sertifikat)
+            abort(403);
+
         $this->checkAuth($jadwal);
 
         $jadwal = DB::table('diklat_jadwal')->where('id', $jadwal)->first();

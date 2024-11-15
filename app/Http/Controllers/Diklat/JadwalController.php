@@ -510,10 +510,14 @@ class JadwalController extends Controller
                     ->where('batal', true)
                     ->get();
 
-        if(!$jadwal->registrasi_lengkap)
-            return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak'));
+        $sertifikat = DB::table('sertifikat')
+                    ->where('diklat_jadwal_id', $jadwal->id)
+                    ->first();
 
-        return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak'));
+        if(!$jadwal->registrasi_lengkap)
+            return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
+
+        return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
     }
 
     public function cetak($jadwal, $peserta)

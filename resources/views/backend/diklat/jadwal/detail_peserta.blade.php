@@ -1,3 +1,16 @@
+@php
+    $colSatker = "Satuan Kerja";
+    $isASN = true;
+    $canAddEdit = false;
+    if(stripos($jadwal->nama, 'DPRD') !== false)
+    {
+        $colSatker = "Partai";
+        $isASN = false;
+    }
+    if(is_null($sertifikat))
+        $canAddEdit = true;
+@endphp
+
 @extends('layouts.backend')
 
 @section('sidebar')
@@ -281,6 +294,7 @@
     @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
     <div class="pt-4 px-4 bg-body-dark rounded push">
         <div class="row row-deck">
+            @if($canAddEdit)
             <div class="col-6 col-md-4 col-xl-2">
                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="{{ route('backend.diklat.peserta.create', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]) }}">
                     <div class="block-content">
@@ -291,6 +305,7 @@
                     </div>
                 </a>
             </div>
+            @endif
             <div class="col-6 col-md-4 col-xl-2">
                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export-form1').submit();">
                     <div class="block-content">
@@ -369,11 +384,13 @@
                             <tr>
                                 <th class="text-center" style="width: 30px;">#</th>
                                 <th style="width: 60px;">Foto</th>
+                                @if($isASN)
                                 <th style="width: 12%;">NIP</th>
+                                @endif
                                 <th>Nama</th>
-                                <th>Satker / Partai</th>
+                                <th>{{ $colSatker }}</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Aksi</th>
                                 <th style="width: 5%;">Batal</th>
                                 @endif
@@ -386,9 +403,11 @@
                                 <td>
                                     <img src="{{ is_null($pv->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pv->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
                                 </td>
+                                @if($isASN)
                                 <td class="font-w600">
                                     {{ $pv->nip }}
                                 </td>
+                                @endif
                                 <td class="font-w600">
                                     {{ $pv->nama_lengkap }}
                                 </td>
@@ -398,7 +417,7 @@
                                 <td class="font-w600">
                                     {{ $pv->instansi }}
                                 </td>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.destroy', $pv->id) }}" method="POST">
                                         @csrf
@@ -443,11 +462,13 @@
                             <tr>
                                 <th class="text-center" style="width: 30px;">#</th>
                                 <th style="width: 60px;">Foto</th>
+                                @if($isASN)
                                 <th style="width: 12%;">NIP</th>
+                                @endif
                                 <th>Nama</th>
-                                <th>Satker / Partai</th>
+                                <th>{{ $colSatker }}</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Verifikasi</th>
                                 <th style="width: 5%;">Aksi</th>
                                 @endif
@@ -460,9 +481,11 @@
                                 <td>
                                     <img src="{{ is_null($pn->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pn->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
                                 </td>
+                                @if($isASN)
                                 <td class="font-w600">
                                     {{ $pn->nip }}
                                 </td>
+                                @endif
                                 <td class="font-w600">
                                     {{ $pn->nama_lengkap }}
                                 </td>
@@ -472,7 +495,7 @@
                                 <td class="font-w600">
                                     {{ $pn->instansi }}
                                 </td>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.verifikasi', $pn->id) }}" method="POST">
                                         @csrf
@@ -517,11 +540,13 @@
                             <tr>
                                 <th class="text-center" style="width: 30px;">#</th>
                                 <th style="width: 60px;">Foto</th>
+                                @if($isASN)
                                 <th style="width: 12%;">NIP</th>
+                                @endif
                                 <th>Nama</th>
-                                <th>Satker / Partai</th>
+                                <th>{{ $colSatker }}</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Konfirmasi</th>
                                 <th style="width: 5%;">Aksi</th>
                                 @endif
@@ -534,9 +559,11 @@
                                 <td>
                                     <img src="{{ is_null($pc->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pc->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
                                 </td>
+                                @if($isASN)
                                 <td class="font-w600">
                                     {{ $pc->nip }}
                                 </td>
+                                @endif
                                 <td class="font-w600">
                                     {{ $pc->nama_lengkap }}
                                 </td>
@@ -546,7 +573,7 @@
                                 <td class="font-w600">
                                     {{ $pc->instansi }}
                                 </td>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.konfirmasi', $pc->id) }}" method="POST">
                                         @csrf
@@ -591,9 +618,11 @@
                             <tr>
                                 <th class="text-center" style="width: 30px;">#</th>
                                 <th style="width: 60px;">Foto</th>
+                                @if($isASN)
                                 <th style="width: 12%;">NIP</th>
+                                @endif
                                 <th>Nama</th>
-                                <th>Satker</th>
+                                <th>{{ $colSatker }}</th>
                                 <th>Instansi</th>
                                 @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
                                 <th style="width: 8%;">Aksi</th>
@@ -607,9 +636,11 @@
                                 <td>
                                     <img src="{{ is_null($pb->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pb->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
                                 </td>
+                                @if($isASN)
                                 <td class="font-w600">
                                     {{ $pb->nip }}
                                 </td>
+                                @endif
                                 <td class="font-w600">
                                     {{ $pb->nama_lengkap }}
                                 </td>
@@ -619,7 +650,7 @@
                                 <td class="font-w600">
                                     {{ $pb->instansi }}
                                 </td>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.destroy', $pb->id) }}" method="POST">
                                         @csrf
