@@ -1,3 +1,16 @@
+@php
+    $colSatker = "Satuan Kerja";
+    $isASN = true;
+    $canAddEdit = false;
+    if(stripos($jadwal->nama, 'DPRD') !== false)
+    {
+        $colSatker = "Partai";
+        $isASN = false;
+    }
+    if(is_null($sertifikat))
+        $canAddEdit = true;
+@endphp
+
 @extends('layouts.backend')
 
 @section('sidebar')
@@ -281,6 +294,7 @@
     @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
     <div class="pt-4 px-4 bg-body-dark rounded push">
         <div class="row row-deck">
+            @if($canAddEdit)
             <div class="col-6 col-md-4 col-xl-2">
                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="{{ route('backend.diklat.peserta.create', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]) }}">
                     <div class="block-content">
@@ -291,6 +305,7 @@
                     </div>
                 </a>
             </div>
+            @endif
             <div class="col-6 col-md-4 col-xl-2">
                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('import-form').submit();">
                     <div class="block-content">
@@ -359,7 +374,7 @@
                                 <th style="width: 12%;">NIP</th>
                                 <th>Nama</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Aksi</th>
                                 <th style="width: 5%;">Batal</th>
                                 @endif
@@ -378,7 +393,7 @@
                                 <td class="font-w600">
                                     {{ $pv->instansi }}
                                 </td>
-                                @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.destroy', $pv->id) }}" method="POST">
                                         @csrf
@@ -425,7 +440,7 @@
                                 <th style="width: 12%;">NIP</th>
                                 <th>Nama</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Verifikasi</th>
                                 <th style="width: 5%;">Aksi</th>
                                 @endif
@@ -444,7 +459,7 @@
                                 <td class="font-w600">
                                     {{ $pn->instansi }}
                                 </td>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.verifikasi', $pn->id) }}" method="POST">
                                         @csrf
@@ -491,7 +506,7 @@
                                 <th style="width: 12%;">NIP</th>
                                 <th>Nama</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Konfirmasi</th>
                                 <th style="width: 5%;">Aksi</th>
                                 @endif
@@ -510,7 +525,7 @@
                                 <td class="font-w600">
                                     {{ $pc->instansi }}
                                 </td>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.konfirmasi', $pc->id) }}" method="POST">
                                         @csrf
@@ -557,7 +572,7 @@
                                 <th style="width: 12%;">NIP</th>
                                 <th>Nama</th>
                                 <th>Instansi</th>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 8%;">Aksi</th>
                                 @endif
                             </tr>
@@ -575,7 +590,7 @@
                                 <td class="font-w600">
                                     {{ $pb->instansi }}
                                 </td>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
+                                @if((Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.peserta.destroy', $pb->id) }}" method="POST">
                                         @csrf
