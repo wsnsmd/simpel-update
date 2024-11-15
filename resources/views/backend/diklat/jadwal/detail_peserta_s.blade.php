@@ -7,8 +7,8 @@
         $colSatker = "Partai";
         $isASN = false;
     }
-    if(is_null($sertifikat))
-        $canAddEdit = true;
+    if(!is_null($sertifikat))
+        $canAddEdit = !$sertifikat->is_final;
 @endphp
 
 @extends('layouts.backend')

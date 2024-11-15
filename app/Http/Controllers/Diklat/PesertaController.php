@@ -41,7 +41,7 @@ class PesertaController extends Controller
         $sertifikat = DB::table('sertifikat')
                         ->where('diklat_jadwal_id', $id)
                         ->first();
-        if($sertifikat)
+        if($sertifikat && $sertifikat->is_final == true)
             abort(403);
 
         $this->checkAuth($id);
@@ -241,7 +241,7 @@ class PesertaController extends Controller
         $sertifikat = DB::table('sertifikat')
                         ->where('diklat_jadwal_id', $jadwal)
                         ->first();
-        if($sertifikat)
+        if($sertifikat && $sertifikat->is_final == true)
             abort(403);
 
         $this->checkAuth($jadwal);
