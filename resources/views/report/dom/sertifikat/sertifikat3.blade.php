@@ -156,7 +156,7 @@
                 </tbody>
             </table>
             @if($jum_hari->d == 0)
-            <p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!} yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber Daya Manusia Provinsi Kalimantan Timur pada tanggal {!! formatTanggal($jadwal->tgl_awal) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi, {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
+            <p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!} yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber Daya Manusia Provinsi Kalimantan Timur pada tanggal {!! formatTanggal($jadwal->tgl_awal) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
             @else
 			<p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!} yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber Daya Manusia Provinsi Kalimantan Timur dari tanggal {!! formatTanggal($jadwal->tgl_awal) !!} sampai dengan {!! formatTanggal($jadwal->tgl_akhir) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
             @endif
