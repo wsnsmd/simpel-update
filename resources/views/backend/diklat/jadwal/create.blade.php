@@ -149,6 +149,7 @@
                                 <option value="Lokakarya">Lokakarya</option>
                                 <option value="Kursus">Kursus</option>
                                 <option value="Penataran">Penataran</option>
+                                <option value="Benchmarking">Patok Banding / Benchmarking</option>
                             </select>
                             @if ($errors->has('tipe'))
                             <div class="invalid-feedback">{{ $errors->first('tipe') }}</div>

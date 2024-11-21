@@ -150,6 +150,7 @@
                                 <option value="Lokakarya" {{ $jadwal->tipe === 'Lokakarya' ? 'selected':'' }}>Lokakarya</option>
                                 <option value="Kursus" {{ $jadwal->tipe === 'Kursus' ? 'selected':'' }}>Kursus</option>
                                 <option value="Penataran" {{ $jadwal->tipe === 'Penataran' ? 'selected':'' }}>Penataran</option>
+                                <option value="Benchmarking" {{ $jadwal->tipe === 'Benchmarking' ? 'selected':'' }}>Patok Banding / Benchmarking</option>
                             </select>
                             @if ($errors->has('tipe'))
                             <div class="invalid-feedback">{{ $errors->first('tipe') }}</div>
