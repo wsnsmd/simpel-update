@@ -22,7 +22,7 @@
             <td class="text-center">
                 @switch($j->status_jadwal)
                     @case(1)
-                        <span class="badge badge-success">Berjalan</span>                                                    
+                        <span class="badge badge-success">Berjalan</span>
                         @break
                     @case(2)
                         <span class="badge badge-primary">Akan Datang</span>
@@ -31,7 +31,7 @@
                         <span class="badge badge-danger">Selesai</span>
                 @endswitch
             </td>
-        </tr>                                                    
+        </tr>
         @endforeach
     </tbody>
 </table>

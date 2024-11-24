@@ -131,7 +131,16 @@ class JadwalController extends Controller
         if($request->has('jadwal_id'))
         {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
-            return view('frontend.daftar.1', compact('jadwal'));
+            $peserta = DB::table('peserta')
+                        ->where('diklat_jadwal_id', $jadwal->id)
+                        ->where('verifikasi', 1)
+                        ->where('batal', 0)
+                        ->get();
+
+            if($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
+                return view('frontend.daftar.1', compact('jadwal'));
+
+            return view('frontend.daftar.tutup', compact('jadwal'));
         }
         abort(404);
     }
@@ -602,5 +611,22 @@ class JadwalController extends Controller
         $sql .= ' ORDER BY tanggal ASC';
         $jadwal = DB::select($sql);
         return view('frontend.wi_cari', compact('jadwal'));
+    }
+
+    public function tautan($id, $hash)
+    {
+        $jadwal = DB::table('v_front_jadwal')->where('id', $id)->where('tahun', $this->tahun)->first();
+        $shortCode = substr(md5($jadwal->nama), 0, 6);
+
+
+        if(empty($jadwal))
+            abort(404);
+
+        if($hash != $shortCode)
+            abort(404);
+
+        $tautan = DB::table('tautan')->where('jadwal_id', $jadwal->id)->where('is_active', 1)->get();
+
+        return view('frontend.tautan', compact('jadwal', 'tautan'));
     }
 }

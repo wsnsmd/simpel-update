@@ -86,7 +86,7 @@ class UserController extends Controller
             $notifikasi = 'Data pengguna berhasil ditambahkan!';
 
             if(isset($request->add))
-                return redirect()->route('backend.pengguna.index')->with('success', $notifikasi);
+                return redirect()->route('backend.api-token.index')->with('success', $notifikasi);
 
             return redirect()->back()->with('success', $notifikasi);
         }

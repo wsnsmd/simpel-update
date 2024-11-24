@@ -34,6 +34,7 @@ Route::resource('/jadwal', 'JadwalController', [
 
 Route::post('/jadwal', 'JadwalController@cari')->name('jadwal.cari');
 Route::get('/jadwal/{jadwal}/{slug}/detail', 'JadwalController@detail')->name('jadwal.detail');
+Route::get('/tautan/{jadwal}/{hash}/', 'JadwalController@tautan')->name('jadwal.tautan');
 Route::get('/jadwal/widyaiswara', 'JadwalController@wi')->name('jadwal.wi');
 Route::post('/jadwal/widyaiswara', 'JadwalController@postWi')->name('jadwal.wi.post');
 Route::post('/daftar', 'JadwalController@daftar')->name('jadwal.daftar');
@@ -189,6 +190,13 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::delete('surat-tugas/{id}', 'Diklat\SurtuController@destroy')->name('surtu.destroy');
         Route::delete('surat-tugas/pegawai/{id}', 'Diklat\SurtuController@delPegawai')->name('surtu.pegawai.del');
         Route::post('surat-tugas/cetak/{id}', 'Diklat\SurtuController@cetak')->name('surtu.cetak');
+
+        // Tautan
+        Route::post('tautan/load', 'Diklat\TautanController@load')->name('tautan.load');
+        Route::post('tautan/store', 'Diklat\TautanController@store')->name('tautan.store');
+        Route::get('tautan/{id}', 'Diklat\TautanController@show')->name('tautan.show');
+        Route::patch('tautan/{id}', 'Diklat\TautanController@update')->name('tautan.update');
+        Route::delete('tautan/{id}', 'Diklat\TautanController@destroy')->name('tautan.destroy');
     });
 
     // Route::resource('user', 'UserController');
@@ -196,18 +204,26 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
     Route::post('user/profil', 'UserController@profilupdate')->name('user.profil.update');
 
     // Route::resource('pengguna', 'UserController');
-    Route::get('pengguna', 'UserController@index')->name('pengguna.index')->middleware('can:isAdmin');;
-    Route::post('pengguna', 'UserController@store')->name('pengguna.store')->middleware('can:isAdmin');;
-    Route::get('pengguna/create', 'UserController@create')->name('pengguna.create')->middleware('can:isAdmin');;
-    Route::get('pengguna/{users}/edit', 'UserController@edit')->name('pengguna.edit')->middleware('can:isAdmin');;
-    Route::patch('pengguna/{users}', 'UserController@update')->name('pengguna.update')->middleware('can:isAdmin');;
-    Route::delete('pengguna/{users}', 'UserController@destroy')->name('pengguna.destroy')->middleware('can:isAdmin');;
-    Route::get('aktifitas', 'UserController@aktifitas')->name('aktifitas')->middleware('can:isAdmin');;
+    Route::get('pengguna', 'UserController@index')->name('pengguna.index')->middleware('can:isAdmin');
+    Route::post('pengguna', 'UserController@store')->name('pengguna.store')->middleware('can:isAdmin');
+    Route::get('pengguna/create', 'UserController@create')->name('pengguna.create')->middleware('can:isAdmin');
+    Route::get('pengguna/{users}/edit', 'UserController@edit')->name('pengguna.edit')->middleware('can:isAdmin');
+    Route::patch('pengguna/{users}', 'UserController@update')->name('pengguna.update')->middleware('can:isAdmin');
+    Route::delete('pengguna/{users}', 'UserController@destroy')->name('pengguna.destroy')->middleware('can:isAdmin');
+    Route::get('aktifitas', 'UserController@aktifitas')->name('aktifitas')->middleware('can:isAdmin');
 
     // Cetak
     Route::post('cetak', 'CetakController@index')->name('cetak.index');
     Route::post('cetak/aksi/{id}', 'CetakController@cetak')->name('cetak.cetak');
     Route::post('cetak/modal/{id}', 'CetakController@modal')->name('cetak.modal');
+
+    // Route::resource('api-token', 'ApiTokenController');
+    Route::get('api-token', 'ApiTokenController@index')->name('apitoken.index')->middleware('can:isAdmin');
+    Route::post('api-token', 'ApiTokenController@store')->name('apitoken.store')->middleware('can:isAdmin');
+    Route::get('api-token/create', 'ApiTokenController@create')->name('apitoken.create')->middleware('can:isAdmin');
+    Route::get('api-token/{id}/edit', 'ApiTokenController@edit')->name('apitoken.edit')->middleware('can:isAdmin');
+    Route::patch('api-token/{id}', 'ApiTokenController@update')->name('apitoken.update')->middleware('can:isAdmin');
+    Route::delete('api-token/{id}', 'ApiTokenController@destroy')->name('apitoken.destroy')->middleware('can:isAdmin');
 });
 // Backend Routes
 

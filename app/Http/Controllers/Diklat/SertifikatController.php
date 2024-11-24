@@ -6,6 +6,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Diklat\JadwalController;
 use App\Mail\KirimSertifikatMailable;
@@ -868,6 +869,7 @@ class SertifikatController extends Controller
 
     public function edit($id, $jadwal)
     {
+        // dd((Str::uuid()));
         $jadwalController = new JadwalController();
         $jadwalController->tahun = $this->tahun;
         $jadwalController->checkAuth($jadwal);

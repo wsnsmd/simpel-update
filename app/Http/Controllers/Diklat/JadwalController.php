@@ -475,6 +475,10 @@ class JadwalController extends Controller
                 return $this->surtu($jadwal);
             break;
 
+            case 'tautan':
+                return $this->tautan($jadwal);
+            break;
+
             default:
                 return view('backend.diklat.jadwal.detail', compact('jadwal', 'peserta'));
         }
@@ -573,6 +577,11 @@ class JadwalController extends Controller
     public function surtu($jadwal)
     {
         return view('backend.diklat.jadwal.detail_surtu', compact('jadwal'));
+    }
+
+    public function tautan($jadwal)
+    {
+        return view('backend.diklat.jadwal.detail_tautan', compact('jadwal'));
     }
 
     public function checkAuth($id)

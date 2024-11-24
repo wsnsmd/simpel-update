@@ -271,6 +271,12 @@
                 </a>
             </li>
             <li class="nav-main-item">
+                <a class="nav-main-link {{ request()->routeIs('backend.apitoken*') ? ' active' : '' }}" href="{{ route('backend.apitoken.index') }}">
+                    <i class="nav-main-link-icon fa fa-laptop-code"></i>
+                    <span class="nav-main-link-name">API Token</span>
+                </a>
+            </li>
+            <li class="nav-main-item">
                 <a class="nav-main-link {{ request()->routeIs('backend.aktifitas*') ? ' active' : '' }}" href="{{ route('backend.aktifitas') }}">
                     <i class="nav-main-link-icon fa fa-clipboard-list"></i>
                     <span class="nav-main-link-name">Aktifitas</span>

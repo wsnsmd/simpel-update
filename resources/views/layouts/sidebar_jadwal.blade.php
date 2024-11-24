@@ -61,6 +61,12 @@
                     <span class="nav-main-link-name">Peserta</span>
                 </a>
             </li>
+            <li class="nav-main-item">
+                <a class="nav-main-link" href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'tautan']) }}">
+                    <i class="nav-main-link-icon fa fa-link"></i>
+                    <span class="nav-main-link-name">Tautan</span>
+                </a>
+            </li>
             @can('isPKMF')
             <li class="nav-main-item">
                 <a class="nav-main-link" href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'mata-pelatihan']) }}">
@@ -84,7 +90,7 @@
             <li class="nav-main-item">
                 <a class="nav-main-link" href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat']) }}">
                     <i class="nav-main-link-icon fa fa-certificate"></i>
-                    <span class="nav-main-link-name">Lola SiKembangKol</span>
+                    <span class="nav-main-link-name">Sertifikat</span>
                 </a>
             </li>
             <li class="nav-main-item">
@@ -96,7 +102,7 @@
             <li class="nav-main-item">
                 <a class="nav-main-link" href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'checklist']) }}">
                     <i class="nav-main-link-icon fa fa-check"></i>
-                    <span class="nav-main-link-name">PAKAR</span>
+                    <span class="nav-main-link-name">Checklist</span>
                 </a>
             </li>
         </ul>

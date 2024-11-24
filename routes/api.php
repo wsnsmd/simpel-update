@@ -31,12 +31,12 @@ Route::get('/jadwal/dinov', function (Request $request) {
         'tahun' => 'required'
     ]);
 
-    if($validator->fails()) 
+    if($validator->fails())
     {
         $data = ['success' => false, 'message' => 'Bad Request'];
-        return response()->json($data, 400);        
-    }    
-    
+        return response()->json($data, 400);
+    }
+
     $jadwal = DB::table('v_dinov')->where('tahun', $request->tahun)->get();
     return response()->json($jadwal, 200);
 });
@@ -48,12 +48,12 @@ Route::get('/peserta/dinov', function (Request $request) {
         'nip' => 'required'
     ]);
 
-    if($validator->fails()) 
+    if($validator->fails())
     {
         $data = ['success' => false, 'message' => 'Bad Request'];
-        return response()->json($data, 400);        
-    }    
-    
+        return response()->json($data, 400);
+    }
+
     //$data = DB::table('v_peserta')->where(['nip' => $request->nip, 'diklat_jadwal_id' => $request->jadwal])->get();
     $data = [];
     $data['peserta'] = DB::table('v_peserta')->where(['nip' => $request->nip, 'diklat_jadwal_id' => $request->jadwal])->first();
@@ -68,4 +68,10 @@ Route::get('/wi/jpbulan', function (Request $request) {
     $param2 = $request->tahun;
     $jp = DB::select('call sp_jpbulan_wi(?,?)', array($param1, $param2));
     return response()->json($jp, 200);
+});
+
+Route::group(['prefix' => 'v1', 'middleware' => 'auth.api'], function () {
+    Route::get('/uji', function (Request $request) {
+        return response()->json('Okay Bos');
+    });
 });
