@@ -393,6 +393,8 @@
                                 @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
                                 <th style="width: 5%;">Aksi</th>
                                 <th style="width: 5%;">Batal</th>
+                                @else
+                                <th style="width: 5%;">Aksi</th>
                                 @endif
                             </tr>
                         </thead>
@@ -439,6 +441,14 @@
                                             <a href="javascript:;" onclick="return showBatal($(this).closest('form'));" class="btn btn-sm btn-danger" title="Batal"><i class="fa fa-times"></i></a>
                                         </div>
                                     </form>
+                                </td>
+                                @else
+                                <td class="text-center">
+                                    <div class="btn-group">
+                                        <a href="{{ route('backend.diklat.peserta.view', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pv->id]) }}" class="btn btn-sm btn-success" title="Lihat">
+                                            <i class="fa fa-eye"></i>
+                                        </a>
+                                    </div>
                                 </td>
                                 @endif
                             </tr>

@@ -231,9 +231,24 @@ class PesertaController extends Controller
         }
     }
 
-    public function show($id, $slug)
+    public function show($jadwal, $slug, $id)
     {
+        $sertifikat = DB::table('sertifikat')
+                        ->where('diklat_jadwal_id', $jadwal)
+                        ->first();
 
+        $this->checkAuth($jadwal);
+
+        $jadwal = DB::table('diklat_jadwal')->where('id', $jadwal)->first();
+        $peserta = DB::table('peserta')->where('id', $id)->first();
+        $pangkat = DB::table('pangkat')->get();
+        $agama = DB::table('agama')->get();
+        $instansi = DB::table('instansi')->get();
+
+        if(!$jadwal->registrasi_lengkap)
+            return view('backend.diklat.peserta.view_simple', compact('jadwal', 'peserta', 'instansi'));
+
+        return view('backend.diklat.peserta.view', compact('jadwal', 'peserta', 'pangkat', 'agama', 'instansi'));
     }
 
     public function edit($jadwal, $slug, $id)

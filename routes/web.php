@@ -132,6 +132,7 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::post('peserta/{jadwal}/simple', 'Diklat\PesertaController@storeSimple')->name('peserta.store.simple');
         Route::patch('peserta/{peserta}/simple', 'Diklat\PesertaController@updateSimple')->name('peserta.update.simple');
         Route::post('peserta/konfirmasi/jadwal', 'Diklat\PesertaController@konfirmasiJadwal')->name('peserta.konfirmasi.jadwal');
+        Route::get('peserta/{jadwal}/{slug}/{peserta}/view', 'Diklat\PesertaController@show')->name('peserta.view');
 
         // Checklist
         Route::post('checklist', 'Diklat\ChecklistController@index')->name('checklist.index');
