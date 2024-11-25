@@ -283,9 +283,11 @@
             <div class="block-content block-content-full">
                 <div class="input-group mb-3">
                     <input type="text" value="{!! $qrcode !!}" class="form-control" id="txtUrl" readonly>
-                    <button type="button" class="btn btn-primary" id="btnCopy" onclick="copyText()">
-                        <i class="fa fa-copy mr-1"></i>
-                    </button>
+                    <div class="input-group-append">
+                        <button type="button" class="btn btn-primary" onclick="copyText()" title="Salin Tautan">
+                            <i class="fa fa-copy mr-1"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive" id='tautan-load'>
                 </div>
