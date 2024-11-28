@@ -17,8 +17,8 @@ class EmailVerifikasiStatusJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $tries = 10;
-    public $timeout = 180;
+    public $tries = 3;
+    public $timeout = 30;
 
     public $nama;
     public $email;
