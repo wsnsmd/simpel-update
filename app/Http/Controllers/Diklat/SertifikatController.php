@@ -527,6 +527,58 @@ class SertifikatController extends Controller
         }
     }
 
+    public function kirimUlangEmail(Request $request, $spid)
+    {
+        $peserta = DB::table('v_sertifikat')
+                    ->where('spid', $spid)
+                    ->first();
+        $sertifikat = DB::table('sertifikat')->where('id', $peserta->sertifikat_id)->first();
+        $jadwal = DB::table('v_jadwal_detail')->find($sertifikat->diklat_jadwal_id);
+        $email = DB::table('sertifikat_email')->where('sertifikat_id', $sertifikat->id)->first();
+        $search = array('http://{sertifikat}', '{nama}');
+
+        if(!$sertifikat->is_upload && !is_null($peserta->upload))
+        {
+            $url_sertifikat = route('sertifikat.show', [
+                'peserta' => $peserta->id,
+                'jadwal' => $peserta->diklat_jadwal_id,
+                'sertifikat' => $peserta->spid,
+                'email' => str_slug($peserta->email)
+            ]);
+            $replace = array($url_sertifikat, $peserta->nama_lengkap);
+            $konten = str_replace($search, $replace, $email->konten);
+            if(!is_null($email->bcc))
+            {
+                $job = new KirimEmailSertifikatJob($peserta->email, $peserta->nama_lengkap, $jadwal, $konten, $sertifikat, $email->bcc);
+                $this->dispatch($job);
+            }
+            else
+            {
+                $job = new KirimEmailSertifikatJob($peserta->email, $peserta->nama_lengkap, $jadwal, $konten, $sertifikat);
+                $this->dispatch($job);
+            }
+
+            $at = date('Y-m-d H:i:s');
+            DB::table('sertifikat_peserta')->where('id', $peserta->spid)->update([
+                'email_at' => $at
+            ]);
+
+            $notifikasi = 'Email sertifikat berhasil dikirim!';
+
+            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                    ->with([
+                        'success' => $notifikasi,
+                    ]);
+        }
+
+        $notifikasi = 'Email sertifikat gagal dikirim!';
+        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                ->with([
+                    'error' => $notifikasi,
+                    'page' => 'peserta'
+                ]);
+    }
+
     public function postUpload(Request $request, $id)
     {
         $validator = $request->validate([

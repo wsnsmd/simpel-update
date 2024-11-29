@@ -512,6 +512,14 @@
                                         </a>
                                         @endif
                                     @endif
+                                    @if(!is_null($sp->email_at))
+                                        <form action="{{ route('backend.diklat.sertifikat.cetak', $sp->spid) }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="btn btn-sm btn-warning" title="Kirim Ulang Email">
+                                                <i class="fa fa-paper-plane"></i>
+                                            </button>
+                                        </form>
+                                    @endif
                                     </div>
                                 </td>
                             </tr>

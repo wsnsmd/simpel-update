@@ -154,6 +154,7 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::get('sertifikat/{jadwal}/email', 'Diklat\SertifikatController@emailTemplate')->name('sertifikat.email.template');
         Route::post('sertifikat/{jadwal}/email/simpan', 'Diklat\SertifikatController@emailTemplateSimpan')->name('sertifikat.email.template.simpan');
         Route::post('sertifikat/{jadwal}/kirim/email', 'Diklat\SertifikatController@kirimEmail')->name('sertifikat.kirim.email');
+        Route::post('sertifikat/{spid}/kirimulang/email', 'Diklat\SertifikatController@kirimUlangEmail')->name('sertifikat.kirimulang.email');
         Route::post('sertifikat/kirim/simpeg', 'Diklat\SertifikatController@kirimSimpeg')->name('sertifikat.kirim.simpeg');
         Route::post('sertifikat/{id}/upload', 'Diklat\SertifikatController@postUpload')->name('sertifikat.upload');
         Route::delete('sertifikat/{id}', 'Diklat\SertifikatController@destroy')->name('sertifikat.destroy');
