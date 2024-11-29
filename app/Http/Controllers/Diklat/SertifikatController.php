@@ -548,7 +548,6 @@ class SertifikatController extends Controller
                     'sertifikat' => $peserta->spid,
                     'email' => str_slug($peserta->email)
                 ]);
-                dd($url_sertifikat);
                 $replace = array($url_sertifikat, $peserta->nama_lengkap);
                 $konten = str_replace($search, $replace, $email->konten);
                 if(!is_null($email->bcc))
