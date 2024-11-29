@@ -540,7 +540,7 @@ class SertifikatController extends Controller
 
         try
         {
-            if(!$sertifikat->is_upload && !is_null($peserta->upload))
+            if(!$sertifikat->is_upload && is_null($peserta->upload))
             {
                 $url_sertifikat = route('sertifikat.show', [
                     'peserta' => $peserta->id,
@@ -548,6 +548,7 @@ class SertifikatController extends Controller
                     'sertifikat' => $peserta->spid,
                     'email' => str_slug($peserta->email)
                 ]);
+                dd($url_sertifikat);
                 $replace = array($url_sertifikat, $peserta->nama_lengkap);
                 $konten = str_replace($search, $replace, $email->konten);
                 if(!is_null($email->bcc))
@@ -579,13 +580,14 @@ class SertifikatController extends Controller
             Log::error('Error Kirim Ulang Email: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);
-            $notifikasi = 'Email sertifikat gagal dikirim!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
-                    ->with([
-                        'error' => $notifikasi,
-                        'page' => 'peserta'
-                    ]);
         }
+
+        $notifikasi = 'Email sertifikat gagal dikirim!';
+        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                ->with([
+                    'error' => $notifikasi,
+                    'page' => 'peserta'
+                ]);
     }
 
     public function postUpload(Request $request, $id)
