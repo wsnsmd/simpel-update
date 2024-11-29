@@ -8,6 +8,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 use App\Mail\VerifikasiStatusMailable;
 
@@ -109,10 +110,10 @@ class EmailVerifikasiStatusJob implements ShouldQueue
         }
         catch(\Exception $e)
         {
-            return response()->json([
-                'status' => 'error',
-                'message' => $e->getMessage(),
-            ], 500);
+            Log::error('Error in Job: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
+            throw $e; // Tetap lempar exception agar masuk ke log queue default
         }
         // Mail::to($this->email)->send(new VerifikasiStatusMailable($this->nama, $this->jadwal, $this->url));
     }
