@@ -53,30 +53,57 @@ class KirimEmailSertifikatJob implements ShouldQueue
         $client = new Client();
         try
         {
-            $response = $client->post('https://send.api.mailtrap.io/api/send', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
-                    'Content-Type' => 'application/json'
-                ],
-                'json' => [
-                    'from' => [
-                        'email' => env('MAIL_FROM_ADDRESS'),
-                        'name' => env('MAIL_FROM_NAME')
+            if(is_null($this->bcc))
+            {
+                $response = $client->post('https://send.api.mailtrap.io/api/send', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+                        'Content-Type' => 'application/json'
                     ],
-                    'to' => [[
-                        'email' => $this->email,
-                        'name' => $this->nama
-                    ]],
-                    'bcc' => [[
-                        'email' => $this->bcc,
-                    ]],
-                    'template_uuid' => '9d6d9661-7baa-4581-b7fb-a76052ab7700',
-                    'template_variables' => [
-                        'jadwal_nama' => $this->jadwal->nama,
-                        'konten' => $this->konten,
+                    'json' => [
+                        'from' => [
+                            'email' => env('MAIL_FROM_ADDRESS'),
+                            'name' => env('MAIL_FROM_NAME')
+                        ],
+                        'to' => [[
+                            'email' => $this->email,
+                            'name' => $this->nama
+                        ]],
+                        'template_uuid' => '9d6d9661-7baa-4581-b7fb-a76052ab7700',
+                        'template_variables' => [
+                            'jadwal_nama' => $this->jadwal->nama,
+                            'konten' => $this->konten,
+                        ],
                     ],
-                ],
-            ]);
+                ]);
+            }
+            else
+            {
+                $response = $client->post('https://send.api.mailtrap.io/api/send', [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+                        'Content-Type' => 'application/json'
+                    ],
+                    'json' => [
+                        'from' => [
+                            'email' => env('MAIL_FROM_ADDRESS'),
+                            'name' => env('MAIL_FROM_NAME')
+                        ],
+                        'to' => [[
+                            'email' => $this->email,
+                            'name' => $this->nama
+                        ]],
+                        'bcc' => [[
+                            'email' => $this->bcc,
+                        ]],
+                        'template_uuid' => '9d6d9661-7baa-4581-b7fb-a76052ab7700',
+                        'template_variables' => [
+                            'jadwal_nama' => $this->jadwal->nama,
+                            'konten' => $this->konten,
+                        ],
+                    ],
+                ]);
+            }
         }
         catch(\Exception $e)
         {
