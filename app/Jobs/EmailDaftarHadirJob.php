@@ -89,7 +89,7 @@ class EmailDaftarHadirJob implements ShouldQueue
                         'name' => $this->nama
                     ]],
                     'template_uuid' => 'acf60173-9e96-449a-a31a-21c5c3276e7c',
-                    'template_vaiables' => [
+                    'template_variables' => [
                         'peserta' => $this->nama,
                         'jadwal_tipe' => $this->jadwal->tipe,
                         'jadwal_nama' => $this->jadwal->nama,

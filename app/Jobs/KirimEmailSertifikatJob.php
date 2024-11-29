@@ -71,16 +71,11 @@ class KirimEmailSertifikatJob implements ShouldQueue
                         'email' => $this->bcc,
                     ]],
                     'template_uuid' => '9d6d9661-7baa-4581-b7fb-a76052ab7700',
-                    'template_vaiables' => [
+                    'template_variables' => [
                         'jadwal_nama' => $this->jadwal->nama,
                         'konten' => $this->konten,
                     ],
                 ],
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => json_decode($response->getBody(), true)
             ]);
         }
         catch(\Exception $e)

@@ -91,7 +91,7 @@ class EmailVerifikasiStatusJob implements ShouldQueue
                         'name' => $this->nama
                     ]],
                     'template_uuid' => '79d95c04-7ecf-4e14-9363-d462036f21f4',
-                    'template_vaiables' => [
+                    'template_variables' => [
                         'peserta' => $this->nama,
                         'jadwal_tipe' => $this->jadwal->tipe,
                         'jadwal_nama' => $this->jadwal->nama,
@@ -101,11 +101,6 @@ class EmailVerifikasiStatusJob implements ShouldQueue
                         'tahun' => $this->jadwal->tahun
                     ],
                 ],
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'data' => json_decode($response->getBody(), true)
             ]);
         }
         catch(\Exception $e)
