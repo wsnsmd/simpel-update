@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Diklat\JadwalController;
 use App\Mail\KirimSertifikatMailable;
@@ -575,10 +576,13 @@ class SertifikatController extends Controller
         }
         catch(\Exception $e)
         {
+            Log::error('Error Kirim Ulang Email: ' . $e->getMessage(), [
+                'exception' => $e,
+            ]);
             $notifikasi = 'Email sertifikat gagal dikirim!';
             return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
-                        'error' => $e->getMessage(),
+                        'error' => $notifikasi,
                         'page' => 'peserta'
                     ]);
         }
