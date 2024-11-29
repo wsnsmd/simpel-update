@@ -17,7 +17,7 @@ class UploadSimpegJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 3;
-    public $timeout = 30;
+    public $timeout = 120;
 
     public $peserta;
     public $jadwal;

@@ -45,35 +45,72 @@ class EmailDaftarHadirJob implements ShouldQueue
      */
     public function handle()
     {
-        /*
         $client = new Client();
-        $headers = [
-            'Content-Type' => 'application/json'
-        ];
-        $body = [
-            'api_key' => env('MAIL_API_SEND'),
-            'sender' => 'SIMPel BPSDM Kaltim <no-reply@bpsdmkaltim.net>',
-            'to' => [
-                '<' . $this->email . '>'
-            ],
-            'template_id' => '1693885',
-            'template_data' => [
-              'peserta' => $this->nama,
-              'jadwal_tipe' => $this->jadwal->tipe,
-              'jadwal_nama' => $this->jadwal->nama,
-              'jadwal_tanggal' => $this->jadwal->tgl_awal,
-              'konfirmasi_url' => $this->url,
-              'tahun' => $this->jadwal->tahun
-            ],
-            'custom_headers' => array([
-              'header' => 'Reply-To',
-              'value' => $this->jadwal->panitia_nama . ' <' . $this->jadwal->panitia_email . '>'
-            ])
-        ];
-        // print_r($body);
-        $request = new \GuzzleHttp\Psr7\Request('POST', 'https://api.smtp2go.com/v3/email/send', $headers, json_encode($body));
-        $res = $client->sendAsync($request)->wait();
-        */
-        Mail::to($this->email)->send(new DaftarHadirMailable($this->nama, $this->jadwal, $this->url));
+        try
+        {
+            // $headers = [
+            //     'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+            //     'Content-Type' => 'application/json'
+            // ];
+            // $body = [
+            //     'from' => [[
+            //         'email' => env('MAIL_FROM_ADDRESS'),
+            //         'name' => env('MAIL_FROM_NAME')
+            //     ]],
+            //     'to' => [[
+            //         'email' => $this->email,
+            //         'name' => $this->nama
+            //     ]],
+            //     'template_uuid' => 'acf60173-9e96-449a-a31a-21c5c3276e7c',
+            //     'template_vaiables' => [
+            //     'peserta' => $this->nama,
+            //     'jadwal_tipe' => $this->jadwal->tipe,
+            //     'jadwal_nama' => $this->jadwal->nama,
+            //     'jadwal_tanggal' => $this->jadwal->tgl_awal,
+            //     'konfirmasi_url' => $this->url,
+            //     'tahun' => $this->jadwal->tahun
+            //     ],
+            // ];
+            // // print_r($body);
+            // $request = new \GuzzleHttp\Psr7\Request('POST', 'https://send.api.mailtrap.io/api/send', $headers, json_encode($body));
+            $response = $client->post('https://send.api.mailtrap.io/api/send', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+                    'Content-Type' => 'application/json'
+                ],
+                'json' => [
+                    'from' => [
+                        'email' => env('MAIL_FROM_ADDRESS'),
+                        'name' => env('MAIL_FROM_NAME')
+                    ],
+                    'to' => [[
+                        'email' => $this->email,
+                        'name' => $this->nama
+                    ]],
+                    'template_uuid' => 'acf60173-9e96-449a-a31a-21c5c3276e7c',
+                    'template_vaiables' => [
+                        'peserta' => $this->nama,
+                        'jadwal_tipe' => $this->jadwal->tipe,
+                        'jadwal_nama' => $this->jadwal->nama,
+                        'jadwal_tanggal' => $this->jadwal->tgl_awal,
+                        'konfirmasi_url' => $this->url,
+                        'tahun' => $this->jadwal->tahun
+                    ],
+                ],
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => json_decode($response->getBody(), true)
+            ]);
+        }
+        catch(\Exception $e)
+        {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+        // Mail::to($this->email)->send(new DaftarHadirMailable($this->nama, $this->jadwal, $this->url));
     }
 }
