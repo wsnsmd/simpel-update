@@ -575,10 +575,10 @@ class SertifikatController extends Controller
         }
         catch(\Exception $e)
         {
-            $notifikasi = 'Email sertifikat gagal dikirim! ' . $e->getMessage();
+            $notifikasi = 'Email sertifikat gagal dikirim!';
             return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
-                        'error' => $notifikasi,
+                        'error' => $e->getMessage(),
                         'page' => 'peserta'
                     ]);
         }
