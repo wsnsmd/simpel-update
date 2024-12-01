@@ -286,7 +286,7 @@
                 </a>
             </div>
             @else
-            @if(!$sertifikat->is_final)
+            @if(!$sertifikat->is_final || Gate::check('isAdmin'))
             <div class="col-6 col-md-4 col-xl-2">
                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="{{ route('backend.diklat.sertifikat.edit', ['id' => $sertifikat->id, 'jadwal' => $jadwal->id])}}">
                     <div class="block-content">
