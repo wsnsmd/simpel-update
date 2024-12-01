@@ -944,7 +944,7 @@ class SertifikatController extends Controller
         $template = DB::table('sertifikat_template')->where('is_tampil', true)->orderBy('nama')->get();
         $detail = 'Edit Sertifikat';
 
-        if(is_null($sertifikat) || $sertifikat->is_final || !$this->isAdmin())
+        if((is_null($sertifikat) || $sertifikat->is_final ) && !$this->isAdmin())
             abort(404);
 
         return view('backend.diklat.sertifikat.edit', compact('jadwal', 'sertifikat', 'template', 'detail'));
