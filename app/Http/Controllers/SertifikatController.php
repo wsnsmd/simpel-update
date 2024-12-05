@@ -50,7 +50,7 @@ class SertifikatController extends Controller
 
             if($sertifikat->is_upload)
             {
-                return Storage::response($sertPeserta->upload);
+                return Storage::url($sertPeserta->upload);
             }
 
             $template = DB::table('sertifikat_template')->where('id', $sertifikat->tsid)->first();
