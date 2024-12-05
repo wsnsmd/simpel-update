@@ -27,7 +27,7 @@ class SertifikatController extends Controller
         {
             $sertPeserta = DB::table('v_sertifikat')
                         //->select('nip', 'nama_lengkap', 'tmp_lahir', 'tgl_lahir', 'jabatan', 'foto', 'instansi', 'satker_nama', 'diklat_jadwal_id', 'pangkat', 'golongan', 'nomor', 'sertifikat_id', 'spesimen_kiri', 'spesimen_bawah', 'upload')
-                        ->select('nip', 'nama_lengkap', 'tmp_lahir', 'tgl_lahir', 'jabatan', 'foto', 'instansi', 'satker_nama', 'sebagai', 'diklat_jadwal_id', 'pangkat', 'golongan', 'nomor', 'kualifikasi', 'status', 'sertifikat_id', 'spesimen_kiri', 'spesimen_bawah', 'spesimen2_kiri', 'spesimen2_bawah')
+                        ->select('nip', 'nama_lengkap', 'tmp_lahir', 'tgl_lahir', 'jabatan', 'foto', 'instansi', 'satker_nama', 'sebagai', 'diklat_jadwal_id', 'pangkat', 'golongan', 'nomor', 'kualifikasi', 'status', 'sertifikat_id', 'spesimen_kiri', 'spesimen_bawah', 'spesimen2_kiri', 'spesimen2_bawah', 'upload')
                         ->where('spid', $sertifikat)
                         ->first();
 
@@ -50,7 +50,7 @@ class SertifikatController extends Controller
 
             if($sertifikat->is_upload)
             {
-                return Storage::url($sertPeserta->upload);
+                return Storage::response($sertPeserta->upload);
             }
 
             $template = DB::table('sertifikat_template')->where('id', $sertifikat->tsid)->first();
