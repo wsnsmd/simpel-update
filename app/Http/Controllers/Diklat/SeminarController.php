@@ -21,6 +21,8 @@ class SeminarController extends Controller
         '13.00 - 13.30',
         '13.35 - 14.05',
         '14.10 - 14.40',
+        '14.45 - 15.15',
+        '15.20 - 15.50',
     );
 
     public function __construct()
