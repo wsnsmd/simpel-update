@@ -68,8 +68,8 @@
                                             <div class="input-group">
                                                 <input type="password" class="form-control{{ $errors->has('password') ? ' is-invalid' : '' }}" id="password" name="password" placeholder="Password" required>
                                                 <div class="input-group-append">
-                                                    <span class="input-group-text">
-                                                        <i class="fa fa-asterisk"></i>
+                                                    <span class="input-group-text" id="togglePassword" style="cursor: pointer;">
+                                                        <i class="fa fa-eye" id="eyeIcon"></i>
                                                     </span>
                                                 </div>
                                             </div>
@@ -151,6 +151,20 @@
         @endif
 
         <script>
+        $('#togglePassword').click(function () {
+            const passwordInput = $('#password');
+            const eyeIcon = $('#eyeIcon');
+
+            // Toggle antara 'password' dan 'text'
+            if (passwordInput.attr('type') === 'password') {
+                passwordInput.attr('type', 'text');
+                eyeIcon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                passwordInput.attr('type', 'password');
+                eyeIcon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        });
+
         $("#reload").click(function () {
             $.ajax({
                 type: "GET",
