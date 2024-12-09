@@ -22,9 +22,9 @@
 
         <!-- Fonts and Styles -->
         @yield('css_before')
-        <link rel="stylesheet" id="css-main" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700">
+        <link rel="stylesheet" id="css-main" href="https://fonts.googleapis.com/css?family=Inter:300,400,400i,600,700">
         <link rel="stylesheet" id="css-theme" href="{{ asset('css/dashmix.css') }}">
-        <link rel="stylesheet" href="{{ asset('css/themes/' . setting()->get('app_tema') . '.css') }}"> 
+        <link rel="stylesheet" href="{{ asset('css/themes/' . setting()->get('app_tema') . '.css') }}">
 
         @yield('css_after')
 
@@ -61,13 +61,13 @@
                             <i class="fa fa-fw fa-bars"></i>
                         </button>
                         <!-- END Toggle Sidebar -->
-                        
+
                         @can('isUser')
                         <a href="{{ URL('/') }}" class="btn btn-dual mr-1" target="_pratinjau">
                             <i class="fa fa-desktop mr-1"></i>
                             <span class="d-none d-sm-inline-block">Pratinjau Beranda</span>
                         </a>
-                        @endcan  
+                        @endcan
                     </div>
                     <!-- END Left Section -->
 
@@ -76,7 +76,7 @@
                         <button type="button" class="btn btn-dual mr-1">
                             <i class="far fa-calendar-check mr-1"></i>
                             <span class="d-none d-sm-inline-block">Tahun:</span> {{ session('apps_tahun') }}
-                        </button>                        
+                        </button>
 
                         <!-- User Dropdown -->
                         <div class="dropdown d-inline-block">
@@ -96,8 +96,8 @@
                                         <i class="far fa-fw fa-user mr-1"></i> Profil
                                     </a>
                                     <div role="separator" class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{{ route('logout') }}" 
-                                        onclick="event.preventDefault(); 
+                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                        onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
                                         <i class="far fa-fw fa-arrow-alt-circle-left mr-1"></i> Logout
                                     </a>
@@ -108,7 +108,7 @@
                                 </div>
                             </div>
                         </div>
-                        <!-- END User Dropdown -->                        
+                        <!-- END User Dropdown -->
 
                         <!-- Toggle Side Overlay -->
                         <!-- Layout API, functionality initialized in Template._uiApiLayout() -->

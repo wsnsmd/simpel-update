@@ -16,7 +16,7 @@ class AlumniController extends Controller
         return view('frontend.alumni', compact('jenis', 'tahun', 'alumni'));
     }
 
-    public function cari(Request $request) 
+    public function cari(Request $request)
     {
         $sql = "SELECT * FROM v_front_alumni";
         $where = array();
@@ -37,8 +37,8 @@ class AlumniController extends Controller
 
         if(count($where) > 0)
             $sql .= " WHERE" . implode(" AND", $where);
-        
-        $alumni = DB::select($sql);
+
+        $alumni = DB::select($sql . ' LIMIT 500');
 
         return view('frontend.alumni_cari', compact('alumni'));
     }

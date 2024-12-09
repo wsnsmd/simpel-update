@@ -43,7 +43,7 @@
                                 <div class="block-content block-content-full px-lg-4 px-xl-5 py-3 py-md-4 py-lg-5 bg-white" style="max-width: 450px">
                                     <!-- Header -->
                                     <div class="mb-2 text-center">
-                                        <a class="link-fx font-w700 font-size-h1" href="javascript:;">
+                                        <a class="link-fx font-w700 font-size-h1" href="/">
                                             <span class="text-dark">SIM</span><span class="text-primary">Pel</span>
                                         </a>
                                         <p class="text-uppercase font-w700 font-size-sm text-muted">BPSDM Kaltim</p>
@@ -107,7 +107,7 @@
                                         </div>
 
                                         <div class="form-group text-center">
-                                            <button type="submit" class="btn btn-hero-primary">
+                                            <button type="submit" class="btn btn-hero-primary btn-block">
                                                 <i class="fa fa-fw fa-sign-in-alt mr-1"></i> Login
                                             </button>
                                         </div>
