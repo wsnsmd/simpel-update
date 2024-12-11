@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 use App;
 use DB;
@@ -33,7 +34,7 @@ class SertifikatController extends Controller
 
             $sertifikat = DB::table('sertifikat')
                         //->select('tempat', 'tanggal', 'jabatan', 'nama', 'pangkat', 'nip', 'diklat_jadwal_id', 'spesimen', 'tsid', 'is_upload', 'fasilitasi')
-                        ->select('tempat', 'tanggal', 'jabatan', 'nama', 'pangkat', 'nip', 'jabatan2', 'nama2', 'pangkat2', 'nip2', 'diklat_jadwal_id', 'spesimen', 'spesimen2', 'tsid', 'is_upload', 'fasilitasi')
+                        ->select('tempat', 'tanggal', 'jabatan', 'nama', 'pangkat', 'nip', 'jabatan2', 'nama2', 'pangkat2', 'nip2', 'diklat_jadwal_id', 'spesimen', 'spesimen2', 'tsid', 'is_upload', 'fasilitasi', 'barcode')
                         ->where('id', $sertPeserta->sertifikat_id)
                         ->first();
 
@@ -78,5 +79,59 @@ class SertifikatController extends Controller
         }
 
         abort(404);
+    }
+
+    public function cek(Request $request)
+    {
+        if ($request->has('hash'))
+        {
+            $hash = $request->hash;
+            $sertifikat_peserta = DB::table('sertifikat_peserta')
+                        ->whereRaw('SHA1(nomor) = ?', [$hash])
+                        ->first();
+            if(is_null($sertifikat_peserta))
+                return redirect()->route('sertifikat.cek')->with('error', 'Data sertifikat tidak ditemukan!');
+
+            $peserta = DB::table('v_sertifikat')
+                        ->where('spid', $sertifikat_peserta->id)
+                        ->first();
+            $sertifikat = DB::table('sertifikat')
+                        ->where('id', $sertifikat_peserta->sertifikat_id)
+                        ->first();
+            $jadwal = DB::table('v_jadwal_detail')
+                        ->select('nama', 'tahun', 'tipe', 'tgl_awal', 'tgl_akhir', 'kelas', 'total_jp', 'lokasi', 'lokasi_kota', 'kurikulum_id')
+                        ->where('id', $sertifikat->diklat_jadwal_id)
+                        ->first();
+            return view('frontend.sertifikat-cek', compact('peserta', 'sertifikat_peserta', 'jadwal'));
+        }
+
+        return view('frontend.sertifikat-cek');
+    }
+
+    public function postCek(Request $request)
+    {
+        $request->validate([
+            'nomor' => 'required',
+            'captcha' => 'required|captcha',
+        ]);
+        $nomor = str_replace(' ', '', $request->nomor);
+        $sertifikat_peserta = DB::table('sertifikat_peserta')
+                        ->where(DB::raw("REPLACE(nomor, ' ', '')"), $nomor)
+                        ->first();
+
+        if(is_null($sertifikat_peserta))
+            return redirect()->back()->with('error', 'Data sertifikat tidak ditemukan!');
+
+        $peserta = DB::table('v_sertifikat')
+                        ->where('spid', $sertifikat_peserta->id)
+                        ->first();
+        $sertifikat = DB::table('sertifikat')
+                        ->where('id', $sertifikat_peserta->sertifikat_id)
+                        ->first();
+        $jadwal = DB::table('v_jadwal_detail')
+                        ->select('nama', 'tahun', 'tipe', 'tgl_awal', 'tgl_akhir', 'kelas', 'total_jp', 'lokasi', 'lokasi_kota', 'kurikulum_id')
+                        ->where('id', $sertifikat->diklat_jadwal_id)
+                        ->first();
+        return view('frontend.sertifikat-cek', compact('peserta', 'sertifikat_peserta', 'jadwal'));
     }
 }

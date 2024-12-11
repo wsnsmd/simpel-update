@@ -2,6 +2,8 @@
     $date_awal = date_create($jadwal->tgl_awal);
     $date_akhir = date_create($jadwal->tgl_akhir);
     $jum_hari = date_diff($date_awal, $date_akhir);
+    $hash = sha1($sertPeserta->nomor);
+    $qrcode = route('sertifikat.cek', ['hash' => $hash]);
 @endphp
 
 <html>
@@ -93,6 +95,14 @@
             left: {{ $sertPeserta->spesimen_kiri }}cm;
         }
         @endif
+
+        @if($sertifikat->barcode)
+        #qr-code {
+            position: fixed;
+            bottom: 4cm;
+            left: 1cm;
+        }
+        @endif
     </style>
 </head>
 
@@ -181,6 +191,11 @@
         @if(!is_null($sertifikat->spesimen))
         <div id="tt2">
             <img src="{{ storage_path('app/' . $sertifikat->spesimen) }}" height="200" />
+        </div>
+        @endif
+        @if($sertifikat->barcode)
+        <div id="qr-code">
+            <img src="data:image/png;base64, {!! base64_encode(QrCode::format('png')->size(120)->backgroundColor(255,255,255)->generate($qrcode)) !!} " />
         </div>
         @endif
     </div>

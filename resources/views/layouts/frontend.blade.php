@@ -107,6 +107,12 @@
                             </a>
                         </li>
                         <li class="nav-main-item">
+                            <a class="nav-main-link" href="{{ route('sertifikat.cek') }}">
+                                <i class="nav-main-link-icon fa fa-compass"></i>
+                                <span class="nav-main-link-name">Cek Sertifikat</span>
+                            </a>
+                        </li>
+                        <li class="nav-main-item">
                             <a class="nav-main-link" href="{{ route('login') }}">
                                 <i class="nav-main-link-icon fa fa-sign-in-alt"></i>
                                 <span class="nav-main-link-name">Login</span>
@@ -174,6 +180,12 @@
                                     <a class="nav-main-link" href="{{ route('informasi') }}">
                                         <i class="nav-main-link-icon fa fa-info-circle"></i>
                                         <span class="nav-main-link-name">Informasi</span>
+                                    </a>
+                                </li>
+                                <li class="nav-main-item">
+                                    <a class="nav-main-link" href="{{ route('sertifikat.cek') }}">
+                                        <i class="nav-main-link-icon fa fa-address-card"></i>
+                                        <span class="nav-main-link-name">Cek Sertifikat</span>
                                     </a>
                                 </li>
                                 <li class="nav-main-item">

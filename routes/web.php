@@ -56,6 +56,8 @@ Route::post('/alumni', 'AlumniController@cari')->name('alumni.cari');
 Route::get('/send/email', 'HomeController@mail');
 
 Route::get('/sertifikat/{peserta}/{jadwal}/{sertifikat}/{email}', 'SertifikatController@show')->name('sertifikat.show');
+Route::get('/sertifikat/cek', 'SertifikatController@cek')->name('sertifikat.cek');
+Route::post('/sertifikat/cek', 'SertifikatController@postCek')->name('sertifikat.cek');
 
 // Route::get('/test-finish', 'JadwalController@testFinish');
 
