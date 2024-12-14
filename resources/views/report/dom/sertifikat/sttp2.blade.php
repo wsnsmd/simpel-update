@@ -290,7 +290,7 @@
             </table>
             @if(!is_null($sertifikat->spesimen2))
             <div id="tt4">
-                <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="200" />
+                <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="150" />
             </div>
             @endif
         </div>
