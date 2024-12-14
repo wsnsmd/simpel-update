@@ -160,7 +160,7 @@
                                         @if(strlen($peserta->pangkat) == 0 || strlen($peserta->golongan) == 0)
                                         -
                                         @else
-                                        {{ $peserta->pangkat }} ({{ strlen($peserta->golongan) }})
+                                        {{ $peserta->pangkat }} ({{ $peserta->golongan }})
                                         @endif
                                         </td>
                                     </tr>
