@@ -108,7 +108,7 @@
                         </li>
                         <li class="nav-main-item">
                             <a class="nav-main-link" href="{{ route('sertifikat.cek') }}">
-                                <i class="nav-main-link-icon fa fa-compass"></i>
+                                <i class="nav-main-link-icon fa fa-address-card"></i>
                                 <span class="nav-main-link-name">Cek Sertifikat</span>
                             </a>
                         </li>
