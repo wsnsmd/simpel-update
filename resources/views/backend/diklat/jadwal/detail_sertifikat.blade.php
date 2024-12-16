@@ -422,7 +422,7 @@
             </div>
             <div class="block-content block-content-full">
                 <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
+                    <table class="table table-bordered table-striped table-vcenter">
                         <thead>
                             <tr>
                                 <th class="font-w700 text-center" style="width: 30px; vertical-align: middle;" rowspan="2">#</th>
@@ -451,10 +451,10 @@
                                     {{ $sp->nomor }}
                                 </td>
                                 @if($isASN)
-                                <td class="font-w600">
+                                <td class="font-w400">
                                     {{ $sp->nip }}
                                 </td>
-                                <td class="font-w600">
+                                <td class="font-w400">
                                     @if($sp->status_asn == 1)
                                         PNS
                                     @elseif($sp->status_asn == 2)
@@ -464,13 +464,13 @@
                                     @endif
                                 </td>
                                 @endif
-                                <td class="font-w600">
+                                <td class="font-w400">
                                     {{ $sp->nama_lengkap }}
                                 </td>
-                                <td class="font-w600">
+                                <td class="font-w400">
                                     {{ $sp->satker_nama }}
                                 </td>
-                                <td class="font-w600">
+                                <td class="font-w400">
                                     {{ $sp->instansi }}
                                 </td>
                                 <td class="font-w600 text-center">
