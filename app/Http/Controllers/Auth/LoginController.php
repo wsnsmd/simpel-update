@@ -101,7 +101,8 @@ class LoginController extends Controller
 
         $request->session()->put('apps_tahun', $request->tahun);
         $instansi = DB::table('instansi')->where('id', $user->instansi_id)->first();
-
+        $tahun = DB::table('tahun')->where('aktif', true)->get();
+        $request->session()->put('apps_tahuns', $tahun);
         $request->session()->put('auth_instansi', $instansi->nama);
     }
 

@@ -73,10 +73,24 @@
 
                     <!-- Right Section -->
                     <div>
-                        <button type="button" class="btn btn-dual mr-1">
-                            <i class="far fa-calendar-check mr-1"></i>
-                            <span class="d-none d-sm-inline-block">Tahun:</span> {{ session('apps_tahun') }}
-                        </button>
+                        <!-- Tahun Dropdown -->
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn btn-dual" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="far fa-calendar-check mr-1"></i>
+                                <span class="d-none d-sm-inline-block">Tahun:</span> {{ session('apps_tahun') }}
+                                <i class="fa fa-fw fa-angle-down ml-1 d-none d-sm-inline-block"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-right p-0" aria-labelledby="page-header-user-dropdown">
+                                <div class="p-2">
+                                    @foreach (session('apps_tahuns', []) as $tahun)
+                                        <a class="dropdown-item tahun-option" href="#" data-tahun="{{ $tahun->tahun }}">
+                                        <i class="far fa-calendar mr-1"></i> Tahun {{ $tahun->tahun }}
+                                    </a>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Tahun Dropdown -->
 
                         <!-- User Dropdown -->
                         <div class="dropdown d-inline-block">
@@ -150,11 +164,34 @@
         </div>
         <!-- END Page Container -->
 
-        <!-- Dashmix Core JS -->
         <script src="{{ asset('js/dashmix.app.js') }}"></script>
-
-        <!-- Laravel Scaffolding JS -->
         <script src="{{ asset('js/laravel.app.js') }}"></script>
+
+        <script>
+            $(document).on('click', '.tahun-option', function(e) {
+                e.preventDefault();
+
+                let tahun = $(this).data('tahun');
+
+                // Kirim AJAX untuk mengubah session
+                $.ajax({
+                    url: "{{ route('ajax.set-tahun') }}",
+                    type: "POST",
+                    data: {
+                        tahun: tahun,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success: function(response) {
+                        console.log(response);
+                        // Reload halaman jika diperlukan
+                        location.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Gagal menyimpan tahun.');
+                    }
+                });
+            });
+        </script>
 
         @yield('js_after')
     </body>

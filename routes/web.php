@@ -393,5 +393,14 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
             return response()->json(null, 200);
         }
     })->name('kalendar');
+
+    Route::post('set-tahun', function (Request $request)
+    {
+        $request->validate([
+            'tahun' => 'required|integer'
+        ]);
+        $request->session()->put('apps_tahun', $request->tahun);
+        return response()->json(['message' => 'Tahun berhasil disimpan', 'tahun' => $request->tahun]);
+    })->name('set-tahun');
 });
 // Ajax Routes
