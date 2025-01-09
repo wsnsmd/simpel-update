@@ -150,7 +150,8 @@ class JadwalController extends Controller
                 'created_at' => $created_at,
                 'created_by' => $created_by,
                 'usergroup' => $usergroup,
-                'var_1' => $request->pola,
+                'var_1' => $request->var_1,
+                'var_2' => $request->pola,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';
@@ -255,7 +256,8 @@ class JadwalController extends Controller
                 'updated_at' => $updated_at,
                 'updated_by' => $updated_by,
                 'usergroup' => $usergroup,
-                'var_1' => $request->pola,
+                'var_1' => $request->var_1,
+                'var_2' => $request->pola,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil diubah!';

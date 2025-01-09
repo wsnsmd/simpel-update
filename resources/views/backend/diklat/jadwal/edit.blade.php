@@ -128,8 +128,8 @@
                         <div class="col-sm-9">
                             <select class="js-select2-min form-control{{ $errors->has('pola') ? ' is-invalid' : '' }}" id="pola" name="pola" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Pola --</option>
-                                <option value="Mandiri" {{ $jadwal->var_1 === 'Mandiri' ? 'selected':'' }}>Mandiri</option>
-                                <option value="Fasilitasi" {{ $jadwal->var_1 === 'Fasilitasi' ? 'selected':'' }}>Fasilitasi</option>
+                                <option value="Mandiri" {{ $jadwal->var_2 === 'Mandiri' ? 'selected':'' }}>Mandiri</option>
+                                <option value="Fasilitasi" {{ $jadwal->var_2 === 'Fasilitasi' ? 'selected':'' }}>Fasilitasi</option>
                             </select>
                             @if ($errors->has('pola'))
                             <div class="invalid-feedback">{{ $errors->first('pola') }}</div>
