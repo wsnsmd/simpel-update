@@ -123,6 +123,19 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        <label class="col-sm-3 col-form-label text-right" for="nama">Pola Penyelenggaraan <span class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <select class="js-select2-min form-control{{ $errors->has('pola') ? ' is-invalid' : '' }}" id="pola" name="pola" style="width: 100%" required>
+                                <option value="" selected>-- Pilih Pola --</option>
+                                <option value="Mandiri">Mandiri</option>
+                                <option value="Fasilitasi">Fasilitasi</option>
+                            </select>
+                            @if ($errors->has('pola'))
+                            <div class="invalid-feedback">{{ $errors->first('pola') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="jenis_diklat">Jenis <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="js-select2-min form-control{{ $errors->has('jenis_diklat') ? ' is-invalid' : '' }}" id="jenis_diklat" name="jenis_diklat" style="width: 100%" required>

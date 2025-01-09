@@ -1,7 +1,7 @@
 @extends('layouts.backend')
 
 @section('css_before')
-    <!-- Page JS Plugins CSS -->    
+    <!-- Page JS Plugins CSS -->
 @endsection
 
 @section('js_after')
@@ -67,6 +67,19 @@
                             <input type="text" class="form-control{{ $errors->has('nama') ? ' is-invalid' : '' }}" id="nama" name="nama" placeholder="Agama..." value="{{ $jenis->nama }}">
                             @if ($errors->has('nama'))
                             <div class="invalid-feedback">{{ $errors->first('nama') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-2 col-form-label text-right" for="aktif">Aktif <span class="text-danger">*</span></label>
+                        <div class="col-sm-10">
+                            <select class="form-control" id="aktif" name="aktif" style="width: 100%;" data-placeholder="-- Pilih aktif --" required>
+                                <option value="">-- Pilih Aktif --</option>
+                                <option value="0" {{ $jenis->aktif == 0 ? 'selected' : ''}}>Tidak</option>
+                                <option value="1" {{ $jenis->aktif == 1 ? 'selected' : ''}}>Ya</option>
+                            </select>
+                            @if ($errors->has('aktif'))
+                            <div class="invalid-feedback">{{ $errors->first('aktif') }}</div>
                             @endif
                         </div>
                     </div>

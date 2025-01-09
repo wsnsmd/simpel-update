@@ -25,6 +25,7 @@
                 <div class="col-12">
                     <label for="nama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
                     <input class="form-control" type="text" id="nama_lengkap" name="nama_lengkap" placeholder="Nama Lengkap..." value="{{ $pegawai['nama_lengkap'] }}" readonly required>
+                    <small class="form-text text-muted">Harap diisi tanpa menyertakan gelar (cth: Budi Suharja, bukan Dr. Budi Suharja, SE).</small>
                 </div>
             </div>
             <div class="form-group form-row">
@@ -36,7 +37,7 @@
                         <option value="P" {{ $pegawai['jk'] == 'P' ? 'selected' : ''}}>Perempuan</option>
                     </select>
                 </div>
-            </div>                                
+            </div>
             <div class="form-group form-row">
                 <div class="col-12">
                     <label for="hp">No. Handphone <span class="text-danger">*</span></label>
@@ -47,11 +48,16 @@
                 <div class="col-12">
                     <label for="email">Email <span class="text-danger">*</span></label>
                     <input class="form-control" type="email" id="email" name="email" placeholder="Email..." value="{{ $pegawai['email'] }}" required>
+                    <small class="form-text text-muted">Harap gunakan email aktif untuk verifikasi.</small>
                 </div>
             </div>
             <div class="form-group">
                 <label for="instansi">Instansi <span class="text-danger">*</span></label>
                 <input class="form-control" type="text" id="instansi" name="instansi" placeholder="Instansi..." value="{{ $pegawai['instansi'] }}" readonly required>
+            </div>
+            <div class="form-group">
+                <label for="instansi">Satuan Kerja (SKPD/OPD)</label>
+                <input class="form-control" type="text" id="satker_nama" name="satker_nama" value="{{ $pegawai['satker_nama'] }}" placeholder="Satuan Kerja..." readonly required>
             </div>
             <div class="form-group">
                 <label for="instansi">Jabatan <span class="text-danger">*</span></label>
@@ -65,7 +71,7 @@
                         Kembali</a>
                     <button type="submit" class="btn btn-sm btn-primary">
                         Lanjut <i class="fa fa-angle-right ml-1"></i>
-                    </button>                                        
+                    </button>
                     <button type="reset" class="btn btn-sm btn-light">
                         Reset
                     </button>
@@ -74,4 +80,4 @@
         </div>
     </form>
     <!-- END Form -->
-@endsection    
+@endsection

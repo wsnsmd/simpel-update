@@ -5,7 +5,7 @@
 @endsection
 
 @section('css_before')
-    <!-- Page JS Plugins CSS -->  
+    <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
@@ -27,16 +27,16 @@
             }
         });
 
-        jQuery(function(){ 
-            Dashmix.helpers(['datepicker', 'maxlength']); 
-            $('#nip').keypress(function(event){	
+        jQuery(function(){
+            Dashmix.helpers(['datepicker', 'maxlength']);
+            $('#nip').keypress(function(event){
                 var keycode = (event.keyCode ? event.keyCode : event.which);
                 if(keycode == '13'){
                     cariNIP();
                 }
                 event.stopPropagation();
             });
-        });   
+        });
 
         @if (session('success'))
         $.notify({
@@ -85,7 +85,7 @@
                         $('#jabatan').val(data.jabatan);
                         $('#instansi').val(data.instansi);
                         $('#instansi').trigger('change');
-                        $('#satker_nama').val(data.satker_nama);				
+                        $('#satker_nama').val(data.satker_nama);
                     },
                     error: function(xhr, textStatus, errorThrown) {
                         var err = JSON.parse(xhr.responseText);
@@ -105,7 +105,7 @@
                         $('#form-peserta').trigger('reset');
                     }
                 });
-            }          
+            }
         }
     </script>
 @endsection
@@ -137,7 +137,7 @@
             <div class="block-content block-content-full border-top">
                 <form id="form-peserta" class="mb-2" action="{{ route('backend.diklat.peserta.store.simple', ['id' => $jadwal->id ]) }}" method="POST" autocomplete="off">
                     @csrf
-                    <h2 class="content-heading pt-0">Data Peserta</h2>                           
+                    <h2 class="content-heading pt-0">Data Peserta</h2>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="nip">NIP</label>
                         <div class="col-sm-9">
@@ -146,16 +146,16 @@
                                     <input type="text" class="js-maxlength form-control{{ $errors->has('nip') ? ' is-invalid' : '' }}" id="nip" name="nip" maxlength="18" placeholder="NIP..." value="{{ old('nip') }}" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary" onclick="cariNIP()">
-                                            <i class="fa fa-search mr-1"></i> 
+                                            <i class="fa fa-search mr-1"></i>
                                         </button>
                                     </div>
                                 </div>
-                            </div>                            
+                            </div>
                             @if ($errors->has('nip'))
                             <div class="invalid-feedback">{{ $errors->first('nip') }}</div>
                             @endif
                         </div>
-                    </div>             
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="status_asn">Status ASN <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -175,7 +175,7 @@
                             <div class="invalid-feedback">{{ $errors->first('nama_lengkap') }}</div>
                             @endif
                         </div>
-                    </div>                
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="jk">Jenis Kelamin <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -187,8 +187,8 @@
                             @if ($errors->has('jk'))
                             <div class="invalid-feedback">{{ $errors->first('jk') }}</div>
                             @endif
-                        </div>                        
-                    </div>              
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="hp">Handphone <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -206,7 +206,7 @@
                             <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                             @endif
                         </div>
-                    </div>                                                                                                    
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="instansi">Instansi <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -215,12 +215,22 @@
                                 @foreach ($instansi as $i)
                                 <option value="{{ $i->nama }}">
                                 @endforeach
-                            </datalist>                            
+                            </datalist>
                             @if ($errors->has('instansi'))
                             <div class="invalid-feedback">{{ $errors->first('instansi') }}</div>
                             @endif
                         </div>
-                    </div>  
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label text-right" for="satker_nama">Satuan Kerja (SKPD/OPD) / Partai <span class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                         <input type="text" class="form-control{{ $errors->has('satker_nama') ? ' is-invalid' : '' }}" id="satker_nama" name="satker_nama" placeholder="Satuan Kerja..." value="{{ old('satker_nama') }}" required>
+                         <small class="form-text text-muted">Jika kosong gunakan karakter tanda hubung (hypen) (-).</small>
+                            @if ($errors->has('satker_nama'))
+                            <div class="invalid-feedback">{{ $errors->first('satker_nama') }}</div>
+                            @endif
+                        </div>
+                    </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="jabatan">Jabatan <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
@@ -228,7 +238,7 @@
                             @if ($errors->has('jabatan'))
                             <div class="invalid-feedback">{{ $errors->first('jabatan') }}</div>
                             @endif
-                        </div>  
+                        </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="sebagai">Sebagai <span class="text-danger">*</span></label>

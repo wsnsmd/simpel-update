@@ -78,7 +78,7 @@ class JadwalController extends Controller
             abort(403);
         }
 
-        $jdiklat = DB::table('diklat_jenis')->orderBy('nama')->get();
+        $jdiklat = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
         $lokasi = DB::table('lokasi')->orderBy('nama')->get();
         $kelas = DB::table('instansi')->orderBy('sort')->get();
 
@@ -94,6 +94,7 @@ class JadwalController extends Controller
 
         $validator = $request->validate([
             'nama' => 'required',
+            'pola' => 'required',
             'jenis_diklat' => 'required',
             'kurikulum' => 'required',
             'lokasi' => 'required',
@@ -149,7 +150,7 @@ class JadwalController extends Controller
                 'created_at' => $created_at,
                 'created_by' => $created_by,
                 'usergroup' => $usergroup,
-                'var_1' => $request->var_1,
+                'var_1' => $request->pola,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';
@@ -180,7 +181,7 @@ class JadwalController extends Controller
                     ->where('tahun', $this->tahun)
                     ->first();
 
-        $jdiklat = DB::table('diklat_jenis')->orderBy('nama')->get();
+        $jdiklat = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
         $lokasi = DB::table('lokasi')->orderBy('nama')->get();
         $kelas = DB::table('instansi')->orderBy('nama')->get();
         $kurikulum = DB::table('kurikulum')->where('id', $jadwal->kurikulum_id)->first();
@@ -194,6 +195,7 @@ class JadwalController extends Controller
 
         $validator = $request->validate([
             'nama' => 'required',
+            'pola' => 'required',
             'jenis_diklat' => 'required',
             'kurikulum' => 'required',
             'lokasi' => 'required',
@@ -253,7 +255,7 @@ class JadwalController extends Controller
                 'updated_at' => $updated_at,
                 'updated_by' => $updated_by,
                 'usergroup' => $usergroup,
-                'var_1' => $request->var_1,
+                'var_1' => $request->pola,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil diubah!';

@@ -411,6 +411,7 @@ class JadwalController extends Controller
                 'email' => $request->email,
                 'jabatan' => $request->jabatan,
                 'instansi' => $request->instansi,
+                'satker_nama' => $request->satker_nama ?? '-',
                 'diklat_jadwal_id' => $jadwal->id,
                 'token' => $token,
                 'status_asn' => $status_asn,

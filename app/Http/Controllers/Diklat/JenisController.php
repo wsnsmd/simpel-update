@@ -18,7 +18,7 @@ class JenisController extends Controller
 
         $this->user = Auth::user();
     }
-    
+
     /**
      * Display a listing of the resource.
      *
@@ -38,7 +38,7 @@ class JenisController extends Controller
      */
     public function create()
     {
-        if (Gate::denies('isUser')) 
+        if (Gate::denies('isUser'))
         {
             abort(403);
         }
@@ -54,23 +54,25 @@ class JenisController extends Controller
      */
     public function store(Request $request)
     {
-        if (Gate::denies('isUser')) 
+        if (Gate::denies('isUser'))
         {
             abort(403);
         }
-        
+
         $validator = $request->validate([
             'id' => 'required|unique:diklat_jenis',
             'nama' => 'required',
+            'aktif' => 'required'
         ]);
 
-        try 
+        try
         {
             $usergroup = Auth::user()->usergroup;
 
             DB::table('diklat_jenis')->insert([
                 'id' => $request->id,
                 'nama' => $request->nama,
+                'aktif' => $request->aktif,
                 'usergroup' => $usergroup,
             ]);
 
@@ -78,13 +80,13 @@ class JenisController extends Controller
 
             if(isset($request->add))
                 return redirect()->route('backend.diklat.jenis.index')->with('success', $notifikasi);
-            
-            return redirect()->back()->with('success', $notifikasi); 
+
+            return redirect()->back()->with('success', $notifikasi);
         }
         catch(\Exception $e)
         {
             $notifikasi = 'Data jenis diklat gagal ditambahkan!';
-            return redirect()->back()->with('error', $notifikasi); 
+            return redirect()->back()->with('error', $notifikasi);
         }
     }
 
@@ -121,22 +123,24 @@ class JenisController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {        
+    {
         $this->checkAuth($id);
 
         $validator = $request->validate([
             'id' => 'required' . ($request->id != $id ? '|unique:diklat_jenis' : ''),
             'nama' => 'required',
+            'aktif' => 'required'
         ]);
 
-        try 
+        try
         {
             $usergroup = Auth::user()->usergroup;
 
             DB::table('diklat_jenis')->where('id', $id)->update([
                 'id' => $request->id,
                 'nama' => $request->nama,
-                'usergroup' => $usergroup,
+                'aktif' => $request->aktif,
+                'usergroup' => $usergroup
             ]);
 
             $notifikasi = 'Data jenis diklat berhasil diubah!';
@@ -145,7 +149,7 @@ class JenisController extends Controller
         catch(\Exception $e)
         {
             $notifikasi = 'Data jenis diklat gagal diubah!';
-            return redirect()->back()->with('error', $notifikasi); 
+            return redirect()->back()->with('error', $notifikasi);
         }
     }
 
@@ -188,7 +192,7 @@ class JenisController extends Controller
         {
             return true;
         }
-        
+
         abort(403);
     }
 }

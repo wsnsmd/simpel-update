@@ -165,6 +165,7 @@ class PesertaController extends Controller
             'hp' => 'required',
             'email' => 'required|email',
             'jabatan' => 'required',
+            'satker_nama' => 'required',
             'instansi' => 'required',
             'sebagai' => 'required',
         ]);
@@ -205,6 +206,7 @@ class PesertaController extends Controller
                 'email' => $request->email,
                 'jabatan' => $request->jabatan,
                 'instansi' => $request->instansi,
+                'satker_nama' => $request->satker_nama,
                 'diklat_jadwal_id' => $jadwal->id,
                 'verifikasi' => true,
                 'konfirmasi' => true,
@@ -376,6 +378,7 @@ class PesertaController extends Controller
             'hp' => 'required',
             'email' => 'required|email',
             'jabatan' => 'required',
+            'satker_nama' => 'required',
             'instansi' => 'required',
             'sebagai' => 'required',
         ]);
@@ -395,6 +398,7 @@ class PesertaController extends Controller
                 'email' => $request->email,
                 'jabatan' => $request->jabatan,
                 'instansi' => $request->instansi,
+                'satker_nama' => $request->satker_nama,
                 'status_asn' => $request->status_asn,
                 'sebagai' => $request->sebagai,
                 'updated_at' => $updated_at,
