@@ -64,7 +64,7 @@ class KurikulumController extends Controller
             abort(403);
         }
 
-        $jdiklat = DB::table('diklat_jenis')->orderBy('nama')->get();
+        $jdiklat = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
 
         return view('backend.diklat.kurikulum.create', compact('jdiklat'));
     }
@@ -137,7 +137,7 @@ class KurikulumController extends Controller
         $this->checkAuth($id);
 
         $kurikulum = DB::table('kurikulum')->where('id', $id)->first();
-        $jdiklat = DB::table('diklat_jenis')->orderBy('nama')->get();
+        $jdiklat = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
 
         return view('backend.diklat.kurikulum.edit', compact('jdiklat', 'kurikulum'));
     }
@@ -162,14 +162,13 @@ class KurikulumController extends Controller
 
         try
         {
-            $usergroup = Auth::user()->usergroup;
+            // $usergroup = Auth::user()->usergroup;
 
             DB::table('kurikulum')->where('id', $id)->update([
                 'diklat_jenis_id' => $request->j_diklat,
                 'nama' => $request->nama,
                 'jenis_belajar' => $request->j_belajar,
                 'total_jp' => $request->jp,
-                'usergroup' => $usergroup,
             ]);
 
             $notifikasi = 'Data kurikulum berhasil diubah!';
