@@ -150,7 +150,7 @@ class JadwalController extends Controller
         if($request->status != 0)
         {
             $validator = $request->validate([
-                'nip' => 'required|min:18|max:18',
+                'nip' => 'required|digits:18|numeric',
             ]);
 
             $peserta = DB::table('peserta')

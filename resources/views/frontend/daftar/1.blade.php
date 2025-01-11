@@ -1,8 +1,8 @@
 @extends('frontend.daftar._index')
 
 @section('js_sub')
-    <script>        
-        jQuery(document).ready(function () { 
+    <script>
+        jQuery(document).ready(function () {
             $('#status').on('change', function () {
                 var status = $('#status').val();
                 if(status == 1 || status == 2) {
@@ -48,7 +48,7 @@
             <div id="div-nip" class="d-none">
                 <div class="form-group">
                     <label for="nip">NIP tanpa spasi</label>
-                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi" minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary" required>
+                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi" minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary" required pattern="\d{18}">
                 </div>
             </div>
         </div>
@@ -57,7 +57,7 @@
                 <div class="col-12">
                     <button type="submit" class="btn btn-sm btn-primary">
                         Lanjut <i class="fa fa-angle-right ml-1"></i>
-                    </button>                                        
+                    </button>
                     <button type="reset" class="btn btn-sm btn-light">
                         Reset
                     </button>
@@ -66,4 +66,4 @@
         </div>
     </form>
     <!-- END Form -->
-@endsection    
+@endsection
