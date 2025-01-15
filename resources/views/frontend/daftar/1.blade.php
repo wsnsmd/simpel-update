@@ -11,7 +11,7 @@
                 }
                 else {
                     $('#div-nip').addClass('d-none');
-                    $('#nip').val('0');
+                    $('#nip').val('000000000000000000');
                 }
             })
         })
@@ -48,7 +48,7 @@
             <div id="div-nip" class="d-none">
                 <div class="form-group">
                     <label for="nip">NIP tanpa spasi</label>
-                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi" minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary" required pattern="\d{18}">
+                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi" minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary" pattern="\d{18}" required>
                 </div>
             </div>
         </div>
