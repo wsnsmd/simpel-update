@@ -679,6 +679,7 @@ class SertifikatController extends Controller
                 ]);
 
                 $job = new UploadSimpegJob($pes, $jadwal, $sertifikat, $jenis, $kategori, $sub, $url_sertifikat);
+                $job->delay(now()->addSeconds(5));
                 $this->dispatch($job);
 
                 // $at = date('Y-m-d H:i:s');
