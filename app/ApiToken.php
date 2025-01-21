@@ -8,5 +8,5 @@ class ApiToken extends Model
 
 {
     protected $table = 'api_tokens';
-    protected $fillable = ['app_name', 'token'];
+    protected $fillable = ['app_name', 'token', 'type', 'expires_at'];
 }

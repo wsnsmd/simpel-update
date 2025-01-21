@@ -60,7 +60,7 @@ class ApiTokenController extends Controller
 
     public function edit($id)
     {
-        $apiToken = ApiToken::findOrFail($id);
+        $apiToken = ApiToken::where('id', $id)->where('type', true)->firstOrFail();
 
         return view('backend.pengaturan.apitoken.edit', compact('apiToken'));
     }

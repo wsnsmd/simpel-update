@@ -162,6 +162,7 @@
                                 <td class="font-w600">{{ $at->token }}</td>
                                 <td class="font-w600">{{ $at->ip_address }}</td>
                                 <td class="text-center">
+                                    @if($at->type)
                                     <form action="{{ route('backend.apitoken.destroy', $at->id) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
@@ -174,6 +175,7 @@
                                             </a>
                                         </div>
                                     </form>
+                                    @endif
                                 </td>
                             </tr>
                             @endforeach

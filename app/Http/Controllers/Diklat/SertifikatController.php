@@ -16,6 +16,7 @@ use App\Jobs\KirimEmailSertifikatJob;
 use GuzzleHttp\Client;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use App\ApiToken;
 
 use App;
 use DB;
@@ -742,9 +743,10 @@ class SertifikatController extends Controller
 
     public function simasnKategori($id)
     {
+        $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
         $client = new Client(['http_errors' => false, 'verify' => false]);
         $headers = [
-            'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            'Authorization' => 'Bearer ' . $tokenData->token
         ];
 
         $request = $client->get(env('SIMASN_KATEGORI'), ['headers' => $headers, 'timeout' => 120]);
@@ -770,9 +772,10 @@ class SertifikatController extends Controller
 
     public function simasnSubKategori()
     {
+        $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
         $client = new Client(['http_errors' => false, 'verify' => false]);
         $headers = [
-            'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            'Authorization' => 'Bearer ' . $tokenData->token
         ];
 
         $request = $client->get(env('SIMASN_SUBKATEGORI'), ['headers' => $headers, 'timeout' => 120]);

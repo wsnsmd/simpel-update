@@ -7,7 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-
+use App\ApiToken;
 use GuzzleHttp\Client;
 
 use DB;
@@ -51,8 +51,9 @@ class UploadSimpegJob implements ShouldQueue
      */
     public function handle()
     {
+        $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
         $headers = [
-            'Authorization' => 'Bearer ' . env('SIMASN_BEARER')
+            'Authorization' => 'Bearer ' . $tokenData->token
         ];
         $url = env('SIMASN_KIRIM_DIKLAT');
 
