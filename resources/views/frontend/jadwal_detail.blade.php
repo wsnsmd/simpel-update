@@ -1,7 +1,7 @@
 @extends('layouts.frontend')
 
 @section('css_before')
-    <!-- Page JS Plugins CSS -->  
+    <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
 @endsection
@@ -14,8 +14,8 @@
     <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
 
     <script>
-        jQuery(function() { 
-            Dashmix.helpers(['datepicker']); 
+        jQuery(function() {
+            Dashmix.helpers(['datepicker']);
                 // Override a few default classes
                 jQuery.extend(jQuery.fn.dataTable.ext.classes, {
                 sWrapper: "dataTables_wrapper dt-bootstrap4",
@@ -104,8 +104,8 @@
                             @if(!is_null($jadwal->lampiran))
                             <li class="nav-item">
                                 <a class="nav-link" href="#lampiran"><i class="fa fa-file-download mr-2"></i>Lampiran</a>
-                            </li> 
-                            @endif                           
+                            </li>
+                            @endif
                         </ul>
                         <div class="block-content tab-content overflow-hidden">
                             <div class="tab-pane fade active show" id="daftar-peserta" role="tabpanel">
@@ -129,7 +129,7 @@
                                                         $count = strlen($p->nip) - 8;
                                                         $output = substr_replace($p->nip, str_repeat('*', $count), 2, $count);
                                                     }
-                                                    else 
+                                                    else
                                                     {
                                                         $output = '-';
                                                     }
@@ -158,8 +158,8 @@
                             <div class="tab-pane fade" id="lampiran" role="tabpanel">
                                 {{-- {!! $jadwal->lampiran !!} --}}
                                 <a href="{{ asset(\Storage::url($jadwal->lampiran)) }}" class="btn btn-square btn-primary mb-3" target="_blank"><i class="fa fa-download mr-1"></i> Unduh Lampiran</a>
-                            </div>                           
-                            @endif                             
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -190,13 +190,13 @@
                                     <tr>
                                         <td class="font-w700">Kuota</td>
                                         <td>{{$jadwal->kuota}} Peserta</td>
-                                    </tr>            
+                                    </tr>
                                     <tr>
                                         <td class="font-w700">Registrasi</td>
                                         <td>
                                             @switch($jadwal->registrasi)
                                             @case(0)
-                                                <span class="badge badge-warning">Internal</span>                                                    
+                                                <span class="badge badge-warning">Internal</span>
                                                 @break
                                             @case(1)
                                                 <span class="badge badge-primary">Online</span>
@@ -205,13 +205,13 @@
                                                 <span class="badge badge-warning">Internal</span>
                                             @endswitch
                                         </td>
-                                    </tr>                                                              
+                                    </tr>
                                     <tr>
                                         <td class="font-w700">Status</td>
                                         <td>
                                             @switch($jadwal->status_jadwal)
                                             @case(1)
-                                                <span class="badge badge-success">Berjalan</span>                                                    
+                                                <span class="badge badge-success">Berjalan</span>
                                                 @break
                                             @case(2)
                                                 <span class="badge badge-primary">Akan Datang</span>
@@ -220,10 +220,10 @@
                                                 <span class="badge badge-danger">Selesai</span>
                                             @endswitch
                                         </td>
-                                    </tr>                                
+                                    </tr>
                                 </tbody>
                             </table>
-                            @if($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
+                            @if($jadwal->status_registrasi == true && $jadwal->registrasi_lengkap == true && $jadwal->kuota > count($peserta))
                             <form action="{{ route('jadwal.daftar') }}" method="POST">
                                 @csrf
                                 <input type="hidden" id="jadwal_id" name="jadwal_id" value="{{$jadwal->id}}">
@@ -248,4 +248,4 @@
             </div>
         </div>
     </div>
-@endsection    
+@endsection
