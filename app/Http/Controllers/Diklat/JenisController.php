@@ -14,7 +14,7 @@ class JenisController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
-        $this->middleware('can:isUser');
+        $this->middleware('can:isAdmin');
 
         $this->user = Auth::user();
     }

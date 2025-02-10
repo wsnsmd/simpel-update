@@ -46,7 +46,7 @@
                 dom: "<'row'<'col-sm-12'tr>><'row'<'col-sm-6'i><'col-sm-6'p>>"
             });
 
-            $('[data-toggle="tooltip"]').tooltip();   
+            $('[data-toggle="tooltip"]').tooltip();
         });
 
         @if (session('success'))
@@ -85,12 +85,12 @@
                         }
                     });
 
-            e.fire({   
-                title: 'Apakah anda yakin',   
-                text: 'Anda tidak akan dapat mengembalikan data anda',   
-                type: 'warning',   
+            e.fire({
+                title: 'Apakah anda yakin',
+                text: 'Anda tidak akan dapat mengembalikan data anda',
+                type: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya',  
+                confirmButtonText: 'Ya',
                 cancelButtonText: 'Tidak',
                 customClass: {
                     confirmButton: "btn btn-danger m-1",
@@ -135,12 +135,12 @@
             <div class="block-header">
                 <h3 class="block-title">Jenis</h3>
             </div>
-            <div class="block-content block-content-full">            
+            <div class="block-content block-content-full">
                 <table class="table table-bordered table-striped table-vcenter js-dataTable-simple">
                     <thead>
                         <tr>
                             <th class="text-center" style="width: 80px;">ID</th>
-                            <th>Nama</th>
+                            <th>Kompetensi</th>
                             <th style="width: 1%;">Aksi</th>
                         </tr>
                     </thead>
@@ -155,19 +155,19 @@
                                 <form action="{{ route('backend.diklat.jenis.destroy', $j->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <div class="btn-group">  
-                                        @can('isCreator', $j)                                  
+                                    <div class="btn-group">
+                                        @can('isCreator', $j)
                                         <a href="{{ route('backend.diklat.jenis.edit', $j->id) }}" class="btn btn-sm btn-primary" title="Edit">
                                             <i class="fa fa-pencil-alt"></i>
                                         </a>
                                         <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger" title="Hapus">
                                             <i class="far fa-trash-alt"></i>
-                                        </a>          
-                                        @endcan                        
+                                        </a>
+                                        @endcan
                                     </div>
                                 </form>
                             </td>
-                        </tr>                            
+                        </tr>
                         @endforeach
                     </tbody>
                 </table>

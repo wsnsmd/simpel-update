@@ -46,7 +46,7 @@
         <!-- Dynamic Table Full -->
         <div class="block block-rounded block-bordered block-fx-shadow block-themed">
             <div class="block-header block-header-default">
-                <h3 class="block-title">Jenis - Edit Data</h3>
+                <h3 class="block-title">Kompetensi - Edit Data</h3>
             </div>
             <div class="block-content block-content-full">
                 <form class="mb-2" action="{{ route('backend.diklat.jenis.update', $jenis->id) }}" method="POST">
@@ -62,9 +62,9 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-2 col-form-label text-right" for="nama">Jenis Pelatihan <span class="text-danger">*</span></label>
+                        <label class="col-sm-2 col-form-label text-right" for="nama">Kompetensi <span class="text-danger">*</span></label>
                         <div class="col-sm-10">
-                            <input type="text" class="form-control{{ $errors->has('nama') ? ' is-invalid' : '' }}" id="nama" name="nama" placeholder="Agama..." value="{{ $jenis->nama }}">
+                            <input type="text" class="form-control{{ $errors->has('nama') ? ' is-invalid' : '' }}" id="nama" name="nama" placeholder="Kompetensi..." value="{{ $jenis->nama }}">
                             @if ($errors->has('nama'))
                             <div class="invalid-feedback">{{ $errors->first('nama') }}</div>
                             @endif

@@ -3,7 +3,7 @@
         <tr>
             <th class="font-w700 text-center">#</th>
             <th class="font-w700">Nama Pelatihan</th>
-            <th class="font-w700 text-center">Jenis Pelatihan</th>
+            <th class="font-w700 text-center">Kompetensi</th>
             <th class="font-w700 text-center">Tanggal Pelatihan</th>
             <th class="font-w700 text-center">Kelas</th>
             <th class="font-w700 text-center">Kuota</th>

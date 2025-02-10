@@ -25,7 +25,7 @@ class JadwalController extends Controller
     public function index()
     {
         //
-        $jenis = DB::table('diklat_jenis')->orderBy('nama')->get();
+        $jenis = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
         $jadwal = DB::table('v_front_jadwal')
                     //->where('tahun', $this->tahun)
                     ->where('status_jadwal', '<', 3)

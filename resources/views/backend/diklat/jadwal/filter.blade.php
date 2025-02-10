@@ -3,7 +3,7 @@
         <tr>
             <th class="text-center" style="width: 80px;">#</th>
             <th>Nama</th>
-            <th>Jenis Pelatihan</th>
+            <th>Kompetensi</th>
             <th>Tanggal Pelatihan</th>
             <th>Kelas</th>
             <th>Kuota (Peserta)</th>

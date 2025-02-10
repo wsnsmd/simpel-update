@@ -90,6 +90,26 @@
                     </li>
                 </ul>
             </li>
+            <li class="nav-main-item{{ request()->routeIs('backend.diklat.jenis*') ? ' open' : '' }}">
+                <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
+                    <i class="nav-main-link-icon fa fa-tags"></i>
+                    <span class="nav-main-link-name">Kompetensi</span>
+                </a>
+                <ul class="nav-main-submenu">
+                    <li class="nav-main-item">
+                        <a class="nav-main-link{{ request()->routeIs('backend.diklat.jenis.create') ? ' active' : '' }}" href="{{ route('backend.diklat.jenis.create') }}">
+                            <i class="nav-main-link-icon fa fa-plus"></i>
+                            <span class="nav-main-link-name">Tambah</span>
+                        </a>
+                    </li>
+                    <li class="nav-main-item">
+                        <a class="nav-main-link{{ request()->routeIs('backend.diklat.jenis.index') ? ' active' : '' }}" href="{{ route('backend.diklat.jenis.index') }}">
+                            <i class="nav-main-link-icon fa fa-list-alt"></i>
+                            <span class="nav-main-link-name">Data</span>
+                        </a>
+                    </li>
+                </ul>
+            </li>
             <li class="nav-main-item{{ request()->routeIs('backend.master.lokasi*') ? ' open' : '' }}">
                 <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
                     <i class="nav-main-link-icon fa fa-location-arrow"></i>
@@ -188,26 +208,6 @@
                     <li class="nav-main-item">
                         <a class="nav-main-link{{ request()->routeIs('backend.diklat.fasilitator.index') ? ' active' : '' }}" href="{{ route('backend.diklat.fasilitator.index') }}">
                             <i class="nav-main-link-icon fa fa-list"></i>
-                            <span class="nav-main-link-name">Data</span>
-                        </a>
-                    </li>
-                </ul>
-            </li>
-            <li class="nav-main-item{{ request()->routeIs('backend.diklat.jenis*') ? ' open' : '' }}">
-                <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
-                    <i class="nav-main-link-icon fa fa-tags"></i>
-                    <span class="nav-main-link-name">Jenis</span>
-                </a>
-                <ul class="nav-main-submenu">
-                    <li class="nav-main-item">
-                        <a class="nav-main-link{{ request()->routeIs('backend.diklat.jenis.create') ? ' active' : '' }}" href="{{ route('backend.diklat.jenis.create') }}">
-                            <i class="nav-main-link-icon fa fa-plus"></i>
-                            <span class="nav-main-link-name">Tambah</span>
-                        </a>
-                    </li>
-                    <li class="nav-main-item">
-                        <a class="nav-main-link{{ request()->routeIs('backend.diklat.jenis.index') ? ' active' : '' }}" href="{{ route('backend.diklat.jenis.index') }}">
-                            <i class="nav-main-link-icon fa fa-list-alt"></i>
                             <span class="nav-main-link-name">Data</span>
                         </a>
                     </li>

@@ -136,10 +136,10 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="jenis_diklat">Jenis <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="jenis_diklat">Kompetensi <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="js-select2-min form-control{{ $errors->has('jenis_diklat') ? ' is-invalid' : '' }}" id="jenis_diklat" name="jenis_diklat" style="width: 100%" required>
-                                <option value="" selected>-- Pilih Jenis Pelatihan --</option>
+                                <option value="" selected>-- Pilih Kompetensi --</option>
                                 @foreach ($jdiklat as $jd)
                                 <option value="{{ $jd->id }}" {{ old('jenis_diklat') == $jd->id ? "selected":"" }}>{{ $jd->nama }}</option>
                                 @endforeach

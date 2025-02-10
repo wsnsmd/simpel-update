@@ -40,7 +40,7 @@
                                 <td>{{$jadwal->tahun}}</td>
                             </tr>
                             <tr>
-                                <td class="font-w700 text-right">Jenis Pelatihan:</td>
+                                <td class="font-w700 text-right">Kompetensi:</td>
                                 <td>{{$jadwal->jenis}}</td>
                             </tr>
                             <tr>
@@ -50,7 +50,7 @@
                             <tr>
                                 <td class="font-w700 text-right">Kelas:</td>
                                 <td>{{$jadwal->kelas}}</td>
-                            </tr>                                    
+                            </tr>
                             <tr>
                                 <td class="font-w700 text-right">Tanggal Pelatihan:</td>
                                 <td>{{$jadwal->tgl_awal}} s/d {{$jadwal->tgl_akhir}}</td>
@@ -87,11 +87,11 @@
                             </tr>
                         </tbody>
                     </table>
-                </div>       
+                </div>
             </div>
         </div>
         <!-- END Dynamic Table Full -->
 
     </div>
-    <!-- END Page Content -->     
+    <!-- END Page Content -->
 @endsection
