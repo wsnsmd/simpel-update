@@ -259,8 +259,6 @@ class JadwalController extends Controller
                             else if($data_pegawai['jenis_asn'] == 'pppk')
                                 session(['status_asn' => 2]);
 
-                            dd(session('status_asn'));
-
                             $pegawai = array(
                                 'nip' => $data_pegawai['nip'],
                                 'nik' => $data_pegawai['nik'],
