@@ -57,7 +57,7 @@ class UploadSimpegJob implements ShouldQueue
         ];
         $url = env('SIMASN_KIRIM_DIKLAT');
 
-        $client = new \GuzzleHttp\Client();
+        $client = new Client();
         $res = $client->get($this->url_sertifikat);
         $content = $res->getBody()->getContents();
         // $content = (string) $res->getBody();

@@ -9,6 +9,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Mail\DaftarMailable;
 use App\Mail\VerifikasiWaitMailable;
+use App\ApiToken;
 use App\Jobs\EmailDaftarHadirJob;
 use App\Jobs\EmailKonfirmasiJob;
 use App\Jobs\EmailVerifikasiWaitJob;
@@ -196,33 +197,51 @@ class JadwalController extends Controller
 
         if(session('instansi') == 1)
         {
-            if(session('status_asn') == 1)
+            if(session('status_asn') == 1 or session('status_asn') == 2)
             {
                 $instansi = DB::table('instansi')->where('id', 1)->first();
                 $id = session('nip');
-                $client = new Client(['http_errors' => false, 'verify' => false]);
+                $client = new Client(['http_errors' => true, 'verify' => false]);
 
                 try
                 {
-                    $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
+                    // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
+                    $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
+                    $headers = [
+                        'Authorization' => 'Bearer ' . $tokenData->token,
+                        'Accept' => 'application/json'
+                    ];
+                    $url_pegawai = env('SIMASN_PEGAWAI') . $id;
+                    $req_pegawai = $client->get($url_pegawai, [
+                        'headers' => $headers
+                    ]);
+                    // $content = $req_pegawai->getBody()->getContents();
 
                     if($req_pegawai->getStatusCode() == 200)
                     {
                         $res_pegawai = $req_pegawai->getBody();
                         $data_pegawai = json_decode($res_pegawai, true);
 
-                        if($data_pegawai['status']['kode'] != 200)
+                        if(!$data_pegawai['success'])
                             return redirect()->back()->with('error', $data_pegawai['keterangan']);
 
                         //$req_satker = $client->get(env('SIMPEG_SATKER') . $data_pegawai['id_skpd'] . '/?api_token=' . env('SIMPEG_KEY'));
-                        $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $data_pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
+                        // $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $data_pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
+                        $url_opd = env('SIMASN_LISTOPD');
+                        $req_satker = $client->get($url_opd, [
+                            'headers' => $headers
+                        ]);
 
                         if($req_satker->getStatusCode() == 200)
                         {
                             $res_satker = $req_satker->getBody();
                             $satker = json_decode($res_satker, true);
+                            $data_pegawai = $data_pegawai['data'];
+                            $data_opd = $satker['data'];
+                            $col_opd = collect($data_opd);
+                            $opd = $col_opd->firstWhere('id', $data_pegawai['opd_id']);
 
-                            $nama_lengkap = $data_pegawai['nama'];
+                            $nama_lengkap = $data_pegawai['nama_non_gelar'];
                             $tmp_nama = explode(' ', $nama_lengkap);
                             $singkat = '';
 
@@ -233,28 +252,35 @@ class JadwalController extends Controller
                             }
 
                             $nama = $tmp_nama[0] . ' ' . $singkat;
-
                             $instansi = DB::table('instansi')->where('id', 1)->first();
 
+                            if($data_pegawai['jenis_asn'] == 'pns')
+                                session(['status_asn' => 1]);
+                            else if($data_pegawai['jenis_asn'] == 'pppk')
+                                session(['status_asn' => 2]);
+
+                            dd(session('status_asn'));
+
                             $pegawai = array(
-                                'nip' => $data_pegawai['nip_baru'],
+                                'nip' => $data_pegawai['nip'],
                                 'nik' => $data_pegawai['nik'],
                                 'nama_lengkap' => $nama_lengkap,
                                 'nama' => $nama,
-                                'telp' => $data_pegawai['no_hape'],
+                                'telp' => $data_pegawai['hp'],
                                 'email' => $data_pegawai['email'],
                                 'tmp_lahir' => $data_pegawai['tempat_lahir'],
                                 'tgl_lahir' => $data_pegawai['tgl_lahir'],
-                                'jk' => simpegJK($data_pegawai['id_jenis_kelamin']),
-                                'agama' => $data_pegawai['id_agama'],
-                                'marital' => $data_pegawai['id_status_nikah'],
+                                'jk' => simpegJK($data_pegawai['jk']),
+                                'agama' => $data_pegawai['agama'],
+                                // 'marital' => $data_pegawai['status_kepegawaian'],
+                                'marital' => null,
                                 'alamat' => $data_pegawai['alamat'],
                                 'jabatan' => $data_pegawai['jabatan'],
-                                'pangkat' => $data_pegawai['id_golongan'],
+                                'pangkat' => $data_pegawai['golongan_id'],
                                 'instansi' => $instansi->nama,
-                                'satker_nama' => $satker['unit_kerja'][0]['skpd'],
-                                'satker_telp' => $satker['unit_kerja'][0]['no_telp'],
-                                'satker_alamat' => $satker['unit_kerja'][0]['alamat_skpd'],
+                                'satker_nama' => $opd['opd'],
+                                'satker_telp' => $opd['telp'],
+                                'satker_alamat' => $opd['alamat'],
                             );
 
                             if($jadwal->registrasi_lengkap)
@@ -264,7 +290,7 @@ class JadwalController extends Controller
                         }
                     }
                 }
-                catch(Exception $ex)
+                catch(\Exception $ex)
                 {
                     $notifikasi = 'Terjadi kesalahan, mohon cek kembali NIP Pegawai!';
 
