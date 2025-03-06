@@ -188,7 +188,12 @@ class JadwalController extends Controller
 
         $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
         $agama = DB::table('agama')->get();
-        $pangkat = DB::table('pangkat')->where('pangkat', '=', 'Non-ASN')->get();
+        if(session('status_asn') == 1)
+            $pangkat = DB::table('pangkat')->where('pangkat', '<>', 'PPPK')->where('pangkat', '<>', 'Non-ASN')->get();
+        else if(session('status_asn') == 2)
+            $pangkat = DB::table('pangkat')->where('pangkat', '=', 'PPPK')->get();
+        else
+            $pangkat = DB::table('pangkat')->where('pangkat', '=', 'Non-ASN')->get();
 
         if(session('instansi') == 1)
         {
