@@ -77,6 +77,7 @@
                     success: function(data) {
                         // console.log(data);
                         $('#ktp').val(data.nik);
+                        $('#status_asn').val(data.status_asn);
                         $('#nama_lengkap').val(data.nama_lengkap);
                         $('#nama_panggil').val(data.nama);
                         $('#hp').val(data.telp);

@@ -274,7 +274,7 @@ class JadwalController extends Controller
                                 'marital' => null,
                                 'alamat' => $data_pegawai['alamat'],
                                 'jabatan' => $data_pegawai['jabatan'],
-                                'pangkat' => $data_pegawai['golongan_id'],
+                                'pangkat' => konversiGolongan($data_pegawai['golongan_id'], $data_pegawai['jenis_asn']),
                                 'instansi' => $instansi->nama,
                                 'satker_nama' => $opd['opd'],
                                 'satker_telp' => $opd['telp'],

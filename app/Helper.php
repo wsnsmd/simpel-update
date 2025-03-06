@@ -326,4 +326,29 @@ function simpegAgama($data)
     }
 }
 
+function konversiGolongan($golongan, $status_asn)
+{
+    $mapping_golongan_pppk = [
+        11 => 101, 12 => 102, 13 => 103, 14 => 104,
+        21 => 105, 22 => 106, 23 => 107, 24 => 108,
+        31 => 109, 32 => 110, 33 => 111, 34 => 112,
+        41 => 113, 42 => 114, 43 => 115, 44 => 116, 45 => 117
+    ];
+
+        // Jika ASN adalah PNS, langsung kembalikan nilai
+    if ($status_asn == 'pns') {
+        return $golongan;
+    }
+
+    // Jika input adalah array, lakukan mapping untuk setiap nilai
+    if (is_array($golongan)) {
+        return array_map(function($val) use ($mapping_golongan_pppk) {
+            return $mapping_golongann_pppk[$val] ?? $val;
+        }, $golongan);
+    }
+
+    // Jika input adalah satu nilai, langsung lakukan mapping
+    return $mapping_golongan_pppk[$golongan] ?? $golongan;
+}
+
 ?>

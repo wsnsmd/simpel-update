@@ -1,8 +1,10 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\RandomColor;
+use App\ApiToken;
 
 /*
 |--------------------------------------------------------------------------
@@ -240,22 +242,42 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
 
         try
         {
-            $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
+            // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
+            $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
+            $headers = [
+                'Authorization' => 'Bearer ' . $tokenData->token,
+                'Accept' => 'application/json'
+            ];
+            $url_pegawai = env('SIMASN_PEGAWAI') . $id;
+            $req_pegawai = $client->get($url_pegawai, [
+                'headers' => $headers
+            ]);
 
             if($req_pegawai->getStatusCode() == 200)
             {
                 $res_pegawai = $req_pegawai->getBody();
                 $pegawai = json_decode($res_pegawai, true);
+                if(!$pegawai['success'])
+                    return redirect()->back()->with('error', $pegawai['keterangan']);
 
-                $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
+                // $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
+                $url_opd = env('SIMASN_LISTOPD');
+                $req_satker = $client->get($url_opd, [
+                    'headers' => $headers
+                ]);
 
                 if($req_satker->getStatusCode() == 200)
                 {
                     $res_satker = $req_satker->getBody();
                     $satker = json_decode($res_satker, true);
+                    $pegawai = $pegawai['data'];
+                    $data_opd = $satker['data'];
+                    $col_opd = collect($data_opd);
+                    $opd = $col_opd->firstWhere('id', $pegawai['opd_id']);
+
                     $instansi = DB::table('instansi')->where('id', 1)->first();
 
-                    $nama_lengkap = $pegawai['nama'];
+                    $nama_lengkap = $pegawai['nama_non_gelar'];
                     $tmp_nama = explode(' ', $nama_lengkap);
                     $singkat = '';
 
@@ -266,26 +288,31 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
                     }
 
                     $nama = $tmp_nama[0] . ' ' . $singkat;
+                    $statusMapping = [
+                        'pns' => 1,
+                        'pppk' => 2,
+                    ];
 
                     $arr_pegawai = array(
-                        'nip' => $pegawai['nip_baru'],
+                        'status_asn' => $statusMapping[$pegawai['jenis_asn']] ?? null,
+                        'nip' => $pegawai['nip'],
                         'nik' => $pegawai['nik'],
                         'nama_lengkap' => $nama_lengkap,
                         'nama' => $nama,
-                        'telp' => $pegawai['no_hape'],
+                        'telp' => $pegawai['hp'],
                         'email' => $pegawai['email'],
                         'tmp_lahir' => $pegawai['tempat_lahir'],
                         'tgl_lahir' => $pegawai['tgl_lahir'],
-                        'jk' => simpegJK($pegawai['id_jenis_kelamin']),
-                        'agama' => $pegawai['id_agama'],
-                        'marital' => $pegawai['id_status_nikah'],
+                        'jk' => simpegJK($pegawai['jk']),
+                        'agama' => $pegawai['agama'],
+                        // 'marital' => $pegawai['id_status_nikah'],
                         'alamat' => $pegawai['alamat'],
                         'jabatan' => $pegawai['jabatan'],
-                        'pangkat' => $pegawai['id_golongan'],
+                        'pangkat' => konversiGolongan($pegawai['golongan_id'], $pegawai['jenis_asn']),
                         'instansi' => $instansi->nama,
-                        'satker_nama' => $satker['unit_kerja'][0]['skpd'],
-                        'satker_telp' => $satker['unit_kerja'][0]['no_telp'],
-                        'satker_alamat' => $satker['unit_kerja'][0]['alamat_skpd'],
+                        'satker_nama' => $opd['opd'],
+                        'satker_telp' => $opd['telp'],
+                        'satker_alamat' => $opd['alamat'],
                     );
 
                     foreach($arr_pegawai as $key => $value) {
