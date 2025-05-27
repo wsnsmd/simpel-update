@@ -134,8 +134,8 @@ class JadwalController extends Controller
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
             $peserta = DB::table('peserta')
                         ->where('diklat_jadwal_id', $jadwal->id)
-                        ->where('verifikasi', 1)
-                        ->where('batal', 0)
+                        // ->where('verifikasi', 1)
+                        // ->where('batal', 0)
                         ->get();
 
             if($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
@@ -401,19 +401,22 @@ class JadwalController extends Controller
     public function poststep2simple(Request $request)
     {
         // session status_asn
-        $peserta = DB::table('peserta')
-                    ->where('email', $request->email)
-                    ->where('diklat_jadwal_id', session('jadwal_id'))
-                    ->first();
-
-        if(!empty($peserta))
-        {
-            $notifikasi = 'Email Anda telah terdaftar untuk mengikuti kegiatan ini!';
-            return redirect()->back()->with('error', $notifikasi);
-        }
-
+        DB::beginTransaction();
         try
         {
+            $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
+            $peserta = DB::table('peserta')
+                        ->where('diklat_jadwal_id', $jadwal->id)
+                        // ->where('verifikasi', 1)
+                        // ->where('batal', 0)
+                        ->lockForUpdate()
+                        ->get();
+
+            if($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+                DB::rollBack();
+                return view('frontend.daftar.tutup', compact('jadwal'));
+            }
+
             $token = str_random(40);
             $nip = session('nip');
 
@@ -448,6 +451,8 @@ class JadwalController extends Controller
                 'created_at' => $created_at,
             ]);
 
+            DB::commit();
+
             $url = \URL::signedRoute('jadwal.konfirmasi', $id);
             // Mail::to($request->email)->send(new DaftarMailable($request->nama_lengkap, $url));
             $job = new EmailDaftarHadirJob($request->nama_lengkap, $request->email, $jadwal, $url);
@@ -461,6 +466,7 @@ class JadwalController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
@@ -481,8 +487,22 @@ class JadwalController extends Controller
 
     public function poststep3(Request $request)
     {
+        DB::beginTransaction();
         try
         {
+            $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
+            $peserta = DB::table('peserta')
+                        ->where('diklat_jadwal_id', $jadwal->id)
+                        // ->where('verifikasi', 1)
+                        // ->where('batal', 0)
+                        ->lockForUpdate()
+                        ->get();
+
+            if($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+                DB::rollBack();
+                return view('frontend.daftar.tutup', compact('jadwal'));
+            }
+
             $token = str_random(40);
 			$destination = null;
 
@@ -535,6 +555,8 @@ class JadwalController extends Controller
                 'created_at' => $created_at,
             ]);
 
+            DB::commit();
+
             $url = \URL::signedRoute('jadwal.konfirmasi', $id);
             // Mail::to($request->email)->send(new DaftarMailable($request->nama_lengkap, $url));
             $job = new EmailKonfirmasiJob($request->nama_lengkap, $request->email, $jadwal, $url);
@@ -555,6 +577,7 @@ class JadwalController extends Controller
         }
         catch(\Exception $e)
         {
+            DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
         }
     }

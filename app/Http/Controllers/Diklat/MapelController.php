@@ -66,8 +66,10 @@ class MapelController extends Controller
                 $validator = $request->validate([
                     'nama' => 'required',
                     'jpk' => 'required|numeric',
+                    'kategori' => 'required',
                 ]);
                 $jpk = $request->jpk;
+                $kategori = $request->kategori;
                 break;
 
             case 2:
@@ -75,17 +77,21 @@ class MapelController extends Controller
                     'nama' => 'required',
                     'jpk' => 'required|numeric',
                     'jpe' => 'required|numeric',
+                    'kategori' => 'required',
                 ]);
                 $jpk = $request->jpk;
                 $jpe = $request->jpe;
+                $kategori = $request->kategori;
                 break;
 
             case 3:
                 $validator = $request->validate([
                     'nama' => 'required',
                     'jpe' => 'required|numeric',
+                    'kategori' => 'required',
                 ]);
                 $jpe = $request->jpe;
+                $kategori = $request->kategori;
                 break;
 
             default:
@@ -102,6 +108,7 @@ class MapelController extends Controller
                 'nama' => $request->nama,
                 'jpk' => $jpk,
                 'jpe' => $jpe,
+                'kategori' => $kategori,
             ]);
 
             $notifikasi = 'Data mata pelatihan pada kurikulum ' . $kurikulum->nama . ' berhasil ditambahkan!';
@@ -162,6 +169,7 @@ class MapelController extends Controller
                 $validator = $request->validate([
                     'nama' => 'required',
                     'jpk' => 'required|numeric',
+                    'kategori' => 'required',
                 ]);
                 break;
 
@@ -170,6 +178,7 @@ class MapelController extends Controller
                     'nama' => 'required',
                     'jpk' => 'required|numeric',
                     'jpe' => 'required|numeric',
+                    'kategori' => 'required',
                 ]);
                 $jpe = $request->jpe;
                 break;
@@ -187,6 +196,7 @@ class MapelController extends Controller
                 'nama' => $request->nama,
                 'jpk' => $request->jpk,
                 'jpe' => $jpe,
+                'kategori' => $request->kategori,
             ]);
 
             $notifikasi = 'Data mata pelatihan pada kurikulum ' . $kurikulum->nama . ' berhasil diubah!';

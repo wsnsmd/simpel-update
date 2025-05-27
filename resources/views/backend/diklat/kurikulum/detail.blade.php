@@ -1,10 +1,10 @@
 <?php
-    switch ($kurikulum->jenis_belajar) 
+    switch ($kurikulum->jenis_belajar)
     {
         case 2:
             $col_total = 4;
             break;
-        
+
         default:
             $col_total = 3;
             break;
@@ -60,7 +60,7 @@
                 scrollX: false,
                 footerCallback: function ( row, data, start, end, display ) {
                 var api = this.api(), data;
-    
+
                 // Remove the formatting to get integer data for summation
                 var intVal = function ( i ) {
                     return typeof i === 'string' ?
@@ -68,7 +68,7 @@
                         typeof i === 'number' ?
                             i : 0;
                 };
-    
+
                 // Total over all pages
                 total = api
                     .column( {{ $col_total }} )
@@ -76,15 +76,15 @@
                     .reduce( function (a, b) {
                         return intVal(a) + intVal(b);
                     }, 0 );
-    
+
                 // Update footer
                 $( api.column( {{ $col_total }} ).footer() ).html(
                     total + ' JP'
                 );
-            }  
+            }
             });
 
-            $('[data-toggle="tooltip"]').tooltip();   
+            $('[data-toggle="tooltip"]').tooltip();
         });
 
         @if (session('success'))
@@ -123,12 +123,12 @@
                         }
                     });
 
-            e.fire({   
-                title: 'Apakah anda yakin',   
-                text: 'Anda tidak akan dapat mengembalikan data anda',   
-                type: 'warning',   
+            e.fire({
+                title: 'Apakah anda yakin',
+                text: 'Anda tidak akan dapat mengembalikan data anda',
+                type: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya',  
+                confirmButtonText: 'Ya',
                 cancelButtonText: 'Tidak',
                 customClass: {
                     confirmButton: "btn btn-danger m-1",
@@ -146,6 +146,7 @@
             $("#nama").val("");
             $("#jpk").val("");
             $("#jpe").val("");
+            $("#kategori").val("");
         }
 
         function addMapel() {
@@ -178,6 +179,7 @@
                     @if ($kurikulum->jenis_belajar == 2 || $kurikulum->jenis_belajar == 3)
                     $("#jpe").val(data.jpe);
                     @endif
+                    $("#kategori").val(data.kategori);
                     $("#mdl-mapel").modal('show');
                 }
             });
@@ -242,9 +244,10 @@
                                 <th>Klasikal (JP)</th>
                                 @endif
                                 @if ($kurikulum->jenis_belajar == 2 || $kurikulum->jenis_belajar == 3)
-                                <th>E-Learning (JP)</th>    
+                                <th>E-Learning (JP)</th>
                                 @endif
                                 <th>Jumlah (JP)</th>
+                                <th>Kategori</th>
                                 <th style="width: 1%;">Aksi</th>
                             </tr>
                         </thead>
@@ -267,7 +270,10 @@
                                 @endif
                                 <td class="font-w600">
                                     {{ $m->jpk + $m->jpe }}
-                                </td>                                                             
+                                </td>
+                                <td class="font-w600">
+                                    {{ getKategoriJPText($m->kategori) }}
+                                </td>
                                 <td class="text-center">
                                     <form action="{{ route('backend.diklat.mapel.destroy', $m->id) }}" method="POST">
                                         @csrf
@@ -278,16 +284,17 @@
                                             </a>
                                             <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger">
                                                 <i class="far fa-trash-alt"></i>
-                                            </a>                               
+                                            </a>
                                         </div>
                                     </form>
                                 </td>
-                            </tr>                            
+                            </tr>
                             @endforeach
                         </tbody>
                         <tfoot>
                             <tr>
                                 <th colspan="{{ $col_total }}" style="text-align:right">Total:</th>
+                                <th></th>
                                 <th></th>
                                 <th></th>
                             </tr>
@@ -333,6 +340,15 @@
                                     <input type="number" min="0" max="110" step=".01" class="form-control" id="jpe" name="jpe" required>
                                 </div>
                                 @endif
+                                <div class="form-group">
+                                    <label for="kategori" class="control-label">Kategori <span class="text-danger">*</span></label>
+                                    <select id="kategori" name="kategori" class="form-control" required>
+                                        <option value="">-- Pilih Kategori --</option>
+                                        <option value="0">Bukan JP Minimal</option>
+                                        <option value="1">JP Minimal</option>
+                                        <option value="2">Dibayarkan</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="block-content block-content-full text-right bg-light">
                                 <button type="button" class="btn btn-sm btn-light" data-dismiss="modal">Batal</button>
@@ -344,5 +360,5 @@
             </div>
         </div>
         <!-- END Mapel Block Modal -->
-        
+
 @endsection

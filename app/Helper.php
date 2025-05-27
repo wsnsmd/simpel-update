@@ -351,4 +351,14 @@ function konversiGolongan($golongan, $status_asn)
     return $mapping_golongan_pppk[$golongan] ?? $golongan;
 }
 
+function getKategoriJPText($kategori)
+{
+    switch ($kategori) {
+        case 0: return 'Bukan JP Minimal';
+        case 1: return 'JP Minimal';
+        case 2: return 'Dibayarkan';
+        default: return 'Kategori Tidak Ada';
+    }
+}
+
 ?>
