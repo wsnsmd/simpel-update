@@ -37,7 +37,7 @@
 		
 		// Manage export settings on the server side
 		viewer.onBeginExportReport = function (args) {
-			args.fileName = "DaftarHadir";
+			args.fileName = "DaftarKamar";
 		}
 		
         // Load and show report
