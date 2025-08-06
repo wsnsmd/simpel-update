@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<title>Daftar Hadir</title>
+	<title>Daftar Kamar</title>
 
 	<!-- Report Office2013 style -->
 	<link href="{{ asset('plugins/stimulsoft/css/stimulsoft.viewer.office2013.whiteteal.css') }}" rel="stylesheet">
@@ -45,16 +45,14 @@
 		dataSet.readJson({!! $peserta !!});
 
 		var report = new Stimulsoft.Report.StiReport();
-        report.loadFile("{{ asset('plugins/stimulsoft/reports/umum/daftarhadir.mrt') }}");
+        report.loadFile("{{ asset('plugins/stimulsoft/reports/umum/daftarkamar.mrt') }}");
         report.regData(dataSet.dataSetName, "", dataSet);
 		report.dictionary.variables.getByName("var_tipe").valueObject="{{ $jadwal->tipe }}";
 		report.dictionary.variables.getByName("var_jadwal").valueObject="{{ $jadwal->nama }}";
 		report.dictionary.variables.getByName("var_kelas").valueObject="{{ $jadwal->kelas }}";
 		report.dictionary.variables.getByName("var_tahun").valueObject="{{ $jadwal->tahun }}";
-        report.dictionary.variables.getByName("var_tanggal").valueObject="{{ getHari($tanggal) }}, {{formatTanggal($tanggal) }}";
-        report.dictionary.variables.getByName("var_mapel").valueObject="{{ $mapel }}";
-        report.dictionary.variables.getByName("var_fator").valueObject="{{ $fator }}";
-		report.dictionary.variables.getByName("var_toc").valueObject="{{ $toc }}";
+        report.dictionary.variables.getByName("var_tanggal").valueObject="{{ formatTanggal($tanggal) }}";
+        report.dictionary.variables.getByName("var_asrama").valueObject="{{ $tempat }}";
 		
 		viewer.report = report;
 		

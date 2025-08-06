@@ -8,6 +8,7 @@
 /views/report/pkmf
 /views/report/sertifikat
 /views/umum
+*.DS_Store
 .env
 .phpunit.result.cache
 Homestead.json

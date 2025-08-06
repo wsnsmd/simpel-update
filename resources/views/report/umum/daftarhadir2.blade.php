@@ -45,7 +45,7 @@
 		dataSet.readJson({!! $peserta !!});
 
 		var report = new Stimulsoft.Report.StiReport();
-        report.loadFile("{{ asset('plugins/stimulsoft/reports/umum/daftarhadir.mrt') }}");
+        report.loadFile("{{ asset('plugins/stimulsoft/reports/umum/daftarhadir2.mrt') }}");
         report.regData(dataSet.dataSetName, "", dataSet);
 		report.dictionary.variables.getByName("var_tipe").valueObject="{{ $jadwal->tipe }}";
 		report.dictionary.variables.getByName("var_jadwal").valueObject="{{ $jadwal->nama }}";

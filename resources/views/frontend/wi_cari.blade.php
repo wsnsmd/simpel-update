@@ -16,9 +16,9 @@
             <td class="font-w400 text-center">{{$loop->iteration}}</td>
             <td class="font-w400">{{$j->jid_nama}}</td>
             <td class="font-w400">{{$j->nama_mapel}}</td>
-            <td class="font-w400 text-center"><span class="badge badge-primary">{{$j->tanggal}}</span></td>
-            <td class="font-w400 text-center"><span class="badge badge-success">{{$j->jam_mulai}}</span></td>
-            <td class="font-w400 text-center"><span class="badge badge-danger">{{$j->jam_akhir}}</span></td>
+            <td class="font-w400 text-center" style="font-size: 1.2rem;"><span class="badge badge-primary">{{$j->tanggal}}</span></td>
+            <td class="font-w400 text-center" style="font-size: 1.2rem;"><span class="badge badge-success">{{$j->jam_mulai}}</span></td>
+            <td class="font-w400 text-center" style="font-size: 1.2rem;"><span class="badge badge-danger">{{$j->jam_akhir}}</span></td>
             <td class="font-w400 text-center">{{$j->jp}}</td>
         </tr>
         @endforeach

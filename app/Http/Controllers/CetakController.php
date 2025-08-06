@@ -85,6 +85,31 @@ class CetakController extends Controller
                 $data['tanggal'] = $request->cetak_tgl;
                 $data['mapel'] = $request->cetak_mapel;
                 $data['fator'] = $request->cetak_fator;
+                $data['toc'] = $request->cetak_toc;
+                $report = $cetak->template;
+                break;
+            case 5:
+                $peserta = DB::table('v_peserta')
+                            ->select('nip', 'nama_lengkap', 'satker_singkat', 'jk')
+                            ->where('diklat_jadwal_id', $jadwal_id)
+                            ->orderby('nama_lengkap')
+                            ->get();
+                $data['peserta'] = json_encode($peserta);
+                $data['tanggal'] = $request->cetak_tgl;
+                $data['mapel'] = $request->cetak_mapel;
+                $data['fator'] = $request->cetak_fator;
+                $data['toc'] = $request->cetak_toc;
+                $report = $cetak->template;
+                break;
+            case 6:
+                $peserta = DB::table('v_peserta')
+                            ->select('nip', 'nama_lengkap', 'satker_singkat', 'jk')
+                            ->where('diklat_jadwal_id', $jadwal_id)
+                            ->orderby('nama_lengkap')
+                            ->get();
+                $data['peserta'] = json_encode($peserta);
+                $data['tanggal'] = $request->cetak_tgl;
+                $data['tempat'] = $request->cetak_tmpt;
                 $report = $cetak->template;
                 break;
         }
