@@ -822,6 +822,7 @@ class SertifikatController extends Controller
                     ->setCellValue('D1', $kolom)
                     ->setCellValue('E1', 'INSTANSI')
                     ->setCellValue('F1', 'NOMOR SERTIFIKAT');
+                    ->setCellValue('G1', 'KUALIFIASI');
 
         $no = 1;
         $row = 2;
@@ -835,6 +836,7 @@ class SertifikatController extends Controller
                         ->setCellValue('D'.$row, $p->satker_nama)
                         ->setCellValue('E'.$row, $p->instansi)
                         ->setCellValue('F'.$row, '');
+                        ->setCellValue('G'.$row, '');
             $row++;
         }
 
@@ -908,6 +910,7 @@ class SertifikatController extends Controller
                         'peserta_id' => $row['B'],
                         'sertifikat_id' => $sertifikat->id,
                         'nomor' => $row['F'],
+                        'kualifikasi' => $row['G'],
                         'tahun' => $tahun,
                         'bidang' => $jadwal->usergroup,
                         'spesimen_kiri' => $kiri,
