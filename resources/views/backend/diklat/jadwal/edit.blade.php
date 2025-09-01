@@ -354,6 +354,19 @@
                             @endif
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label text-right" for="is_upload">Upload Laporan<span class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <select class="js-select2-min form-control{{ $errors->has('is_upload') ? ' is-invalid' : '' }}" id="is_upload" name="is_upload" style="width: 100%" required>
+                                <option value="" selected>-- Pilih Upload Laporan --</option>
+                                <option value="0" {{ $jadwal->is_upload == 0 ? 'selected' : '' }}>Tidak</option>
+                                <option value="1" {{ $jadwal->is_upload == 1 ? 'selected' : '' }}>Ya</option>
+                            </select>
+                            @if ($errors->has('status'))
+                            <div class="invalid-feedback">{{ $errors->first('status') }}</div>
+                            @endif
+                        </div>
+                    </div>                    
                     <div class="form-group mt-4 row">
                         <label class="col-sm-3 col-form-label text-right">&nbsp;</label>
                         <div class="col-sm-9">

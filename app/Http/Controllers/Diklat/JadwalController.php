@@ -108,6 +108,7 @@ class JadwalController extends Controller
             'panitia_telp' => 'required',
             'panitia_email' => 'required',
             'status' => 'required',
+            'is_upload' => 'required',
         ]);
 
         try
@@ -152,6 +153,7 @@ class JadwalController extends Controller
                 'usergroup' => $usergroup,
                 'var_1' => $request->var_1,
                 'var_2' => $request->pola,
+                'is_upload' => $request->is_upload,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';
@@ -210,6 +212,7 @@ class JadwalController extends Controller
             'panitia_telp' => 'required',
             'panitia_email' => 'required',
             'status' => 'required',
+            'is_upload' => 'required',
         ]);
 
         try
@@ -231,34 +234,42 @@ class JadwalController extends Controller
                 $path_lampiran = $request->lampiran_lama;
             }
 
-            DB::table('diklat_jadwal')->where('id', $id)->update([
-                'diklat_jenis_id' => $request->jenis_diklat,
-                'kurikulum_id' => $request->kurikulum,
-                'lokasi_id' => $request->lokasi,
-                'nama' => $request->nama,
-                'tipe' => $request->tipe,
-                'kuota' => $request->kuota,
-                'tgl_awal' => $request->tgl_awal,
-                'tgl_akhir' => $request->tgl_akhir,
-                'tahun' => $tahun,
-                'kelas' => $request->kelas,
-                'registrasi' => $request->registrasi,
-                'registrasi_lengkap' => $request->registrasi_lengkap,
-                'reg_awal' => $request->reg_awal,
-                'reg_akhir' => $request->reg_akhir,
-                'panitia_nama' => $request->panitia_nama,
-                'panitia_telp' => $request->panitia_telp,
-                'panitia_email' => $request->panitia_email,
-                'deskripsi' => $request->deskripsi,
-                'syarat' => $request->syarat,
-                'lampiran' => $path_lampiran,
-                'status' => $request->status,
-                'updated_at' => $updated_at,
-                'updated_by' => $updated_by,
-                'usergroup' => $usergroup,
-                'var_1' => $request->var_1,
-                'var_2' => $request->pola,
-            ]);
+            // Buat array data update
+            $data = [
+                'diklat_jenis_id'     => $request->jenis_diklat,
+                'kurikulum_id'        => $request->kurikulum,
+                'lokasi_id'           => $request->lokasi,
+                'nama'                => $request->nama,
+                'tipe'                => $request->tipe,
+                'kuota'               => $request->kuota,
+                'tgl_awal'            => $request->tgl_awal,
+                'tgl_akhir'           => $request->tgl_akhir,
+                'tahun'               => $tahun,
+                'kelas'               => $request->kelas,
+                'registrasi'          => $request->registrasi,
+                'registrasi_lengkap'  => $request->registrasi_lengkap,
+                'reg_awal'            => $request->reg_awal,
+                'reg_akhir'           => $request->reg_akhir,
+                'panitia_nama'        => $request->panitia_nama,
+                'panitia_telp'        => $request->panitia_telp,
+                'panitia_email'       => $request->panitia_email,
+                'deskripsi'           => $request->deskripsi,
+                'syarat'              => $request->syarat,
+                'lampiran'            => $path_lampiran,
+                'status'              => $request->status,
+                'updated_at'          => $updated_at,
+                'updated_by'          => $updated_by,
+                'var_1'               => $request->var_1,
+                'var_2'               => $request->pola,
+                'is_upload'           => $request->is_upload,
+            ];
+
+            // Hanya tambahkan kolom usergroup jika bukan admin
+            if ($usergroup !== 'admin') {
+                $data['usergroup'] = $usergroup;
+            }
+
+            DB::table('diklat_jadwal')->where('id', $id)->update($data);
 
             $notifikasi = 'Data jadwal diklat berhasil diubah!';
 
