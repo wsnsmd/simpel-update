@@ -109,6 +109,8 @@ class JadwalController extends Controller
             'panitia_email' => 'required',
             'status' => 'required',
             'is_upload' => 'required',
+            'is_tampil' => 'required',
+            'is_statistik' => 'required',
         ]);
 
         try
@@ -154,6 +156,8 @@ class JadwalController extends Controller
                 'var_1' => $request->var_1,
                 'var_2' => $request->pola,
                 'is_upload' => $request->is_upload,
+                'is_tampil' => $request->is_tampil,
+                'is_statistik' => $request->is_statistik,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';
@@ -262,6 +266,8 @@ class JadwalController extends Controller
                 'var_1'               => $request->var_1,
                 'var_2'               => $request->pola,
                 'is_upload'           => $request->is_upload,
+                'is_tampil'           => $request->is_tampil,
+                'is_statistik'        => $request->is_statistik,
             ];
 
             // Hanya tambahkan kolom usergroup jika bukan admin

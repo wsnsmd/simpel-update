@@ -31,6 +31,7 @@ class JadwalController extends Controller
                     //->where('tahun', $this->tahun)
                     ->where('status_jadwal', '<', 3)
                     ->where('status', '=', 1)
+                    ->where('is_tampil', '=', 1)
                     ->orderBy('tgl_awal')->get();
         $tahun = $this->tahun;
 
@@ -78,6 +79,7 @@ class JadwalController extends Controller
         }
 
         $where[] = " tahun=" . $this->tahun;
+        $where[] = " is_tampil=1";
 
         if(count($where) > 0)
             $sql .= " WHERE" . implode(" AND", $where);
