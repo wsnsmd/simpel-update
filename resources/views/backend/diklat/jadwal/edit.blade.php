@@ -355,7 +355,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="is_upload">Peserta Upload Laporan<span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="is_upload">Peserta Upload Laporan (DINOV)<span class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="js-select2-min form-control{{ $errors->has('is_upload') ? ' is-invalid' : '' }}" id="is_upload" name="is_upload" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Peserta Upload Laporan --</option>
