@@ -323,11 +323,12 @@ class MapelController extends Controller
     public function jadwalDestroy($jadwal, $mapel, $id)
     {
         DB::beginTransaction();
-        $delete1 = DB::table('mapel_fasilitator')->where('jid', $jadwal)->where('mid', $mapel)->delete();
-        $delete2 = DB::table('mapel_jadwal')->where('id', $id)->delete();
+        // $delete1 = DB::table('mapel_fasilitator')->where('jid', $jadwal)->where('mid', $mapel)->delete();
+        $delete1 = DB::table('mapel_jadwal')->where('id', $id)->delete();
 
-        if($delete1 and $delete2)
+        if($delete1)
         {
+            DB::table('mapel_fasilitator')->where('jid', $jadwal)->where('mid', $mapel)->delete();
             DB::commit();
             $notifikasi = 'Data jadwal berhasil dihapus!';
             return redirect()->back()->with('success', $notifikasi);
