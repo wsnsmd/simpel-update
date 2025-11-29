@@ -179,6 +179,8 @@ return [
         willvincent\Feeds\FeedsServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
         Mews\Captcha\CaptchaServiceProvider::class,
+        Laravel\Socialite\SocialiteServiceProvider::class,
+        SocialiteProviders\Manager\ServiceProvider::class,
 
     ],
 
@@ -234,6 +236,7 @@ return [
         'HTMLMin' => HTMLMin\HTMLMin\Facades\HTMLMin::class,
         'PDF' => Barryvdh\DomPDF\Facade::class,
         'Captcha' => Mews\Captcha\Facades\Captcha::class,
+        'Socialite' => Laravel\Socialite\Facades\Socialite::class,
 
     ],
 

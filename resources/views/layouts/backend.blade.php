@@ -106,17 +106,17 @@
                                     </div>
                                 </div>
                                 <div class="p-2">
-                                    <a class="dropdown-item" href="{{ route('backend.user.profil.show') }}">
+                                    <a class="dropdown-item" href="{{ route('authentik.profile') }}">
                                         <i class="far fa-fw fa-user mr-1"></i> Profil
                                     </a>
                                     <div role="separator" class="dropdown-divider"></div>
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
+                                    <a class="dropdown-item" href="{{ route('authentik.logout') }}"
                                         onclick="event.preventDefault();
                                         document.getElementById('logout-form').submit();">
                                         <i class="far fa-fw fa-arrow-alt-circle-left mr-1"></i> Logout
                                     </a>
 
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                                    <form id="logout-form" action="{{ route('authentik.logout') }}" method="GET" style="display: none;">
                                         @csrf
                                     </form>
                                 </div>

@@ -189,7 +189,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-main-item">
-                                    <a class="nav-main-link" href="{{ route('login') }}">
+                                    <a class="nav-main-link" href="{{ route('authentik.redirect') }}">
                                         <i class="nav-main-link-icon fa fa-sign-in-alt"></i>
                                         <span class="nav-main-link-name">Login</span>
                                     </a>
