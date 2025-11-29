@@ -134,8 +134,7 @@ class AuthentikController extends Controller
 
         // 3. URL logout di Authentik
         $authentikLogoutUrl = rtrim(env('AUTHENTIK_BASE_URL'), '/') .
-            '/application/o/simpel-dev/end-session/?post_logout_redirect_uri=' .
-            urlencode($redirectAfterLogout);
+            '/application/o/simpel/end-session/?post_logout_redirect_uri=';
 
         // 4. Redirect ke Authentik logout endpoint
         return redirect()->away($authentikLogoutUrl);
