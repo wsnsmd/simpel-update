@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use App\Peserta;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,5 +74,30 @@ Route::get('/wi/jpbulan', function (Request $request) {
 Route::group(['prefix' => 'v1', 'middleware' => 'auth.api'], function () {
     Route::get('/uji', function (Request $request) {
         return response()->json('Okay Bos');
+    });
+    Route::post('/auth', function (Request $request) {
+        $nip = $request->username;
+        $hp = $request->password;
+        $peserta = Peserta::select('nip', 'nama_lengkap', 'jk', 'hp', 'email', 'jabatan', 'instansi', 'satker_nama', 'status_asn')
+                    ->where('nip', $nip)
+                    ->where('hp', $hp)
+                    ->where('konfirmasi', true)
+                    ->where('batal', false)
+                    ->where('sebagai', 'Peserta')
+                    ->latest()
+                    ->first();
+
+        if($peserta) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Data peserta benar',
+                'data' => $peserta
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Data peserta tidak ditemukan'
+        ], 404);
     });
 });
