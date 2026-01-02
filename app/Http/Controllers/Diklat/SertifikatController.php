@@ -800,17 +800,17 @@ class SertifikatController extends Controller
                         ->orderBy('nama_lengkap')
                         ->get();
         
-        $created_at = date('Y-m-d H:i:s');
+        // $created_at = date('Y-m-d H:i:s');
 
-        $bulan = date('m', strtotime($sertifikat->tanggal));
-        $tahun = date('Y', strtotime($sertifikat->tanggal));
-        $search = array('{N}', '{m}', '{y}');
-        $format = $sertifikat->format_nomor;
+        // $bulan = date('m', strtotime($sertifikat->tanggal));
+        // $tahun = date('Y', strtotime($sertifikat->tanggal));
+        // $search = array('{N}', '{m}', '{y}');
+        // $format = $sertifikat->format_nomor;
 
-        $result = DB::table('sertifikat_peserta')
-                    ->where('tahun', $tahun)
-                    ->where('bidang', $jadwal->usergroup)
-                    ->max('no');
+        // $result = DB::table('sertifikat_peserta')
+        //             ->where('tahun', $tahun)
+        //             ->where('bidang', $jadwal->usergroup)
+        //             ->max('no');
 
         $kolom = 'UNIT KERJA';
 
@@ -841,14 +841,14 @@ class SertifikatController extends Controller
 
         foreach ($peserta as $p)
         {
-            $no_counter = ++$result;
+            // $no_counter = ++$result;
             $no_sertifikat = '';
-            if(!$sertifikat->is_generate && !$sertifikat->is_upload)
-            {
-                $nomor = sprintf("%05s", $no);
-                $replace = array($nomor, $bulan, $tahun);
-                $no_sertifikat = str_replace($search, $replace, $format);
-            }
+            // if($sertifikat->is_generate && !empty($sertifikat->format_nomor))
+            // {
+            //     $nomor = sprintf("%05s", $no_counter);
+            //     $replace = array($nomor, $bulan, $tahun);
+            //     $no_sertifikat = str_replace($search, $replace, $format);
+            // }
             $spreadsheet->setActiveSheetIndex(0)
                         ->setCellValue('A'.$row, $no++)
                         ->setCellValue('B'.$row, $p->id)

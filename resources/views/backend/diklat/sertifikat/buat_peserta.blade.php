@@ -103,7 +103,10 @@
                                         <option value="-">-</option>
                                         <option value="Cukup Memuaskan">Cukup Memuaskan</option>
                                         <option value="Memuaskan">Memuaskan</option>
-                                        <option value="Sangat Memuaskan">Sangat Memuaskan</option>                                        
+                                        <option value="Sangat Memuaskan">Sangat Memuaskan</option>
+                                        <option value="Cukup Baik">Cukup Baik</option>
+                                        <option value="Baik">Baik</option>
+                                        <option value="Sangat Baik">Sangat Baik</option>
                                     </select>
                                 </td>
                                 @endif
