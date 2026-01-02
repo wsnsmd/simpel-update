@@ -94,6 +94,12 @@ class SertifikatController extends Controller
                 $spesimen2_path = $input['spesimen2']->storeAs('public/files/spesimen', $nama_file2);
             }
 
+            $formatNomor = $input['format_nomor'];
+
+            if ($formatNomor !== null) {
+                $formatNomor = preg_replace('/\s+/', '', $formatNomor);
+            }
+
             DB::table('sertifikat')->insert([
                 'diklat_jadwal_id' => $input['jadwal_id'],
                 'tsid' => $input['tsid'],
@@ -103,7 +109,7 @@ class SertifikatController extends Controller
                 'barcode' => $input['barcode'],
                 'kualifikasi' => $input['kualifikasi'],
                 'import' => $input['is_import'],
-                'format_nomor' => $input['format_nomor'],
+                'format_nomor' => $formatNomor,
                 'tempat' => $input['tempat'],
                 'tanggal' => $input['tanggal'],
                 'jabatan' => $input['jabatan'],
@@ -1044,6 +1050,12 @@ class SertifikatController extends Controller
                 $spesimen2_path = $input['spesimen2']->storeAs('public/files/spesimen', $nama_file2);
             }
 
+            $formatNomor = $input['format_nomor'];
+
+            if ($formatNomor !== null) {
+                $formatNomor = preg_replace('/\s+/', '', $formatNomor);
+            }
+
             $sertifikatData = [
                 'tsid' => $input['tsid'],
                 'fasilitasi' => $input['fasilitasi'],
@@ -1053,7 +1065,7 @@ class SertifikatController extends Controller
                 'barcode' => $input['barcode'],
                 'kualifikasi' => $input['kualifikasi'],
                 'import' => $input['is_import'],
-                'format_nomor' => $input['format_nomor'],
+                'format_nomor' => $formatNomor,
                 'tempat' => $input['tempat'],
                 'tanggal' => $input['tanggal'],
                 'jabatan' => $input['jabatan'],

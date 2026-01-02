@@ -361,4 +361,9 @@ function getKategoriJPText($kategori)
     }
 }
 
+function removeSpace($string)
+{
+    return preg_replace('/\s+/', '', $string);
+}
+
 ?>
