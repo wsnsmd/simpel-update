@@ -448,7 +448,7 @@
                                 <td class="text-center">{{ $loop->iteration }}</td>
                                 <td>
                                     {{-- <img src="{{ is_null($sp->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($sp->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;"> --}}
-                                    {{ $sp->nomor }}
+                                    {{ removeSpace($sp->nomor) }}
                                 </td>
                                 @if($isASN)
                                 <td class="font-w400">
