@@ -801,7 +801,6 @@ class SertifikatController extends Controller
                         ->get();
         
         $created_at = date('Y-m-d H:i:s');
-        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $id)->first();
 
         $bulan = date('m', strtotime($sertifikat->tanggal));
         $tahun = date('Y', strtotime($sertifikat->tanggal));
