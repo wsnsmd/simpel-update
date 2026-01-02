@@ -25,7 +25,7 @@ Route::get($admin_path . '/login', function () {
 })->name('login');
 // Route::post($admin_path . '/login', 'Auth\LoginController@login')->middleware('throttle:5,1');;
 // Route::post($admin_path . '/logout', 'Auth\LoginController@logout')->name('logout');
-// Route::get($admin_path . '/reload-captcha', 'Auth\LoginController@reloadCaptcha')->name('reload.captcha');
+Route::get($admin_path . '/reload-captcha', 'Auth\LoginController@reloadCaptcha')->name('reload.captcha');
 
 // Route::get('/auth/keycloak/redirect', 'Auth\KeycloakAuthController@redirect')->name('keycloak.redirect');
 // Route::get('/auth/keycloak/callback', 'Auth\KeycloakAuthController@callback')->name('keycloak.callback');
