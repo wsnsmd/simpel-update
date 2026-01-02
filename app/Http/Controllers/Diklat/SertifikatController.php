@@ -799,6 +799,19 @@ class SertifikatController extends Controller
                         ->where('diklat_jadwal_id', $sertifikat->diklat_jadwal_id)
                         ->orderBy('nama_lengkap')
                         ->get();
+        
+        $created_at = date('Y-m-d H:i:s');
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $id)->first();
+
+        $bulan = date('m', strtotime($sertifikat->tanggal));
+        $tahun = date('Y', strtotime($sertifikat->tanggal));
+        $search = array('{N}', '{m}', '{y}');
+        $format = $sertifikat->format_nomor;
+
+        $result = DB::table('sertifikat_peserta')
+                    ->where('tahun', $tahun)
+                    ->where('bidang', $jadwal->usergroup)
+                    ->max('no');
 
         $kolom = 'UNIT KERJA';
 
@@ -822,20 +835,28 @@ class SertifikatController extends Controller
                     ->setCellValue('D1', $kolom)
                     ->setCellValue('E1', 'INSTANSI')
                     ->setCellValue('F1', 'NOMOR SERTIFIKAT')
-                    ->setCellValue('G1', 'KUALIFIASI');
+                    ->setCellValue('G1', 'KUALIFIKASI');
 
         $no = 1;
         $row = 2;
 
         foreach ($peserta as $p)
         {
+            $no_counter = ++$result;
+            $no_sertifikat = '';
+            if(!$sertifikat->is_generate && !$sertifikat->is_upload)
+            {
+                $nomor = sprintf("%05s", $no);
+                $replace = array($nomor, $bulan, $tahun);
+                $no_sertifikat = str_replace($search, $replace, $format);
+            }
             $spreadsheet->setActiveSheetIndex(0)
                         ->setCellValue('A'.$row, $no++)
                         ->setCellValue('B'.$row, $p->id)
                         ->setCellValue('C'.$row, $p->nama_lengkap)
                         ->setCellValue('D'.$row, $p->satker_nama)
                         ->setCellValue('E'.$row, $p->instansi)
-                        ->setCellValue('F'.$row, '')
+                        ->setCellValue('F'.$row, $no_sertifikat)
                         ->setCellValue('G'.$row, '');
             $row++;
         }
