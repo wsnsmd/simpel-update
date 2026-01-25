@@ -5,7 +5,6 @@ use Illuminate\Support\Facades\DB;
 use GuzzleHttp\Client;
 use App\RandomColor;
 use App\ApiToken;
-use App\Http\Controllers\Auth\AuthentikController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,12 +32,12 @@ Route::get($admin_path . '/reload-captcha', 'Auth\LoginController@reloadCaptcha'
 // Route::post('/logout-sso', 'Auth\KeycloakAuthController@logout')->name('logout.sso');
 
 Route::get('/auth/authentik/redirect', [
-    'as'   => 'authentik.redirect',
+    'as' => 'authentik.redirect',
     'uses' => 'Auth\AuthentikController@redirect',
 ]);
 
 Route::get('/auth/authentik/callback', [
-    'as'   => 'authentik.callback',
+    'as' => 'authentik.callback',
     'uses' => 'Auth\AuthentikController@callback',
 ]);
 
@@ -48,7 +47,7 @@ Route::get('/profile/sso', function () {
 
 
 Route::get('/logout', [
-    'as'   => 'authentik.logout',
+    'as' => 'authentik.logout',
     'uses' => 'Auth\AuthentikController@logout'
 ]);
 
@@ -97,12 +96,12 @@ Route::view('/informasi', 'frontend.informasi')->name('informasi');
 // Frontend Routes
 
 // Backend Routes
-Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
-    Route::match(['get', 'post'], '/dashboard', function(){
+Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.'], function () {
+    Route::match(['get', 'post'], '/dashboard', function () {
         return view('dashboard');
     })->name('dashboard')->middleware('auth');
 
-    Route::group(['prefix'=>'master','as'=>'master.'], function () {
+    Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
         Route::resource('agama', 'Master\AgamaController');
         Route::resource('instansi', 'Master\InstansiController');
         Route::post('instansi/sort', 'Master\InstansiController@sort')->name('instansi.sort');
@@ -112,7 +111,7 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::resource('tahun', 'Master\TahunController');
     });
 
-    Route::group(['prefix'=>'diklat','as'=>'diklat.'], function () {
+    Route::group(['prefix' => 'diklat', 'as' => 'diklat.'], function () {
         // Fasilitator
         Route::resource('fasilitator', 'Diklat\FasilitatorController');
 
@@ -198,6 +197,7 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::post('sertifikat/peserta/import', 'Diklat\SertifikatController@importPeserta')->name('sertifikat.import.peserta');
         Route::get('sertifikat/{id}/{jadwal}/edit', 'Diklat\SertifikatController@edit')->name('sertifikat.edit');
         Route::patch('sertifikat/{id}', 'Diklat\SertifikatController@update')->name('sertifikat.update');
+        Route::post('sertifikat/{jadwal}/simasn/simpan', 'Diklat\SertifikatController@SimasnSimpan')->name('sertifikat.simasn.simpan');
 
         // Seminar
         Route::get('seminar/{jadwal}/{slug}/kelompok/create', 'Diklat\SeminarController@createKelompok')->name('seminar.kelompok.create');
@@ -233,6 +233,13 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
         Route::get('tautan/{id}', 'Diklat\TautanController@show')->name('tautan.show');
         Route::patch('tautan/{id}', 'Diklat\TautanController@update')->name('tautan.update');
         Route::delete('tautan/{id}', 'Diklat\TautanController@destroy')->name('tautan.destroy');
+
+        // Survei
+        Route::post('survei/load', 'Diklat\SurveyController@load')->name('survei.load');
+        Route::post('survei/store', 'Diklat\SurveyController@store')->name('survei.store');
+        Route::get('survei/{id}', 'Diklat\SurveyController@show')->name('survei.show');
+        Route::patch('survei/{id}', 'Diklat\SurveyController@update')->name('survei.update');
+        Route::delete('survei/{id}', 'Diklat\SurveyController@destroy')->name('survei.destroy');
     });
 
     // Route::resource('user', 'UserController');
@@ -264,14 +271,13 @@ Route::group(['prefix'=>$admin_path,'as'=>$admin_path.'.'], function () {
 // Backend Routes
 
 // Ajax Routes
-Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
+Route::group(['prefix' => 'ajax', 'as' => 'ajax.'], function () {
 
     Route::post('caripegawai', function (Request $request) {
         $id = $request->nip;
         $client = new Client(['http_errors' => false, 'verify' => false]);
 
-        try
-        {
+        try {
             // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
             $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
             $headers = [
@@ -283,11 +289,10 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
                 'headers' => $headers
             ]);
 
-            if($req_pegawai->getStatusCode() == 200)
-            {
+            if ($req_pegawai->getStatusCode() == 200) {
                 $res_pegawai = $req_pegawai->getBody();
                 $pegawai = json_decode($res_pegawai, true);
-                if(!$pegawai['success'])
+                if (!$pegawai['success'])
                     return redirect()->back()->with('error', $pegawai['keterangan']);
 
                 // $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
@@ -296,8 +301,7 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
                     'headers' => $headers
                 ]);
 
-                if($req_satker->getStatusCode() == 200)
-                {
+                if ($req_satker->getStatusCode() == 200) {
                     $res_satker = $req_satker->getBody();
                     $satker = json_decode($res_satker, true);
                     $pegawai = $pegawai['data'];
@@ -311,9 +315,8 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
                     $tmp_nama = explode(' ', $nama_lengkap);
                     $singkat = '';
 
-                    foreach($tmp_nama as $i => $key)
-                    {
-                        if($i > 0)
+                    foreach ($tmp_nama as $i => $key) {
+                        if ($i > 0)
                             $singkat = $singkat . substr($key, 0, 1);
                     }
 
@@ -345,20 +348,18 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
                         'satker_alamat' => $opd['alamat'],
                     );
 
-                    foreach($arr_pegawai as $key => $value) {
-                        if(empty($value) && $key != 'email')
+                    foreach ($arr_pegawai as $key => $value) {
+                        if (empty($value) && $key != 'email')
                             $arr_pegawai[$key] = '(kosong)';
 
-                        if(empty($value) && $key === 'email')
+                        if (empty($value) && $key === 'email')
                             $arr_pegawai[$key] = 'kosong@kosong';
                     }
 
                     return response()->json($arr_pegawai, 200);
                 }
             }
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $returnData = array(
                 'status' => 'error',
                 'message' => 'Terjadi kesalahan, mohon cek kembali NIP Pegawai!'
@@ -370,7 +371,7 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
 
     Route::post('carifasilitator', function (Request $request) {
 
-        $fator = DB::table('fasilitator')->select('nama')->where('nama', 'like', '%'. $request->search . '%')->get();
+        $fator = DB::table('fasilitator')->select('nama')->where('nama', 'like', '%' . $request->search . '%')->get();
         return response()->json($fator, 200);
 
     })->name('carifasilitator')->middleware('auth');
@@ -380,10 +381,10 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
         $search = $request->search;
 
         $data = DB::table('fasilitator')
-                    ->select('id', 'nama as text')
-                    ->where('nama', 'like', '%'.$search.'%')
-                    ->orderby('nama', 'asc')
-                    ->get();
+            ->select('id', 'nama as text')
+            ->where('nama', 'like', '%' . $search . '%')
+            ->orderby('nama', 'asc')
+            ->get();
 
         return response()->json($data, 200);
     })->name('widyaiswara')->middleware('auth');
@@ -393,10 +394,10 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
         $search = $request->search;
 
         $data = DB::table('fasilitator')
-                    ->select('id', 'nama as text')
-                    ->where('nama', 'like', '%'.$search.'%')
-                    ->orderby('nama', 'asc')
-                    ->get();
+            ->select('id', 'nama as text')
+            ->where('nama', 'like', '%' . $search . '%')
+            ->orderby('nama', 'asc')
+            ->get();
 
         return response()->json($data, 200);
     })->name('pegawai')->middleware('auth');
@@ -404,33 +405,30 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
     Route::post('carimapel', function (Request $request) {
 
         $mapel = DB::table('mapel')->select('nama')
-                    ->where('kurikulum_id', $request->kurikulum_id)
-                    ->where('nama', 'like', '%'. $request->search . '%')
-                    ->get();
+            ->where('kurikulum_id', $request->kurikulum_id)
+            ->where('nama', 'like', '%' . $request->search . '%')
+            ->get();
         return response()->json($mapel, 200);
 
     })->name('carimapel')->middleware('auth');
 
     Route::get('kalendar', function (Request $request) {
-        try
-        {
+        try {
             $kalendar = DB::table('v_kalendar')
-                        ->whereRaw("
-                            (start BETWEEN '" . $request->start . "' and '". $request->end . "') or
-                            (end BETWEEN '" . $request->start . "' and '". $request->end . "') or
+                ->whereRaw("
+                            (start BETWEEN '" . $request->start . "' and '" . $request->end . "') or
+                            (end BETWEEN '" . $request->start . "' and '" . $request->end . "') or
                             ('" . $request->start . "' BETWEEN date(start) and date(end)) or
-                            ('". $request->end . "' between date(start) and date(end))
+                            ('" . $request->end . "' between date(start) and date(end))
                         ")
-                        ->select('title', 'start', 'end')
-                        ->get();
-            if(count($kalendar))
-            {
+                ->select('title', 'start', 'end')
+                ->get();
+            if (count($kalendar)) {
                 $jum_color = count($kalendar);
-                $color = (RandomColor::many($jum_color, array('luminosity'=>'light')));
+                $color = (RandomColor::many($jum_color, array('luminosity' => 'light')));
                 $data = [];
 
-                foreach($kalendar as $index => $value)
-                {
+                foreach ($kalendar as $index => $value) {
                     $data[] = [
                         'title' => $value->title,
                         'start' => $value->start,
@@ -444,15 +442,12 @@ Route::group(['prefix'=>'ajax','as'=>'ajax.'], function () {
             }
             // dd(RandomColor::many(27, array('luminosity'=>'light')));
             return response()->json($kalendar, 200);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             return response()->json(null, 200);
         }
     })->name('kalendar');
 
-    Route::post('set-tahun', function (Request $request)
-    {
+    Route::post('set-tahun', function (Request $request) {
         $request->validate([
             'tahun' => 'required|integer'
         ]);

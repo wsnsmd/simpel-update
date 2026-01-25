@@ -11,7 +11,7 @@
         <div class="block-content block-content-full">
             <h2 class="content-heading pt-0">Data Peserta</h2>
             <div class="form-group">
-				@if(session('foto_temp'))
+                @if(session('foto_temp'))
                 <label for="foto">Foto</label>
                 <div class="js-gallery">
                     <a class="border img-link img-link-zoom-in img-thumb img-lightbox" href="{{ asset(Storage::url(session('foto_temp'))) }}">
@@ -19,7 +19,7 @@
                         <input type="hidden" name="foto" value="{{ session('foto_temp') }}">
                     </a>
                 </div>
-				@endif
+                @endif
             </div>
             <div class="form-group form-row">
                 <div class="col-6">
@@ -55,6 +55,27 @@
                     <input class="js-datepicker form-control" type="text" id="tgl_lahir" name="tgl_lahir" placeholder="Tanggal Lahir" data-week-start="1" data-autoclose="true" data-today-highlight="true" data-date-format="yyyy-mm-dd" value="{{ session('peserta')['tgl_lahir'] }}" readonly required>
                 </div>
             </div>  
+            <div class="form-group form-row">
+                <div class="col-6">
+                    <label for="pendidikan">Pendidikan <span class="text-danger">*</span></label>
+                    <select class="form-control{{ $errors->has('pendidikan') ? ' is-invalid' : '' }}" id="pendidikan"
+                        name="pendidikan" readonly required>
+                        <option value="">-- Pilih Pendidikan --</option>
+                        <option value="SD / sederajat" {{ session('peserta')['pendidikan'] == 'SD / sederajat' ? 'selected' : '' }}>SD / sederajat
+                        </option>
+                        <option value="SMP / sederajat" {{ session('peserta')['pendidikan'] == 'SMP / sederajat' ? 'selected' : '' }}>SMP / sederajat
+                        </option>
+                        <option value="SMA / SMK / sederajat" {{ session('peserta')['pendidikan'] == 'SMA / SMK / sederajat' ? 'selected' : '' }}>SMA
+                            / SMK / sederajat</option>
+                        <option value="Diploma (D1–D4)" {{ session('peserta')['pendidikan'] == 'Diploma (D1–D4)' ? 'selected' : '' }}>Diploma (D1–D4)
+                        </option>
+                        <option value="Sarjana (S1)" {{ session('peserta')['pendidikan'] == 'Sarjana (S1)' ? 'selected' : '' }}>Sarjana (S1)</option>
+                        <option value="Magister (S2)" {{ session('peserta')['pendidikan'] == 'Magister (S2)' ? 'selected' : '' }}>Magister (S2)
+                        </option>
+                        <option value="Doktor (S3)" {{ session('peserta')['pendidikan'] == 'Doktor (S3)' ? 'selected' : '' }}>Doktor (S3)</option>
+                    </select>
+                </div>
+            </div>
             <div class="form-group form-row">
                 <div class="col-6">
                     <label for="instansi">Jenis Kelamin</label>

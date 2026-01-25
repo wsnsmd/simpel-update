@@ -28,11 +28,11 @@ class JadwalController extends Controller
         //
         $jenis = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
         $jadwal = DB::table('v_front_jadwal')
-                    //->where('tahun', $this->tahun)
-                    ->where('status_jadwal', '<', 3)
-                    ->where('status', '=', 1)
-                    ->where('is_tampil', '=', 1)
-                    ->orderBy('tgl_awal')->get();
+            //->where('tahun', $this->tahun)
+            ->where('status_jadwal', '<', 3)
+            ->where('status', '=', 1)
+            ->where('is_tampil', '=', 1)
+            ->orderBy('tgl_awal')->get();
         $tahun = $this->tahun;
 
         return view('frontend.jadwal', compact('jenis', 'jadwal', 'tahun'));
@@ -45,19 +45,16 @@ class JadwalController extends Controller
         $sql = "SELECT * FROM v_front_jadwal";
         $where = array();
 
-        if(!is_null($request->nama))
+        if (!is_null($request->nama))
             $where[] = " nama like '%" . $request->nama . "%'";
 
-        if(!is_null($request->tgl_awal) and !is_null($request->tgl_akhir))
-        {
+        if (!is_null($request->tgl_awal) and !is_null($request->tgl_akhir)) {
             $where[] = " ('" . $request->tgl_awal . "' <= tgl_awal)";
             $where[] = " ('" . $request->tgl_akhir . "' >= tgl_akhir)";
         }
 
-        if($request->has('waktu'))
-        {
-            switch($request->waktu)
-            {
+        if ($request->has('waktu')) {
+            switch ($request->waktu) {
                 case 1:
                     $where[] = " (status=1)";
                     $where[] = " (CURDATE() BETWEEN tgl_awal AND tgl_akhir)";
@@ -72,16 +69,15 @@ class JadwalController extends Controller
                     break;
             }
         }
-        if($request->has('jenis'))
-        {
-            if($request->jenis > 0)
+        if ($request->has('jenis')) {
+            if ($request->jenis > 0)
                 $where[] = " diklat_jenis_id=" . $request->jenis;
         }
 
         $where[] = " tahun=" . $this->tahun;
         $where[] = " is_tampil=1";
 
-        if(count($where) > 0)
+        if (count($where) > 0)
             $sql .= " WHERE" . implode(" AND", $where);
 
         $sql .= ' ORDER BY tgl_awal DESC';
@@ -94,17 +90,17 @@ class JadwalController extends Controller
     public function detail($id, $slug)
     {
         $jadwal = DB::table('v_front_jadwal')->where('id', $id)->where('tahun', $this->tahun)->first();
-        if(empty($jadwal))
+        if (empty($jadwal))
             abort(404);
 
-        if($slug != str_slug($jadwal->nama))
+        if ($slug != str_slug($jadwal->nama))
             abort(404);
 
         $peserta = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $id)
-                    ->where('verifikasi', 1)
-                    ->where('batal', 0)
-                    ->get();
+            ->where('diklat_jadwal_id', $id)
+            ->where('verifikasi', 1)
+            ->where('batal', 0)
+            ->get();
 
         return view('frontend.jadwal_detail', compact('jadwal', 'peserta'));
     }
@@ -114,7 +110,7 @@ class JadwalController extends Controller
         $request->session()->flush();
 
         $jadwal = DB::table('v_front_jadwal')->where('id', $request->jadwal_id)->first();
-        if(empty($jadwal))
+        if (empty($jadwal))
             abort(404);
 
         $request->session()->put('jadwal_id', $jadwal->id);
@@ -131,16 +127,15 @@ class JadwalController extends Controller
             'foto_temp',
             'status_asn',
         ]);
-        if($request->has('jadwal_id'))
-        {
+        if ($request->has('jadwal_id')) {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
             $peserta = DB::table('peserta')
-                        ->where('diklat_jadwal_id', $jadwal->id)
-                        ->whereIn('verifikasi', [0, 1])
-                        ->where('batal', 0)
-                        ->get();
+                ->where('diklat_jadwal_id', $jadwal->id)
+                ->whereIn('verifikasi', [0, 1])
+                ->where('batal', 0)
+                ->get();
 
-            if($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
+            if ($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
                 return view('frontend.daftar.1', compact('jadwal'));
 
             return view('frontend.daftar.tutup', compact('jadwal'));
@@ -150,19 +145,21 @@ class JadwalController extends Controller
 
     public function poststep1(Request $request)
     {
-        if($request->status != 0)
-        {
+        $request->validate([
+            'captcha' => 'required|captcha',
+        ]);
+
+        if ($request->status != 0) {
             $validator = $request->validate([
                 'nip' => 'required|digits:18|numeric',
             ]);
 
             $peserta = DB::table('peserta')
-                        ->where('nip', $request->nip)
-                        ->where('diklat_jadwal_id', session('jadwal_id'))
-                        ->first();
+                ->where('nip', $request->nip)
+                ->where('diklat_jadwal_id', session('jadwal_id'))
+                ->first();
 
-            if(!empty($peserta))
-            {
+            if (!empty($peserta)) {
                 $notifikasi = 'NIP Anda telah terdaftar untuk mengikuti kegiatan ini!';
                 return redirect()->back()->with('error', $notifikasi);
             }
@@ -178,35 +175,30 @@ class JadwalController extends Controller
     public function step2()
     {
         $request = \Request::session();
-        if(!$request->has('jadwal_id') && !$request->has('instansi') && !$request->has('nip'))
-        {
+        if (!$request->has('jadwal_id') && !$request->has('instansi') && !$request->has('nip')) {
             abort(404);
         }
 
-        if($request->has('jadwal_id') && !$request->has('instansi') && !$request->has('nip'))
-        {
+        if ($request->has('jadwal_id') && !$request->has('instansi') && !$request->has('nip')) {
             return redirect()->route('jadwal.daftar.step1');
         }
 
         $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
         $agama = DB::table('agama')->get();
-        if(session('status_asn') == 1)
+        if (session('status_asn') == 1)
             $pangkat = DB::table('pangkat')->where('pangkat', '<>', 'PPPK')->where('pangkat', '<>', 'Non-ASN')->get();
-        else if(session('status_asn') == 2)
+        else if (session('status_asn') == 2)
             $pangkat = DB::table('pangkat')->where('pangkat', '=', 'PPPK')->get();
         else
             $pangkat = DB::table('pangkat')->where('pangkat', '=', 'Non-ASN')->get();
 
-        if(session('instansi') == 1)
-        {
-            if(session('status_asn') == 1 or session('status_asn') == 2)
-            {
+        if (session('instansi') == 1) {
+            if (session('status_asn') == 1 or session('status_asn') == 2) {
                 $instansi = DB::table('instansi')->where('id', 1)->first();
                 $id = session('nip');
                 $client = new Client(['http_errors' => true, 'verify' => false]);
 
-                try
-                {
+                try {
                     // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
                     $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
                     $headers = [
@@ -219,12 +211,11 @@ class JadwalController extends Controller
                     ]);
                     // $content = $req_pegawai->getBody()->getContents();
 
-                    if($req_pegawai->getStatusCode() == 200)
-                    {
+                    if ($req_pegawai->getStatusCode() == 200) {
                         $res_pegawai = $req_pegawai->getBody();
                         $data_pegawai = json_decode($res_pegawai, true);
 
-                        if(!$data_pegawai['success'])
+                        if (!$data_pegawai['success'])
                             return redirect()->back()->with('error', $data_pegawai['keterangan']);
 
                         //$req_satker = $client->get(env('SIMPEG_SATKER') . $data_pegawai['id_skpd'] . '/?api_token=' . env('SIMPEG_KEY'));
@@ -234,8 +225,7 @@ class JadwalController extends Controller
                             'headers' => $headers
                         ]);
 
-                        if($req_satker->getStatusCode() == 200)
-                        {
+                        if ($req_satker->getStatusCode() == 200) {
                             $res_satker = $req_satker->getBody();
                             $satker = json_decode($res_satker, true);
                             $data_pegawai = $data_pegawai['data'];
@@ -247,18 +237,17 @@ class JadwalController extends Controller
                             $tmp_nama = explode(' ', $nama_lengkap);
                             $singkat = '';
 
-                            foreach($tmp_nama as $i => $key)
-                            {
-                                if($i > 0)
+                            foreach ($tmp_nama as $i => $key) {
+                                if ($i > 0)
                                     $singkat = $singkat . substr($key, 0, 1);
                             }
 
                             $nama = $tmp_nama[0] . ' ' . $singkat;
                             $instansi = DB::table('instansi')->where('id', 1)->first();
 
-                            if($data_pegawai['jenis_asn'] == 'pns')
+                            if ($data_pegawai['jenis_asn'] == 'pns')
                                 session(['status_asn' => 1]);
-                            else if($data_pegawai['jenis_asn'] == 'pppk')
+                            else if ($data_pegawai['jenis_asn'] == 'pppk')
                                 session(['status_asn' => 2]);
 
                             $pegawai = array(
@@ -283,44 +272,38 @@ class JadwalController extends Controller
                                 'satker_alamat' => $opd['alamat'],
                             );
 
-                            if(session('status_asn') == 1)
+                            if (session('status_asn') == 1)
                                 $pangkat = DB::table('pangkat')->where('pangkat', '<>', 'PPPK')->where('pangkat', '<>', 'Non-ASN')->get();
-                            else if(session('status_asn') == 2)
+                            else if (session('status_asn') == 2)
                                 $pangkat = DB::table('pangkat')->where('pangkat', '=', 'PPPK')->get();
 
-                            if($jadwal->registrasi_lengkap)
+                            if ($jadwal->registrasi_lengkap)
                                 return view('frontend.daftar.2group1', compact('jadwal', 'pangkat', 'agama', 'instansi', 'pegawai'));
 
                             return view('frontend.daftar.2group1s', compact('jadwal', 'instansi', 'pegawai'));
                         }
                     }
-                }
-                catch(\Exception $ex)
-                {
+                } catch (\Exception $ex) {
                     $notifikasi = 'Terjadi kesalahan, mohon cek kembali NIP Pegawai!';
 
                     return redirect()->back()->with('error', $notifikasi);
                 }
-            }
-            else
-            {
+            } else {
                 $instansi = DB::table('instansi')->where('id', 1)->get();
                 $pegawai = array(
                     'nip' => session('nip'),
                 );
-                if($jadwal->registrasi_lengkap)
+                if ($jadwal->registrasi_lengkap)
                     return view('frontend.daftar.2group2', compact('jadwal', 'pangkat', 'agama', 'instansi', 'pegawai'));
 
                 return view('frontend.daftar.2group2s', compact('jadwal', 'instansi', 'pegawai'));
             }
-        }
-        else if(session('instansi') == 2)
-        {
+        } else if (session('instansi') == 2) {
             $instansi = DB::table('instansi')->where('group', 2)->orderBy('sort')->get();
             $pegawai = array(
                 'nip' => session('nip'),
             );
-            if($jadwal->registrasi_lengkap)
+            if ($jadwal->registrasi_lengkap)
                 return view('frontend.daftar.2group2', compact('jadwal', 'pangkat', 'agama', 'instansi', 'pegawai'));
 
             return view('frontend.daftar.2group2s', compact('jadwal', 'instansi', 'pegawai'));
@@ -330,7 +313,7 @@ class JadwalController extends Controller
             'nip' => session('nip'),
         );
 
-        if($jadwal->registrasi_lengkap)
+        if ($jadwal->registrasi_lengkap)
             return view('frontend.daftar.2group3', compact('jadwal', 'pangkat', 'agama', 'pegawai'));
 
         return view('frontend.daftar.2group3s', compact('jadwal', 'pegawai'));
@@ -338,8 +321,7 @@ class JadwalController extends Controller
 
     public function poststep2(Request $request)
     {
-        if(session('status_asn') == 1 || session('status_asn') ==2)
-        {
+        if (session('status_asn') == 1 || session('status_asn') == 2) {
             $validator = $request->validate([
                 'foto' => 'mimetypes:image/jpeg,image/png|max:512',
                 'nip' => 'required|min:18|max:18',
@@ -359,11 +341,10 @@ class JadwalController extends Controller
                 'instansi' => 'required',
                 'satker_nama' => 'required',
                 'satker_alamat' => 'required',
+                'pendidikan' => 'required',
                 //'satker_telp' => 'required',
             ]);
-        }
-        else
-        {
+        } else {
             $validator = $request->validate([
                 'foto' => 'mimetypes:image/jpeg,image/png|max:512',
                 'ktp' => 'required|min:16|max:16',
@@ -382,6 +363,7 @@ class JadwalController extends Controller
                 'instansi' => 'required',
                 'satker_nama' => 'required',
                 'satker_alamat' => 'required',
+                'pendidikan' => 'required',
                 //'satker_telp' => 'required',
             ]);
         }
@@ -389,10 +371,9 @@ class JadwalController extends Controller
         $time = time();
         $request->session()->put('peserta', $request->except('foto'));
 
-        if(isset($request->foto))
-        {
+        if (isset($request->foto)) {
             $foto = $request->file('foto');
-            $nama_file = $time.".".$foto->getClientOriginalExtension();
+            $nama_file = $time . "." . $foto->getClientOriginalExtension();
             $path = $request->foto->storeAs('public/files/photo/peserta/temp', $nama_file);
             $request->session()->put('foto_temp', $path);
         }
@@ -404,17 +385,16 @@ class JadwalController extends Controller
     {
         // session status_asn
         DB::beginTransaction();
-        try
-        {
+        try {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
             $peserta = DB::table('peserta')
-                        ->where('diklat_jadwal_id', $jadwal->id)
-                        // ->where('verifikasi', 1)
-                        // ->where('batal', 0)
-                        ->lockForUpdate()
-                        ->get();
+                ->where('diklat_jadwal_id', $jadwal->id)
+                // ->where('verifikasi', 1)
+                // ->where('batal', 0)
+                ->lockForUpdate()
+                ->get();
 
-            if($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+            if ($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
                 DB::rollBack();
                 return view('frontend.daftar.tutup', compact('jadwal'));
             }
@@ -428,9 +408,9 @@ class JadwalController extends Controller
             $created_at = date('Y-m-d H:i:s');
 
             $result = DB::table('peserta')
-                        ->whereMonth('created_at', '=', $bulan)
-                        ->whereYear('created_at', '=', $tahun)
-                        ->count();
+                ->whereMonth('created_at', '=', $bulan)
+                ->whereYear('created_at', '=', $tahun)
+                ->count();
 
             $kode = "R" . sprintf("%s%02s%04s", $tahun, $bulan, ++$result);
             $status_asn = session('status_asn');
@@ -450,6 +430,7 @@ class JadwalController extends Controller
                 'token' => $token,
                 'status_asn' => $status_asn,
                 'sebagai' => 'Peserta',
+                'pendidikan' => $request->pendidikan,
                 'created_at' => $created_at,
             ]);
 
@@ -465,9 +446,7 @@ class JadwalController extends Controller
             $peserta = DB::table('peserta')->find($id);
 
             return view('frontend.daftar.finish_simple', compact('jadwal', 'peserta'));
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -477,7 +456,7 @@ class JadwalController extends Controller
     {
         $request = \Request::session();
 
-        if(!$request->has('peserta'))
+        if (!$request->has('peserta'))
             abort(404);
 
         $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
@@ -490,31 +469,30 @@ class JadwalController extends Controller
     public function poststep3(Request $request)
     {
         DB::beginTransaction();
-        try
-        {
+        try {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
             $peserta = DB::table('peserta')
-                        ->where('diklat_jadwal_id', $jadwal->id)
-                        // ->where('verifikasi', 1)
-                        // ->where('batal', 0)
-                        ->lockForUpdate()
-                        ->get();
+                ->where('diklat_jadwal_id', $jadwal->id)
+                // ->where('verifikasi', 1)
+                // ->where('batal', 0)
+                ->lockForUpdate()
+                ->get();
 
-            if($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+            if ($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
                 DB::rollBack();
                 return view('frontend.daftar.tutup', compact('jadwal'));
             }
 
             $token = str_random(40);
-			$destination = null;
+            $destination = null;
 
-			// update skpk
-            if(!empty(session('foto_temp'))) {
-				$file = session('foto_temp');
-				$filename = pathinfo($file, PATHINFO_FILENAME);
-				$extension = pathinfo($file, PATHINFO_EXTENSION);
-				$destination = 'public/files/photo/peserta/' . $filename . '.' . $extension;
-				Storage::move($file, $destination);
+            // update skpk
+            if (!empty(session('foto_temp'))) {
+                $file = session('foto_temp');
+                $filename = pathinfo($file, PATHINFO_FILENAME);
+                $extension = pathinfo($file, PATHINFO_EXTENSION);
+                $destination = 'public/files/photo/peserta/' . $filename . '.' . $extension;
+                Storage::move($file, $destination);
             }
 
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
@@ -523,9 +501,9 @@ class JadwalController extends Controller
             $created_at = date('Y-m-d H:i:s');
 
             $result = DB::table('peserta')
-                        ->whereMonth('created_at', '=', $bulan)
-                        ->whereYear('created_at', '=', $tahun)
-                        ->count();
+                ->whereMonth('created_at', '=', $bulan)
+                ->whereYear('created_at', '=', $tahun)
+                ->count();
 
             $kode = "R" . sprintf("%s%02s%04s", $tahun, $bulan, ++$result);
             $status_asn = session('status_asn');
@@ -554,6 +532,7 @@ class JadwalController extends Controller
                 'diklat_jadwal_id' => $jadwal->id,
                 'token' => $token,
                 'status_asn' => $status_asn,
+                'pendidikan' => $request->pendidikan,
                 'created_at' => $created_at,
             ]);
 
@@ -576,9 +555,7 @@ class JadwalController extends Controller
             $peserta = DB::table('peserta')->find($id);
 
             return view('frontend.daftar.finish', compact('jadwal', 'peserta'));
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -586,29 +563,25 @@ class JadwalController extends Controller
 
     public function konfirmasi(Request $request, $id)
     {
-        if(!$request->hasValidSignature())
-        {
+        if (!$request->hasValidSignature()) {
             abort(404);
         }
 
         $peserta = DB::table('peserta')->find($id);
 
-        if(is_null($peserta))
-        {
+        if (is_null($peserta)) {
             abort(404);
         }
 
         $jadwal = DB::table('v_jadwal_detail')->find($peserta->diklat_jadwal_id);
 
-        if($jadwal->registrasi_lengkap)
-        {
-            if(!$peserta->konfirmasi)
-            {
+        if ($jadwal->registrasi_lengkap) {
+            if (!$peserta->konfirmasi) {
                 DB::table('peserta')->where('id', $id)->update([
                     'konfirmasi' => true
                 ]);
                 // Mail::to($peserta->email)->send(new VerifikasiWaitMailable($peserta->nama_lengkap, $jadwal));
-                $url =  route('jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]);
+                $url = route('jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]);
                 $job = new EmailVerifikasiWaitJob($peserta->nama_lengkap, $peserta->email, $jadwal, $url);
                 $this->dispatch($job);
             }
@@ -616,10 +589,8 @@ class JadwalController extends Controller
             return view('frontend.daftar.konfirmasi', compact('jadwal', 'peserta'));
         }
 
-        if($jadwal->is_konfirmasi)
-        {
-            if(!$peserta->konfirmasi)
-            {
+        if ($jadwal->is_konfirmasi) {
+            if (!$peserta->konfirmasi) {
                 DB::table('peserta')->where('id', $id)->update([
                     'verifikasi' => true,
                     'konfirmasi' => true
@@ -660,7 +631,7 @@ class JadwalController extends Controller
         $where[] = " MONTH(`tanggal`)=" . $request->bulan;
         $where[] = " `tahun`=" . $this->tahun;
 
-        if(count($where) > 0)
+        if (count($where) > 0)
             $sql .= " WHERE" . implode(" AND", $where);
 
         $sql .= ' ORDER BY tanggal ASC';
@@ -674,10 +645,10 @@ class JadwalController extends Controller
         $shortCode = substr(md5($jadwal->nama), 0, 6);
 
 
-        if(empty($jadwal))
+        if (empty($jadwal))
             abort(404);
 
-        if($hash != $shortCode)
+        if ($hash != $shortCode)
             abort(404);
 
         $tautan = DB::table('tautan')->where('jadwal_id', $jadwal->id)->where('is_active', 1)->get();

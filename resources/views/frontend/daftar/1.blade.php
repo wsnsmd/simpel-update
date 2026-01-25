@@ -5,7 +5,7 @@
         jQuery(document).ready(function () {
             $('#status').on('change', function () {
                 var status = $('#status').val();
-                if(status == 1 || status == 2) {
+                if (status == 1 || status == 2) {
                     $('#div-nip').removeClass('d-none');
                     $('#nip').val('');
                 }
@@ -15,6 +15,35 @@
                 }
             })
         })
+    </script>
+    <script>
+        @if (session('error') || $errors->has('captcha'))
+            $.notify({
+                icon: "fa fa-times mr-1",
+                @if($errors->has('captcha'))
+                    message: "Captcha salah!"
+                @else
+                            message: "{{ session('error') }}"
+                        @endif
+                                                                                                                            }, {
+                    allow_dismiss: false,
+                    type: 'danger',
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    }
+                });
+        @endif
+        $("#reload").click(function () {
+            $.ajax({
+                type: "GET",
+                url: "{{ route('reload.captcha') }}",
+                success: function (data) {
+                    console.log(data);
+                    $(".captcha span").html(data.captcha);
+                }
+            });
+        });
     </script>
 @endsection
 
@@ -48,7 +77,25 @@
             <div id="div-nip" class="d-none">
                 <div class="form-group">
                     <label for="nip">NIP tanpa spasi</label>
-                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi" minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary" pattern="\d{18}" required>
+                    <input class="js-maxlength form-control" type="text" id="nip" name="nip" placeholder="NIP tanpa spasi"
+                        minlength="18" maxlength="18" data-always-show="true" data-warning-class="badge badge-primary"
+                        data-limit-reached-class="badge badge-primary" pattern="\d{18}" required>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="captcha">
+                    <span>
+                        {!! captcha_img('flat') !!}
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" class="form-control form-control" id="captcha" name="captcha"
+                        placeholder="Captcha..." required>
+                    <div class="input-group-append">
+                        <button type="reset" class="btn btn-dark" id="reload"><i class="fa fa-sync"></i></button>
+                    </div>
                 </div>
             </div>
         </div>

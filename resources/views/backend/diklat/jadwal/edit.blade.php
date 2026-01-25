@@ -1,3 +1,7 @@
+@php
+    $selectedJenisLayanan = old('jenis_layanan', $jadwal->jenis_layanan);
+@endphp
+
 @extends('layouts.backend')
 
 @section('css_before')
@@ -14,7 +18,7 @@
     <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
 
     <script>
-        jQuery(function() {
+        jQuery(function () {
             Dashmix.helpers(['datepicker', 'select2']);
             CKEDITOR.replace('deskripsi');
             CKEDITOR.replace('syarat');
@@ -29,13 +33,13 @@
             var current = $('#kurikulum');
             // var value = '';
 
-            if(data.id != '') {
+            if (data.id != '') {
                 var url = '{{ route('backend.diklat.kurikulum.get', ':id') }}';
                 url = url.replace(':id', data.id);
 
                 $.get(url, function (response) {
                     console.log(response);
-                    if(response) {
+                    if (response) {
                         current.prop('disabled', false);
                         current.html('<option value="">-- Pilih Kurikulum --');
                         $.each(response, function (i, obj) {
@@ -56,7 +60,7 @@
             var reg_awal = $('#reg_awal');
             var reg_akhir = $('#reg_akhir');
 
-            if(data.id == 1) {
+            if (data.id == 1) {
                 reg_awal.prop('disabled', false);
                 reg_akhir.prop('disabled', false);
                 reg_awal.prop('required', true);
@@ -71,29 +75,29 @@
         });
 
         @if (session('success'))
-        $.notify({
-            icon: "fa fa-check mr-1",
-            message: "{{ session('success') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'success',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
+            $.notify({
+                icon: "fa fa-check mr-1",
+                message: "{{ session('success') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'success',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
         @elseif (session('error'))
-        $.notify({
-            icon: "fa fa-times mr-1",
-            message: "{{ session('error') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'danger',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
+            $.notify({
+                icon: "fa fa-times mr-1",
+                message: "{{ session('error') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
         @endif
     </script>
 @endsection
@@ -111,204 +115,263 @@
                 <h3 class="block-title">Jadwal - Edit Data</h3>
             </div>
             <div class="block-content block-content-full border-top">
-                <form class="mb-2" action="{{ route('backend.diklat.jadwal.update', $jadwal->id) }}" method="POST" enctype="multipart/form-data" autocomplete="off">
+                <form class="mb-2" action="{{ route('backend.diklat.jadwal.update', $jadwal->id) }}" method="POST"
+                    enctype="multipart/form-data" autocomplete="off">
                     @csrf
                     @method('PATCH')
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="nama">Nama Pelatihan <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="nama">Nama Pelatihan <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('nama') ? ' is-invalid' : '' }}" id="nama" name="nama" placeholder="Nama Pelatihan..." value="{{ $jadwal->nama }}" required>
+                            <input type="text" class="form-control{{ $errors->has('nama') ? ' is-invalid' : '' }}" id="nama"
+                                name="nama" placeholder="Nama Pelatihan..." value="{{ $jadwal->nama }}" required>
                             @if ($errors->has('nama'))
-                            <div class="invalid-feedback">{{ $errors->first('nama') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('nama') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="nama">Pola Penyelenggaraan <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="nama">Pola Penyelenggaraan <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('pola') ? ' is-invalid' : '' }}" id="pola" name="pola" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('pola') ? ' is-invalid' : '' }}"
+                                id="pola" name="pola" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Pola --</option>
-                                <option value="Mandiri" {{ $jadwal->var_2 === 'Mandiri' ? 'selected':'' }}>Mandiri</option>
-                                <option value="Fasilitasi" {{ $jadwal->var_2 === 'Fasilitasi' ? 'selected':'' }}>Fasilitasi</option>
+                                <option value="Mandiri" {{ $jadwal->var_2 === 'Mandiri' ? 'selected' : '' }}>Mandiri</option>
+                                <option value="Fasilitasi" {{ $jadwal->var_2 === 'Fasilitasi' ? 'selected' : '' }}>Fasilitasi
+                                </option>
                             </select>
                             @if ($errors->has('pola'))
-                            <div class="invalid-feedback">{{ $errors->first('pola') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('pola') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="jenis_diklat">Kompetensi <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="jenis_diklat">Kompetensi <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('jenis_diklat') ? ' is-invalid' : '' }}" id="jenis_diklat" name="jenis_diklat" style="width: 100%" required>
+                            <select
+                                class="js-select2-min form-control{{ $errors->has('jenis_diklat') ? ' is-invalid' : '' }}"
+                                id="jenis_diklat" name="jenis_diklat" style="width: 100%" required>
                                 <option value="">-- Pilih Kompetensi --</option>
                                 @foreach ($jdiklat as $jd)
-                                <option value="{{ $jd->id }}" {{ $jadwal->diklat_jenis_id == $jd->id ? 'selected':'' }}>{{ $jd->nama }}</option>
+                                    <option value="{{ $jd->id }}" {{ $jadwal->diklat_jenis_id == $jd->id ? 'selected' : '' }}>
+                                        {{ $jd->nama }}
+                                    </option>
                                 @endforeach
                             </select>
                             @if ($errors->has('jenis_diklat'))
-                            <div class="invalid-feedback">{{ $errors->first('jenis_diklat') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('jenis_diklat') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="tipe">Tipe <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="tipe">Tipe <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('tipe') ? ' is-invalid' : '' }}" id="tipe" name="tipe" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('tipe') ? ' is-invalid' : '' }}"
+                                id="tipe" name="tipe" style="width: 100%" required>
                                 <option value="">-- Pilih Tipe --</option>
-                                <option value="Bimtek" {{ $jadwal->tipe === 'Bimtek' ? 'selected':'' }}>Bimtek</option>
-                                <option value="Pelatihan" {{ $jadwal->tipe === 'Pelatihan' ? 'selected':'' }}>Pelatihan</option>
-                                <option value="Ujian" {{ $jadwal->tipe === 'Ujian' ? 'selected':'' }}>Ujian</option>
-                                <option value="Workshop" {{ $jadwal->tipe === 'Workshop' ? 'selected':'' }}>Workshop</option>
-                                <option value="Seminar" {{ $jadwal->tipe === 'Seminar' ? 'selected':'' }}>Seminar/Konferensi/Sarasehan</option>
-                                <option value="Lokakarya" {{ $jadwal->tipe === 'Lokakarya' ? 'selected':'' }}>Lokakarya</option>
-                                <option value="Kursus" {{ $jadwal->tipe === 'Kursus' ? 'selected':'' }}>Kursus</option>
-                                <option value="Penataran" {{ $jadwal->tipe === 'Penataran' ? 'selected':'' }}>Penataran</option>
-                                <option value="Benchmarking" {{ $jadwal->tipe === 'Benchmarking' ? 'selected':'' }}>Patok Banding / Benchmarking</option>
+                                <option value="Bimtek" {{ $jadwal->tipe === 'Bimtek' ? 'selected' : '' }}>Bimtek</option>
+                                <option value="Pelatihan" {{ $jadwal->tipe === 'Pelatihan' ? 'selected' : '' }}>Pelatihan
+                                </option>
+                                <option value="Ujian" {{ $jadwal->tipe === 'Ujian' ? 'selected' : '' }}>Ujian</option>
+                                <option value="Workshop" {{ $jadwal->tipe === 'Workshop' ? 'selected' : '' }}>Workshop
+                                </option>
+                                <option value="Seminar" {{ $jadwal->tipe === 'Seminar' ? 'selected' : '' }}>
+                                    Seminar/Konferensi/Sarasehan</option>
+                                <option value="Lokakarya" {{ $jadwal->tipe === 'Lokakarya' ? 'selected' : '' }}>Lokakarya
+                                </option>
+                                <option value="Kursus" {{ $jadwal->tipe === 'Kursus' ? 'selected' : '' }}>Kursus</option>
+                                <option value="Penataran" {{ $jadwal->tipe === 'Penataran' ? 'selected' : '' }}>Penataran
+                                </option>
+                                <option value="Benchmarking" {{ $jadwal->tipe === 'Benchmarking' ? 'selected' : '' }}>Patok
+                                    Banding / Benchmarking</option>
                             </select>
                             @if ($errors->has('tipe'))
-                            <div class="invalid-feedback">{{ $errors->first('tipe') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('tipe') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="kurikulum">Kurikulum <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="kurikulum">Kurikulum <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2 form-control{{ $errors->has('kurikulum') ? ' is-invalid' : '' }}" id="kurikulum" name="kurikulum" style="width: 100%" required>
+                            <select class="js-select2 form-control{{ $errors->has('kurikulum') ? ' is-invalid' : '' }}"
+                                id="kurikulum" name="kurikulum" style="width: 100%" required>
                                 <option value={{ $kurikulum->id }} selected>{{ $kurikulum->nama }}</option>
                             </select>
                             @if ($errors->has('kurikulum'))
-                            <div class="invalid-feedback">{{ $errors->first('kurikulum') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('kurikulum') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="lokasi">Lokasi <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="lokasi">Lokasi <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('lokasi') ? ' is-invalid' : '' }}" id="lokasi" name="lokasi" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('lokasi') ? ' is-invalid' : '' }}"
+                                id="lokasi" name="lokasi" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Lokasi --</option>
                                 @foreach ($lokasi as $lok)
-                                <option value="{{ $lok->id }}" {{ $jadwal->lokasi_id == $lok->id ? 'selected':'' }}>{{ $lok->nama }}</option>
+                                    <option value="{{ $lok->id }}" {{ $jadwal->lokasi_id == $lok->id ? 'selected' : '' }}>
+                                        {{ $lok->nama }}
+                                    </option>
                                 @endforeach
                             </select>
                             @if ($errors->has('lokasi'))
-                            <div class="invalid-feedback">{{ $errors->first('lokasi') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('lokasi') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="kelas">Kelas <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="kelas">Kelas <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('kelas') ? ' is-invalid' : '' }}" id="kelas" name="kelas" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('kelas') ? ' is-invalid' : '' }}"
+                                id="kelas" name="kelas" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Kelas --</option>
                                 @foreach ($kelas as $k)
-                                <option value="{{ $k->nama }}" {{ $jadwal->kelas == $k->nama ? "selected":"" }}>{{ $k->nama }}</option>
+                                    <option value="{{ $k->nama }}" {{ $jadwal->kelas == $k->nama ? "selected" : "" }}>
+                                        {{ $k->nama }}
+                                    </option>
                                 @endforeach
                             </select>
                             @if ($errors->has('kelas'))
-                            <div class="invalid-feedback">{{ $errors->first('kelas') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('kelas') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="kuota">Kuota <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="kuota">Kuota <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="number" class="form-control{{ $errors->has('kuota') ? ' is-invalid' : '' }}" id="kuota" name="kuota" placeholder="Kuota..." value="{{ $jadwal->kuota }}" required>
+                            <input type="number" class="form-control{{ $errors->has('kuota') ? ' is-invalid' : '' }}"
+                                id="kuota" name="kuota" placeholder="Kuota..." value="{{ $jadwal->kuota }}" required>
                             @if ($errors->has('kuota'))
-                            <div class="invalid-feedback">{{ $errors->first('kuota') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('kuota') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="tgl_awal">Tanggal Pelaksanaan <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="tgl_awal">Tanggal Pelaksanaan <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <div class="form-group">
-                                <div class="input-daterange input-group" data-date-format="yyyy-mm-dd" data-week-start="1" data-autoclose="true" data-today-highlight="true">
-                                    <input type="text" class="form-control" id="tgl_awal" name="tgl_awal" placeholder="Awal" data-week-start="1" data-autoclose="true" data-today-highlight="true" value="{{ $jadwal->tgl_awal }}" required>
+                                <div class="input-daterange input-group" data-date-format="yyyy-mm-dd" data-week-start="1"
+                                    data-autoclose="true" data-today-highlight="true">
+                                    <input type="text" class="form-control" id="tgl_awal" name="tgl_awal" placeholder="Awal"
+                                        data-week-start="1" data-autoclose="true" data-today-highlight="true"
+                                        value="{{ $jadwal->tgl_awal }}" required>
                                     <div class="input-group-prepend input-group-append">
                                         <span class="input-group-text font-w600">
                                             <i class="fa fa-fw fa-arrow-right"></i>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-control" id="tgl_akhir" name="tgl_akhir" placeholder="Akhir" data-week-start="1" data-autoclose="true" data-today-highlight="true" value="{{ $jadwal->tgl_akhir }}" required>
+                                    <input type="text" class="form-control" id="tgl_akhir" name="tgl_akhir"
+                                        placeholder="Akhir" data-week-start="1" data-autoclose="true"
+                                        data-today-highlight="true" value="{{ $jadwal->tgl_akhir }}" required>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="registrasi">Registrasi <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="registrasi">Registrasi <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('registrasi') ? ' is-invalid' : '' }}" id="registrasi" name="registrasi" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('registrasi') ? ' is-invalid' : '' }}"
+                                id="registrasi" name="registrasi" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Registrasi --</option>
                                 <option value="0" {{ $jadwal->registrasi == 0 ? 'selected' : '' }}>Internal</option>
                                 <option value="1" {{ $jadwal->registrasi == 1 ? 'selected' : '' }}>Online</option>
                             </select>
                             @if ($errors->has('registrasi'))
-                            <div class="invalid-feedback">{{ $errors->first('registrasi') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('registrasi') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="status">Registrasi Lengkap <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="status">Registrasi Lengkap <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('registrasi_lengkap') ? ' is-invalid' : '' }}" id="registrasi_lengkap" name="registrasi_lengkap" style="width: 100%" required>
+                            <select
+                                class="js-select2-min form-control{{ $errors->has('registrasi_lengkap') ? ' is-invalid' : '' }}"
+                                id="registrasi_lengkap" name="registrasi_lengkap" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Registrasi Lengkap --</option>
                                 <option value="0" {{ $jadwal->registrasi_lengkap == 0 ? 'selected' : '' }}>Tidak</option>
                                 <option value="1" {{ $jadwal->registrasi_lengkap == 1 ? 'selected' : '' }}>Ya</option>
                             </select>
                             @if ($errors->has('status'))
-                            <div class="invalid-feedback">{{ $errors->first('registrasi_lengkap') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('registrasi_lengkap') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="reg_awal">Tanggal Registrasi <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="reg_awal">Tanggal Registrasi <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <div class="form-group">
-                                <div class="input-daterange input-group" data-date-format="yyyy-mm-dd" data-week-start="1" data-autoclose="true" data-today-highlight="true">
-                                    <input type="text" class="form-control" id="reg_awal" name="reg_awal" value="{{ $jadwal->reg_awal }}" placeholder="Awal" data-week-start="1" data-autoclose="true" data-today-highlight="true" {{ $jadwal->registrasi == 0 ? 'disabled' : '' }}>
+                                <div class="input-daterange input-group" data-date-format="yyyy-mm-dd" data-week-start="1"
+                                    data-autoclose="true" data-today-highlight="true">
+                                    <input type="text" class="form-control" id="reg_awal" name="reg_awal"
+                                        value="{{ $jadwal->reg_awal }}" placeholder="Awal" data-week-start="1"
+                                        data-autoclose="true" data-today-highlight="true" {{ $jadwal->registrasi == 0 ? 'disabled' : '' }}>
                                     <div class="input-group-prepend input-group-append">
                                         <span class="input-group-text font-w600">
                                             <i class="fa fa-fw fa-arrow-right"></i>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-control" id="reg_akhir" name="reg_akhir" value="{{ $jadwal->reg_akhir }}" placeholder="Akhir" data-week-start="1" data-autoclose="true" data-today-highlight="true" {{ $jadwal->registrasi == 0 ? 'disabled' : '' }}>
+                                    <input type="text" class="form-control" id="reg_akhir" name="reg_akhir"
+                                        value="{{ $jadwal->reg_akhir }}" placeholder="Akhir" data-week-start="1"
+                                        data-autoclose="true" data-today-highlight="true" {{ $jadwal->registrasi == 0 ? 'disabled' : '' }}>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="panitia_nama">Nama Panitia <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="panitia_nama">Nama Panitia <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('panitia_nama') ? ' is-invalid' : '' }}" id="panitia_nama" name="panitia_nama" placeholder="Nama Panitia..." value="{{ $jadwal->panitia_nama }}" required>
+                            <input type="text" class="form-control{{ $errors->has('panitia_nama') ? ' is-invalid' : '' }}"
+                                id="panitia_nama" name="panitia_nama" placeholder="Nama Panitia..."
+                                value="{{ $jadwal->panitia_nama }}" required>
                             @if ($errors->has('panitia_nama'))
-                            <div class="invalid-feedback">{{ $errors->first('panitia_nama') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('panitia_nama') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="panitia_telp">Telepon Panitia <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="panitia_telp">Telepon Panitia <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('panitia_telp') ? ' is-invalid' : '' }}" id="panitia_telp" name="panitia_telp" placeholder="Telepon Panitia..." value="{{ $jadwal->panitia_telp }}" required>
+                            <input type="text" class="form-control{{ $errors->has('panitia_telp') ? ' is-invalid' : '' }}"
+                                id="panitia_telp" name="panitia_telp" placeholder="Telepon Panitia..."
+                                value="{{ $jadwal->panitia_telp }}" required>
                             @if ($errors->has('panitia_telp'))
-                            <div class="invalid-feedback">{{ $errors->first('panitia_telp') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('panitia_telp') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="panitia_email">Email Panitia <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="panitia_email">Email Panitia <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="email" class="form-control{{ $errors->has('panitia_email') ? ' is-invalid' : '' }}" id="panitia_email" name="panitia_email" placeholder="Email Panitia..." value="{{ $jadwal->panitia_email }}" required>
+                            <input type="email" class="form-control{{ $errors->has('panitia_email') ? ' is-invalid' : '' }}"
+                                id="panitia_email" name="panitia_email" placeholder="Email Panitia..."
+                                value="{{ $jadwal->panitia_email }}" required>
                             @if ($errors->has('panitia_email'))
-                            <div class="invalid-feedback">{{ $errors->first('panitia_email') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('panitia_email') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
                         <label class="col-sm-3 col-form-label text-right" for="var_1">Link Group</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('var_1') ? ' is-invalid' : '' }}" id="var_1" name="var_1" placeholder="Link Group (Telegram/WhatsApp)" value="{{ $jadwal->var_1 }}">
+                            <input type="text" class="form-control{{ $errors->has('var_1') ? ' is-invalid' : '' }}"
+                                id="var_1" name="var_1" placeholder="Link Group (Telegram/WhatsApp)"
+                                value="{{ $jadwal->var_1 }}">
                             @if ($errors->has('var_1'))
-                            <div class="invalid-feedback">{{ $errors->first('var_1') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('var_1') }}</div>
                             @endif
                         </div>
                     </div>
@@ -329,74 +392,106 @@
                         <div class="col-sm-9">
                             <input id="lampiran" name="lampiran" type="file">
                             <small class="form-text text-muted">Max file dengan ukuran <= 2 MB </small>
-                            @if(!is_null($jadwal->lampiran))
-                                <div>
-                                <a href="javascript:;" title="Hapus"><i class="fa fa-trash"></i></a>
-                                <a href="{{ asset(Storage::url($jadwal->lampiran)) }}" target="_blank"><i class="fas fa-download"></i> {{ basename($jadwal->lampiran) }}</a>
-                                <input type="hidden" name="lampiran_lama" value="{{ $jadwal->lampiran }}">
-                                </div>
-                            @endif
-                            @if ($errors->has('lampiran'))
-                            <div class="invalid-feedback d-block">{{ $errors->first('lampiran') }}</div>
+                                    @if(!is_null($jadwal->lampiran))
+                                        <div>
+                                            <a href="javascript:;" title="Hapus"><i class="fa fa-trash"></i></a>
+                                            <a href="{{ asset(Storage::url($jadwal->lampiran)) }}" target="_blank"><i
+                                                    class="fas fa-download"></i> {{ basename($jadwal->lampiran) }}</a>
+                                            <input type="hidden" name="lampiran_lama" value="{{ $jadwal->lampiran }}">
+                                        </div>
+                                    @endif
+                                    @if ($errors->has('lampiran'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('lampiran') }}</div>
+                                    @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label text-right" for="jenis_layanan">Jenis Layanan <span
+                                class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <select
+                                class="js-select2-min form-control{{ $errors->has('jenis_layanan') ? ' is-invalid' : '' }}"
+                                id="jenis_layanan" name="jenis_layanan" style="width: 100%" required>
+                                <option value="">-- Pilih Jenis Layanan --</option>
+
+                                @foreach (config('simpel.jenis_layanan', []) as $item)
+                                    <option value="{{ $item }}" {{ $selectedJenisLayanan == $item ? 'selected' : '' }}>
+                                        {{ $item }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('jenis_layanan'))
+                                <div class="invalid-feedback">{{ $errors->first('jenis_layanan') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="status">Status <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="status">Status <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('status') ? ' is-invalid' : '' }}" id="status" name="status" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('status') ? ' is-invalid' : '' }}"
+                                id="status" name="status" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Status --</option>
                                 <option value="0" {{ $jadwal->status == 0 ? 'selected' : '' }}>Dibatalkan</option>
                                 <option value="1" {{ $jadwal->status == 1 ? 'selected' : '' }}>Dilaksanakan</option>
                             </select>
                             @if ($errors->has('status'))
-                            <div class="invalid-feedback">{{ $errors->first('status') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="is_upload">Peserta Upload Laporan (DINOV)<span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="is_upload">Peserta Upload Laporan
+                            (DINOV)<span class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('is_upload') ? ' is-invalid' : '' }}" id="is_upload" name="is_upload" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('is_upload') ? ' is-invalid' : '' }}"
+                                id="is_upload" name="is_upload" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Peserta Upload Laporan --</option>
                                 <option value="0" {{ $jadwal->is_upload == 0 ? 'selected' : '' }}>Tidak</option>
                                 <option value="1" {{ $jadwal->is_upload == 1 ? 'selected' : '' }}>Ya</option>
                             </select>
                             @if ($errors->has('status'))
-                            <div class="invalid-feedback">{{ $errors->first('status') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="is_tampil">Tampil Beranda<span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="is_tampil">Tampil Beranda<span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('is_tampil') ? ' is-invalid' : '' }}" id="is_tampil" name="is_tampil" style="width: 100%" required>
+                            <select class="js-select2-min form-control{{ $errors->has('is_tampil') ? ' is-invalid' : '' }}"
+                                id="is_tampil" name="is_tampil" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Tampil Beranda --</option>
                                 <option value="0" {{ $jadwal->is_tampil == 0 ? 'selected' : '' }}>Tidak</option>
                                 <option value="1" {{ $jadwal->is_tampil == 1 ? 'selected' : '' }}>Ya</option>
                             </select>
                             @if ($errors->has('status'))
-                            <div class="invalid-feedback">{{ $errors->first('status') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="is_statistik">Hitung Statistik<span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="is_statistik">Hitung Statistik<span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <select class="js-select2-min form-control{{ $errors->has('is_statistik') ? ' is-invalid' : '' }}" id="is_statistik" name="is_statistik" style="width: 100%" required>
+                            <select
+                                class="js-select2-min form-control{{ $errors->has('is_statistik') ? ' is-invalid' : '' }}"
+                                id="is_statistik" name="is_statistik" style="width: 100%" required>
                                 <option value="" selected>-- Pilih Hitung Statistik --</option>
                                 <option value="0" {{ $jadwal->is_statistik == 0 ? 'selected' : '' }}>Tidak</option>
                                 <option value="1" {{ $jadwal->is_statistik == 1 ? 'selected' : '' }}>Ya</option>
                             </select>
                             @if ($errors->has('status'))
-                            <div class="invalid-feedback">{{ $errors->first('status') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('status') }}</div>
                             @endif
                         </div>
-                    </div>                    
+                    </div>
                     <div class="form-group mt-4 row">
                         <label class="col-sm-3 col-form-label text-right">&nbsp;</label>
                         <div class="col-sm-9">
-                            <a href='{{URL::previous()}}' class="btn btn-sm btn-light"><i class="fa fa-chevron-circle-left"></i>
+                            <a href='{{URL::previous()}}' class="btn btn-sm btn-light"><i
+                                    class="fa fa-chevron-circle-left"></i>
                                 Kembali</a>
                             <input type="submit" name="add" value="Simpan" class="btn btn-sm btn-success">
                         </div>

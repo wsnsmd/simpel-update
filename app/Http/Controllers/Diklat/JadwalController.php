@@ -20,7 +20,7 @@ class JadwalController extends Controller
         $this->middleware(function ($request, $next) {
             $this->tahun = Session::get('apps_tahun');
 
-           return $next($request);
+            return $next($request);
         });
         $this->user = Auth::user();
     }
@@ -31,40 +31,36 @@ class JadwalController extends Controller
 
         $jadwal = [];
 
-        switch($level)
-        {
+        switch ($level) {
             case 'admin':
                 $jadwal = DB::table('v_jadwal_detail')
-                            ->where('tahun', $this->tahun)
-                            ->orderby('tgl_awal', 'desc')
-                            ->get();
+                    ->where('tahun', $this->tahun)
+                    ->orderby('tgl_awal', 'desc')
+                    ->get();
                 break;
 
             case 'user':
-                if($this->isViewer())
-                {
+                if ($this->isViewer()) {
                     $jadwal = DB::table('v_jadwal_detail')
-                            ->where('tahun', $this->tahun)
-                            ->orderby('tgl_awal', 'desc')
-                            ->get();
-                }
-                else
-                {
+                        ->where('tahun', $this->tahun)
+                        ->orderby('tgl_awal', 'desc')
+                        ->get();
+                } else {
                     $jadwal = DB::table('v_jadwal_detail')
-                                ->where('usergroup', $this->user->usergroup)
-                                ->where('tahun', $this->tahun)
-                                ->orderby('tgl_awal', 'desc')
-                                ->get();
+                        ->where('usergroup', $this->user->usergroup)
+                        ->where('tahun', $this->tahun)
+                        ->orderby('tgl_awal', 'desc')
+                        ->get();
                 }
                 break;
 
             case 'kontribusi':
                 $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                 $jadwal = DB::table('v_jadwal_detail')
-                            ->where('kelas', $instansi->nama)
-                            ->where('tahun', $this->tahun)
-                            ->orderby('tgl_awal', 'desc')
-                            ->get();
+                    ->where('kelas', $instansi->nama)
+                    ->where('tahun', $this->tahun)
+                    ->orderby('tgl_awal', 'desc')
+                    ->get();
                 break;
         }
 
@@ -73,8 +69,7 @@ class JadwalController extends Controller
 
     public function create()
     {
-        if (Gate::denies('isUser'))
-        {
+        if (Gate::denies('isUser')) {
             abort(403);
         }
 
@@ -87,8 +82,7 @@ class JadwalController extends Controller
 
     public function store(Request $request)
     {
-        if (Gate::denies('isUser'))
-        {
+        if (Gate::denies('isUser')) {
             abort(403);
         }
 
@@ -111,20 +105,19 @@ class JadwalController extends Controller
             'is_upload' => 'required',
             'is_tampil' => 'required',
             'is_statistik' => 'required',
+            'jenis_layanan' => 'required',
         ]);
 
-        try
-        {
+        try {
             $created_at = date('Y-m-d H:i:s');
             $created_by = Auth::user()->name;
             $usergroup = Auth::user()->usergroup;
             $tahun = $this->tahun;
             $path_lampiran = null;
 
-            if(isset($request->lampiran))
-            {
+            if (isset($request->lampiran)) {
                 $lampiran = $request->file('lampiran');
-                $nama_file = time()."_".$lampiran->getClientOriginalName();
+                $nama_file = time() . "_" . $lampiran->getClientOriginalName();
                 $path_lampiran = $request->lampiran->storeAs('public/files/lampiran', $nama_file);
             }
 
@@ -158,17 +151,16 @@ class JadwalController extends Controller
                 'is_upload' => $request->is_upload,
                 'is_tampil' => $request->is_tampil,
                 'is_statistik' => $request->is_statistik,
+                'jenis_layanan' => $request->jenis_layanan,
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';
 
-            if(isset($request->add))
+            if (isset($request->add))
                 return redirect()->route('backend.diklat.jadwal.index')->with('success', $notifikasi);
 
             return redirect()->back()->with('success', $notifikasi);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             $notifikasi = 'Data jadwal diklat gagal ditambahkan!';
             // return redirect()->back()->with('error', $e->getMessage());
             return redirect()->back()->with('error', $notifikasi);
@@ -185,8 +177,8 @@ class JadwalController extends Controller
         $this->checkAuth($id);
 
         $jadwal = DB::table('diklat_jadwal')->where('id', $id)
-                    ->where('tahun', $this->tahun)
-                    ->first();
+            ->where('tahun', $this->tahun)
+            ->first();
 
         $jdiklat = DB::table('diklat_jenis')->where('aktif', true)->orderBy('nama')->get();
         $lokasi = DB::table('lokasi')->orderBy('nama')->get();
@@ -217,57 +209,55 @@ class JadwalController extends Controller
             'panitia_email' => 'required',
             'status' => 'required',
             'is_upload' => 'required',
+            'jenis_layanan' => 'required',
         ]);
 
-        try
-        {
+        try {
             $updated_at = date('Y-m-d H:i:s');
             $updated_by = Auth::user()->name;
             $usergroup = Auth::user()->usergroup;
             $tahun = $this->tahun;
             $path_lampiran = null;
 
-            if(isset($request->lampiran))
-            {
+            if (isset($request->lampiran)) {
                 $lampiran = $request->file('lampiran');
-                $nama_file = time()."_".$lampiran->getClientOriginalName();
+                $nama_file = time() . "_" . $lampiran->getClientOriginalName();
                 $path_lampiran = $request->lampiran->storeAs('public/files/lampiran', $nama_file);
-            }
-            else
-            {
+            } else {
                 $path_lampiran = $request->lampiran_lama;
             }
 
             // Buat array data update
             $data = [
-                'diklat_jenis_id'     => $request->jenis_diklat,
-                'kurikulum_id'        => $request->kurikulum,
-                'lokasi_id'           => $request->lokasi,
-                'nama'                => $request->nama,
-                'tipe'                => $request->tipe,
-                'kuota'               => $request->kuota,
-                'tgl_awal'            => $request->tgl_awal,
-                'tgl_akhir'           => $request->tgl_akhir,
-                'tahun'               => $tahun,
-                'kelas'               => $request->kelas,
-                'registrasi'          => $request->registrasi,
-                'registrasi_lengkap'  => $request->registrasi_lengkap,
-                'reg_awal'            => $request->reg_awal,
-                'reg_akhir'           => $request->reg_akhir,
-                'panitia_nama'        => $request->panitia_nama,
-                'panitia_telp'        => $request->panitia_telp,
-                'panitia_email'       => $request->panitia_email,
-                'deskripsi'           => $request->deskripsi,
-                'syarat'              => $request->syarat,
-                'lampiran'            => $path_lampiran,
-                'status'              => $request->status,
-                'updated_at'          => $updated_at,
-                'updated_by'          => $updated_by,
-                'var_1'               => $request->var_1,
-                'var_2'               => $request->pola,
-                'is_upload'           => $request->is_upload,
-                'is_tampil'           => $request->is_tampil,
-                'is_statistik'        => $request->is_statistik,
+                'diklat_jenis_id' => $request->jenis_diklat,
+                'kurikulum_id' => $request->kurikulum,
+                'lokasi_id' => $request->lokasi,
+                'nama' => $request->nama,
+                'tipe' => $request->tipe,
+                'kuota' => $request->kuota,
+                'tgl_awal' => $request->tgl_awal,
+                'tgl_akhir' => $request->tgl_akhir,
+                'tahun' => $tahun,
+                'kelas' => $request->kelas,
+                'registrasi' => $request->registrasi,
+                'registrasi_lengkap' => $request->registrasi_lengkap,
+                'reg_awal' => $request->reg_awal,
+                'reg_akhir' => $request->reg_akhir,
+                'panitia_nama' => $request->panitia_nama,
+                'panitia_telp' => $request->panitia_telp,
+                'panitia_email' => $request->panitia_email,
+                'deskripsi' => $request->deskripsi,
+                'syarat' => $request->syarat,
+                'lampiran' => $path_lampiran,
+                'status' => $request->status,
+                'updated_at' => $updated_at,
+                'updated_by' => $updated_by,
+                'var_1' => $request->var_1,
+                'var_2' => $request->pola,
+                'is_upload' => $request->is_upload,
+                'is_tampil' => $request->is_tampil,
+                'is_statistik' => $request->is_statistik,
+                'jenis_layanan' => $request->jenis_layanan,
             ];
 
             // Hanya tambahkan kolom usergroup jika bukan admin
@@ -280,9 +270,7 @@ class JadwalController extends Controller
             $notifikasi = 'Data jadwal diklat berhasil diubah!';
 
             return redirect()->route('backend.diklat.jadwal.index')->with('success', $notifikasi);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             $notifikasi = 'Data jadwal diklat gagal diubah!';
             // return redirect()->back()->with('error', $e->getMessage());
             return redirect()->back()->with('error', $notifikasi);
@@ -296,8 +284,7 @@ class JadwalController extends Controller
 
         $delete = DB::table('diklat_jadwal')->where('id', $id)->delete();
 
-        if($delete)
-        {
+        if ($delete) {
             $notifikasi = 'Data jadwal berhasil dihapus!';
             return redirect()->route('backend.diklat.jadwal.index')->with('success', $notifikasi);
         }
@@ -312,137 +299,131 @@ class JadwalController extends Controller
 
         $jadwal = [];
 
-        switch($id)
-        {
+        switch ($id) {
             case 2:
-                switch($level)
-                {
+                switch ($level) {
                     case 'admin':
                         $jadwal = DB::table('v_jadwal_datang')
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
 
                     case 'user':
                         $jadwal = DB::table('v_jadwal_datang')
-                                    ->where('tahun', $this->tahun)
-                                    ->where('usergroup', $this->user->usergroup)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->where('usergroup', $this->user->usergroup)
+                            ->get();
                         break;
 
                     case 'kontribusi':
                         $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                         $jadwal = DB::table('v_jadwal_datang')
-                                    ->where('kelas', $instansi->nama)
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('kelas', $instansi->nama)
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
 
                 }
                 break;
 
             case 3:
-                switch($level)
-                {
+                switch ($level) {
                     case 'admin':
                         $jadwal = DB::table('v_jadwal_berjalan')
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
 
                     case 'user':
                         $jadwal = DB::table('v_jadwal_berjalan')
-                                    ->where('tahun', $this->tahun)
-                                    ->where('usergroup', $this->user->usergroup)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->where('usergroup', $this->user->usergroup)
+                            ->get();
                         break;
 
                     case 'kontribusi':
                         $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                         $jadwal = DB::table('v_jadwal_berjalan')
-                                    ->where('kelas', $instansi->nama)
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('kelas', $instansi->nama)
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
                 }
                 break;
 
             case 4:
-                switch($level)
-                {
+                switch ($level) {
                     case 'admin':
                         $jadwal = DB::table('v_jadwal_selesai')
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
 
                     case 'user':
                         $jadwal = DB::table('v_jadwal_selesai')
-                                    ->where('tahun', $this->tahun)
-                                    ->where('usergroup', $this->user->usergroup)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->where('usergroup', $this->user->usergroup)
+                            ->get();
                         break;
 
                     case 'kontribusi':
                         $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                         $jadwal = DB::table('v_jadwal_selesai')
-                                    ->where('kelas', $instansi->nama)
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('kelas', $instansi->nama)
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
                 }
                 break;
 
             case 5:
-                switch($level)
-                {
+                switch ($level) {
                     case 'admin':
                         $jadwal = DB::table('v_jadwal_batal')
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
 
                     case 'user':
                         $jadwal = DB::table('v_jadwal_batal')
-                                    ->where('tahun', $this->tahun)
-                                    ->where('usergroup', $this->user->usergroup)
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->where('usergroup', $this->user->usergroup)
+                            ->get();
                         break;
 
                     case 'kontribusi':
                         $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                         $jadwal = DB::table('v_jadwal_batal')
-                                    ->where('kelas', $instansi->nama)
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('kelas', $instansi->nama)
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
                 }
                 break;
 
             default:
-                switch($level)
-                {
+                switch ($level) {
                     case 'admin':
                         $jadwal = DB::table('v_jadwal_detail')
-                                    ->where('tahun', $this->tahun)
-                                    ->orderby('tgl_awal', 'desc')
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->orderby('tgl_awal', 'desc')
+                            ->get();
                         break;
 
                     case 'user':
                         $jadwal = DB::table('v_jadwal_detail')
-                                    ->where('tahun', $this->tahun)
-                                    ->where('usergroup', $this->user->usergroup)
-                                    ->orderby('tgl_awal', 'desc')
-                                    ->get();
+                            ->where('tahun', $this->tahun)
+                            ->where('usergroup', $this->user->usergroup)
+                            ->orderby('tgl_awal', 'desc')
+                            ->get();
                         break;
 
                     case 'kontribusi':
                         $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
                         $jadwal = DB::table('v_jadwal_detail')
-                                    ->where('kelas', $instansi->nama)
-                                    ->where('tahun', $this->tahun)
-                                    ->get();
+                            ->where('kelas', $instansi->nama)
+                            ->where('tahun', $this->tahun)
+                            ->get();
                         break;
                 }
                 break;
@@ -456,49 +437,43 @@ class JadwalController extends Controller
         $this->checkAuth($id);
         $jadwal = DB::table('v_jadwal_detail')->where('id', $id)->first();
         $peserta = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $id)
-                    ->where('verifikasi', true)
-                    ->where('batal', false)
-                    ->get();
+            ->where('diklat_jadwal_id', $id)
+            ->where('verifikasi', true)
+            ->where('batal', false)
+            ->get();
 
         $page = '';
 
-        if(\Request::has('page'))
+        if (\Request::has('page'))
             $page = \Request::query('page');
 
-        switch($page)
-        {
+        switch ($page) {
             case 'peserta':
                 return $this->peserta($jadwal, $peserta);
-            break;
 
             case 'sertifikat':
                 return $this->sertifikat($jadwal, $peserta);
-            break;
 
             case 'cetak':
                 return $this->cetak($jadwal, $peserta);
-            break;
 
             case 'checklist':
                 return $this->checklist($jadwal);
-            break;
 
             case 'mata-pelatihan':
                 return $this->mapel($jadwal);
-            break;
 
             case 'seminar':
                 return $this->seminar($jadwal);
-            break;
 
             case 'surat-tugas':
                 return $this->surtu($jadwal);
-            break;
 
             case 'tautan':
                 return $this->tautan($jadwal);
-            break;
+
+            case 'survei':
+                return $this->survei($jadwal);
 
             default:
                 return view('backend.diklat.jadwal.detail', compact('jadwal', 'peserta'));
@@ -508,38 +483,38 @@ class JadwalController extends Controller
     public function peserta($jadwal, $peserta)
     {
         $pes_verif = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->where('verifikasi', true)
-                    ->where('batal', false)
-                    ->orderby('nama_lengkap')
-                    ->get();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', true)
+            ->where('batal', false)
+            ->orderby('nama_lengkap')
+            ->get();
         $pes_noverif = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->where('verifikasi', false)
-                    ->where('batal', false)
-                    ->where('konfirmasi', true)
-                    ->get();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', false)
+            ->where('batal', false)
+            ->where('konfirmasi', true)
+            ->get();
         $pes_confirm = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->where('verifikasi', false)
-                    ->where('batal', false)
-                    ->where('konfirmasi', false)
-                    ->get();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', false)
+            ->where('batal', false)
+            ->where('konfirmasi', false)
+            ->get();
         $pes_tolak = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->where('verifikasi', 2)
-                    ->where('batal', false)
-                    ->get();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', 2)
+            ->where('batal', false)
+            ->get();
         $pes_batal = DB::table('peserta')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->where('batal', true)
-                    ->get();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('batal', true)
+            ->get();
 
         $sertifikat = DB::table('sertifikat')
-                    ->where('diklat_jadwal_id', $jadwal->id)
-                    ->first();
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->first();
 
-        if(!$jadwal->registrasi_lengkap)
+        if (!$jadwal->registrasi_lengkap)
             return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
 
         return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
@@ -559,11 +534,11 @@ class JadwalController extends Controller
     public function sertifikat($jadwal, $peserta)
     {
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal->id)->first();
-        if(!is_null($sertifikat))
-        {
+        if (!is_null($sertifikat)) {
             $sertPeserta = DB::table('v_sertifikat')->where('sertifikat_id', $sertifikat->id)->get();
+            $simasn = DB::table('sertifikat_simasn')->where('sertifikat_id', $sertifikat->id)->first();
             $email = DB::table('sertifikat_email')->where('sertifikat_id', $sertifikat->id)->first();
-            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'sertPeserta', 'email'));
+            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'sertPeserta', 'simasn', 'email'));
         }
         $template = DB::table('sertifikat_template')->where('is_tampil', true)->orderBy('nama')->get();
 
@@ -582,11 +557,11 @@ class JadwalController extends Controller
     public function seminar($jadwal)
     {
         $seminar = DB::table('seminar')
-                        ->join('fasilitator as f1', 'seminar.cid', 'f1.id')
-                        ->join('fasilitator as f2', 'seminar.pid', 'f2.id')
-                        ->select('seminar.*', 'f1.nama as coach', 'f2.nama as penguji')
-                        ->where('seminar.jid', $jadwal->id)
-                        ->get();
+            ->join('fasilitator as f1', 'seminar.cid', 'f1.id')
+            ->join('fasilitator as f2', 'seminar.pid', 'f2.id')
+            ->select('seminar.*', 'f1.nama as coach', 'f2.nama as penguji')
+            ->where('seminar.jid', $jadwal->id)
+            ->get();
 
         $cetak = DB::table('seminar_form')->where('djid', $jadwal->diklat_jenis_id)->orderBy('nama')->get();
 
@@ -605,27 +580,28 @@ class JadwalController extends Controller
         return view('backend.diklat.jadwal.detail_tautan', compact('jadwal'));
     }
 
+    public function survei($jadwal)
+    {
+        return view('backend.diklat.jadwal.detail_survey', compact('jadwal'));
+    }
+
     public function checkAuth($id)
     {
-        if($this->isAdmin() || $this->isViewer())
+        if ($this->isAdmin() || $this->isViewer())
             return true;
 
         $data = DB::table('v_jadwal_detail')->where('id', $id)
-                    ->where('tahun', $this->tahun)
-                    ->first();
+            ->where('tahun', $this->tahun)
+            ->first();
 
-        if(empty($data))
-        {
+        if (empty($data)) {
             abort(404);
         }
 
-        if(Gate::allows('isCreator', $data) && Auth::user()->instansi_id == 1)
-        {
+        if (Gate::allows('isCreator', $data) && Auth::user()->instansi_id == 1) {
             return true;
-        }
-        else
-        {
-            if(Gate::allows('isKelasKontribusi', $data))
+        } else {
+            if (Gate::allows('isKelasKontribusi', $data))
                 return true;
         }
 

@@ -32,8 +32,7 @@ Route::get('/jadwal/dinov', function (Request $request) {
         'tahun' => 'required'
     ]);
 
-    if($validator->fails())
-    {
+    if ($validator->fails()) {
         $data = ['success' => false, 'message' => 'Bad Request'];
         return response()->json($data, 400);
     }
@@ -49,8 +48,7 @@ Route::get('/peserta/dinov', function (Request $request) {
         'nip' => 'required'
     ]);
 
-    if($validator->fails())
-    {
+    if ($validator->fails()) {
         $data = ['success' => false, 'message' => 'Bad Request'];
         return response()->json($data, 400);
     }
@@ -75,19 +73,20 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth.api'], function () {
     Route::get('/uji', function (Request $request) {
         return response()->json('Okay Bos');
     });
+
     Route::post('/auth', function (Request $request) {
         $nip = $request->username;
         $hp = $request->password;
         $peserta = Peserta::select('nip', 'nama_lengkap', 'jk', 'hp', 'email', 'jabatan', 'instansi', 'satker_nama', 'status_asn')
-                    ->where('nip', $nip)
-                    ->where('hp', $hp)
-                    ->where('konfirmasi', true)
-                    ->where('batal', false)
-                    ->where('sebagai', 'Peserta')
-                    ->latest()
-                    ->first();
+            ->where('nip', $nip)
+            ->where('hp', $hp)
+            ->where('konfirmasi', true)
+            ->where('batal', false)
+            ->where('sebagai', 'Peserta')
+            ->latest()
+            ->first();
 
-        if($peserta) {
+        if ($peserta) {
             return response()->json([
                 'success' => true,
                 'message' => 'Data peserta benar',
@@ -100,4 +99,6 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth.api'], function () {
             'message' => 'Data peserta tidak ditemukan'
         ], 404);
     });
+
+    Route::post('/survei/callback', 'Api\SurveyCallbackController@store');
 });

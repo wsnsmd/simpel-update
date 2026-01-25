@@ -75,6 +75,31 @@
             </div>  
             <div class="form-group form-row">
                 <div class="col-6">
+                    <label for="pendidikan">Pendidikan <span class="text-danger">*</span></label>
+                    <select class="form-control{{ $errors->has('pendidikan') ? ' is-invalid' : '' }}" id="pendidikan"
+                        name="pendidikan" required>
+                        <option value="">-- Pilih Pendidikan --</option>
+                        <option value="SD / sederajat" {{ old('pendidikan') == 'SD / sederajat' ? 'selected' : '' }}>SD / sederajat
+                        </option>
+                        <option value="SMP / sederajat" {{ old('pendidikan') == 'SMP / sederajat' ? 'selected' : '' }}>SMP / sederajat
+                        </option>
+                        <option value="SMA / SMK / sederajat" {{ old('pendidikan') == 'SMA / SMK / sederajat' ? 'selected' : '' }}>SMA
+                            / SMK / sederajat</option>
+                        <option value="Diploma (D1–D4)" {{ old('pendidikan') == 'Diploma (D1–D4)' ? 'selected' : '' }}>Diploma (D1–D4)
+                        </option>
+                        <option value="Sarjana (S1)" {{ old('pendidikan') == 'Sarjana (S1)' ? 'selected' : '' }}>Sarjana (S1)</option>
+                        <option value="Magister (S2)" {{ old('pendidikan') == 'Magister (S2)' ? 'selected' : '' }}>Magister (S2)
+                        </option>
+                        <option value="Doktor (S3)" {{ old('pendidikan') == 'Doktor (S3)' ? 'selected' : '' }}>Doktor (S3)</option>
+                    </select>
+
+                    @if ($errors->has('pendidikan'))
+                        <div class="invalid-feedback">{{ $errors->first('pendidikan') }}</div>
+                    @endif
+                </div>
+            </div>
+            <div class="form-group form-row">
+                <div class="col-6">
                     <label for="instansi">Jenis Kelamin</label>
                     <select class="form-control" id="jk" name="jk" style="width: 100%;" required>
                         <option value="">-- Pilih Jenis Kelamin --</option>

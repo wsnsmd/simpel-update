@@ -51,6 +51,10 @@ class UploadSimpegJob implements ShouldQueue
      */
     public function handle()
     {
+        \Log::info('UploadSimpegJob RUN', [
+            'peserta' => $this->peserta->id
+        ]);
+
         $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
         $headers = [
             'Authorization' => 'Bearer ' . $tokenData->token
@@ -62,7 +66,7 @@ class UploadSimpegJob implements ShouldQueue
         $content = $res->getBody()->getContents();
         // $content = (string) $res->getBody();
         $microtime = microtime(true);
-        $microtimeString = str_replace('.', '_', (string)$microtime);
+        $microtimeString = str_replace('.', '_', (string) $microtime);
 
         $client = new Client(['verify' => false]);
         $options = [
@@ -110,9 +114,9 @@ class UploadSimpegJob implements ShouldQueue
                 [
                     'name' => 'sertifikat',
                     'contents' => $content,
-                    'filename' => '/sertifikat-'. $microtimeString . '.pdf',
-                    'headers'  => [
-                      'Content-Type' => '<Content-type header>'
+                    'filename' => '/sertifikat-' . $microtimeString . '.pdf',
+                    'headers' => [
+                        'Content-Type' => '<Content-type header>'
                     ]
                 ],
             ]
@@ -122,12 +126,27 @@ class UploadSimpegJob implements ShouldQueue
 
         $body = json_decode($res->getBody());
 
-        if($body->success)
-        {
+        if ($body->success) {
             $at = date('Y-m-d H:i:s');
             DB::table('sertifikat_peserta')->where('id', $this->peserta->spid)->update([
-                'simpeg_at' => $at
+                'simpeg_at' => $at,
+                'simpeg_failed_at' => null,
+                'updated_at' => $at,
             ]);
         }
+    }
+
+    public function failed(\Throwable $e)
+    {
+        DB::table('sertifikat_peserta')
+            ->where('id', $this->peserta->id)
+            ->update([
+                'simpeg_failed_at' => now(),
+            ]);
+
+        \Log::error('UploadSimpegJob FAILED', [
+            'peserta' => $this->pes->id,
+            'error' => $e->getMessage(),
+        ]);
     }
 }

@@ -1,3 +1,7 @@
+@php
+    $pendidikanVal = old('pendidikan', $peserta->pendidikan);
+@endphp
+
 @extends('layouts.backend')
 
 @section('sidebar')
@@ -27,11 +31,11 @@
             }
         });
 
-        jQuery(function(){
+        jQuery(function () {
             Dashmix.helpers(['datepicker', 'maxlength']);
-            $('#nip').keypress(function(event){
+            $('#nip').keypress(function (event) {
                 var keycode = (event.keyCode ? event.keyCode : event.which);
-                if(keycode == '13'){
+                if (keycode == '13') {
                     cariNIP();
                 }
                 event.stopPropagation();
@@ -39,29 +43,29 @@
         });
 
         @if (session('success'))
-        $.notify({
-            icon: "fa fa-check mr-1",
-            message: "{{ session('success') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'success',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
+            $.notify({
+                icon: "fa fa-check mr-1",
+                message: "{{ session('success') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'success',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
         @elseif (session('error'))
-        $.notify({
-            icon: "fa fa-times mr-1",
-            message: "{{ session('error') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'danger',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
+            $.notify({
+                icon: "fa fa-times mr-1",
+                message: "{{ session('error') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
         @endif
 
         function cariNIP() {
@@ -74,7 +78,7 @@
                     data: {
                         nip: nip,
                     },
-                    success: function(data) {
+                    success: function (data) {
                         $('#nama_lengkap').val(data.nama_lengkap);
                         $('#status_asn').val(1);
                         $('#status_asn').trigger('change');
@@ -87,7 +91,7 @@
                         $('#instansi').trigger('change');
                         $('#satker_nama').val(data.satker_nama);
                     },
-                    error: function(xhr, textStatus, errorThrown) {
+                    error: function (xhr, textStatus, errorThrown) {
                         var err = JSON.parse(xhr.responseText);
                         var e = Swal.mixin({
                             buttonsStyling: !1,
@@ -123,7 +127,7 @@
                     </ol>
                 </nav>
             </div>
-       </div>
+        </div>
     </div>
     <!-- END Hero -->
 
@@ -135,7 +139,9 @@
                 <h3 class="block-title">Peserta - Edit</h3>
             </div>
             <div class="block-content block-content-full border-top">
-                <form id="form-peserta" class="mb-2" action="{{ route('backend.diklat.peserta.update.simple', ['id' => $peserta->id ]) }}" method="POST" autocomplete="off">
+                <form id="form-peserta" class="mb-2"
+                    action="{{ route('backend.diklat.peserta.update.simple', ['id' => $peserta->id]) }}" method="POST"
+                    autocomplete="off">
                     @csrf
                     @method('PATCH')
                     <h2 class="content-heading pt-0">Data Peserta</h2>
@@ -144,7 +150,11 @@
                         <div class="col-sm-9">
                             <div class="form-group">
                                 <div class="input-group">
-                                    <input type="text" class="js-maxlength form-control{{ $errors->has('nip') ? ' is-invalid' : '' }}" id="nip" name="nip" maxlength="18" placeholder="NIP..." value="{{ $peserta->nip }}" data-always-show="true" data-warning-class="badge badge-primary" data-limit-reached-class="badge badge-primary">
+                                    <input type="text"
+                                        class="js-maxlength form-control{{ $errors->has('nip') ? ' is-invalid' : '' }}"
+                                        id="nip" name="nip" maxlength="18" placeholder="NIP..." value="{{ $peserta->nip }}"
+                                        data-always-show="true" data-warning-class="badge badge-primary"
+                                        data-limit-reached-class="badge badge-primary">
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-primary" onclick="cariNIP()">
                                             <i class="fa fa-search mr-1"></i>
@@ -153,12 +163,13 @@
                                 </div>
                             </div>
                             @if ($errors->has('nip'))
-                            <div class="invalid-feedback">{{ $errors->first('nip') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('nip') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="status_asn">Status ASN <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="status_asn">Status ASN <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="custom-select" id="status_asn" name="status_asn" required>
                                 <option value="">-- Pilih Status ASN --</option>
@@ -169,16 +180,40 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="nama_lengkap">Nama Lengkap <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="nama_lengkap">Nama Lengkap <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('nama_lengkap') ? ' is-invalid' : '' }}" id="nama_lengkap" name="nama_lengkap" placeholder="Nama Lengkap..." value="{{ $peserta->nama_lengkap }}" required>
+                            <input type="text" class="form-control{{ $errors->has('nama_lengkap') ? ' is-invalid' : '' }}"
+                                id="nama_lengkap" name="nama_lengkap" placeholder="Nama Lengkap..."
+                                value="{{ $peserta->nama_lengkap }}" required>
                             @if ($errors->has('nama_lengkap'))
-                            <div class="invalid-feedback">{{ $errors->first('nama_lengkap') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('nama_lengkap') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="jk">Jenis Kelamin <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="pendidikan">Pendidikan <span
+                                class="text-danger">*</span></label>
+                        <div class="col-sm-9">
+                            <select class="custom-select{{ $errors->has('pendidikan') ? ' is-invalid' : '' }}"
+                                id="pendidikan" name="pendidikan" required>
+                                <option value="">-- Pilih Pendidikan --</option>
+
+                                @foreach (config('simpel.pendidikan', []) as $item)
+                                    <option value="{{ $item }}" {{ $pendidikanVal === $item ? 'selected' : '' }}>
+                                        {{ $item }}
+                                    </option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('pendidikan'))
+                                <div class="invalid-feedback">{{ $errors->first('pendidikan') }}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label text-right" for="jk">Jenis Kelamin <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="form-control" id="jk" name="jk" style="width: 100%;" required>
                                 <option value="" selected>-- Pilih Jenis Kelamin --</option>
@@ -186,79 +221,96 @@
                                 <option value="P" {{ ($peserta->jk == 'P' ? 'selected' : '') }}>Perempuan</option>
                             </select>
                             @if ($errors->has('jk'))
-                            <div class="invalid-feedback">{{ $errors->first('jk') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('jk') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="hp">Handphone <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="hp">Handphone <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('hp') ? ' is-invalid' : '' }}" id="hp" name="hp" placeholder="No. Handphone..." value="{{ $peserta->hp }}" required>
+                            <input type="text" class="form-control{{ $errors->has('hp') ? ' is-invalid' : '' }}" id="hp"
+                                name="hp" placeholder="No. Handphone..." value="{{ $peserta->hp }}" required>
                             @if ($errors->has('hp'))
-                            <div class="invalid-feedback">{{ $errors->first('hp') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('hp') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="email">Email <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="email">Email <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" id="email" name="email" placeholder="Email..." value="{{ $peserta->email }}" required>
+                            <input type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}"
+                                id="email" name="email" placeholder="Email..." value="{{ $peserta->email }}" required>
                             @if ($errors->has('email'))
-                            <div class="invalid-feedback">{{ $errors->first('email') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="instansi">Instansi <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="instansi">Instansi <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" list="instansi_list" class="form-control{{ $errors->has('instansi') ? ' is-invalid' : '' }}" id="instansi" name="instansi" placeholder="Instansi..." value="{{ $peserta->instansi }}" required>
+                            <input type="text" list="instansi_list"
+                                class="form-control{{ $errors->has('instansi') ? ' is-invalid' : '' }}" id="instansi"
+                                name="instansi" placeholder="Instansi..." value="{{ $peserta->instansi }}" required>
                             <datalist id="instansi_list">
                                 @foreach ($instansi as $i)
-                                <option value="{{ $i->nama }}">
+                                    <option value="{{ $i->nama }}">
                                 @endforeach
                             </datalist>
                             @if ($errors->has('instansi'))
-                            <div class="invalid-feedback">{{ $errors->first('instansi') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('instansi') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="satker_nama">Satuan Kerja (SKPD/OPD) / Partai <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="satker_nama">Satuan Kerja (SKPD/OPD) / Partai
+                            <span class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                         <input type="text" class="form-control{{ $errors->has('satker_nama') ? ' is-invalid' : '' }}" id="satker_nama" name="satker_nama" placeholder="Satuan Kerja..." value="{{ $peserta->satker_nama }}" required>
+                            <input type="text" class="form-control{{ $errors->has('satker_nama') ? ' is-invalid' : '' }}"
+                                id="satker_nama" name="satker_nama" placeholder="Satuan Kerja..."
+                                value="{{ $peserta->satker_nama }}" required>
                             @if ($errors->has('satker_nama'))
-                            <div class="invalid-feedback">{{ $errors->first('satker_nama') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('satker_nama') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="jabatan">Jabatan <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="jabatan">Jabatan <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
-                            <input type="text" class="form-control{{ $errors->has('jabatan') ? ' is-invalid' : '' }}" id="jabatan" name="jabatan" placeholder="Jabatan..." value="{{ $peserta->jabatan }}" required>
+                            <input type="text" class="form-control{{ $errors->has('jabatan') ? ' is-invalid' : '' }}"
+                                id="jabatan" name="jabatan" placeholder="Jabatan..." value="{{ $peserta->jabatan }}"
+                                required>
                             @if ($errors->has('jabatan'))
-                            <div class="invalid-feedback">{{ $errors->first('jabatan') }}</div>
+                                <div class="invalid-feedback">{{ $errors->first('jabatan') }}</div>
                             @endif
                         </div>
                     </div>
                     <div class="form-group row">
-                        <label class="col-sm-3 col-form-label text-right" for="sebagai">Sebagai <span class="text-danger">*</span></label>
+                        <label class="col-sm-3 col-form-label text-right" for="sebagai">Sebagai <span
+                                class="text-danger">*</span></label>
                         <div class="col-sm-9">
                             <select class="custom-select" id="sebagai" name="sebagai" required>
                                 <option value="">-- Pilih Sebagai --</option>
-                                <option value="Moderator" {{ ($peserta->sebagai == 'Moderator' ? 'selected' : '') }}>Moderator</option>
-                                <option value="Narasumber" {{ ($peserta->sebagai == 'Narasumber' ? 'selected' : '') }}>Narasumber</option>
-                                <option value="Panitia" {{ ($peserta->sebagai == 'Panitia' ? 'selected' : '') }}>Panitia</option>
-                                <option value="Peserta" {{ ($peserta->sebagai == 'Peserta' ? 'selected' : '') }}>Peserta</option>
+                                <option value="Moderator" {{ ($peserta->sebagai == 'Moderator' ? 'selected' : '') }}>Moderator
+                                </option>
+                                <option value="Narasumber" {{ ($peserta->sebagai == 'Narasumber' ? 'selected' : '') }}>
+                                    Narasumber</option>
+                                <option value="Panitia" {{ ($peserta->sebagai == 'Panitia' ? 'selected' : '') }}>Panitia
+                                </option>
+                                <option value="Peserta" {{ ($peserta->sebagai == 'Peserta' ? 'selected' : '') }}>Peserta
+                                </option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group mt-4 row">
                         <label class="col-sm-3 col-form-label text-right">&nbsp;</label>
                         <div class="col-sm-9">
-                            <a href='{{URL::previous()}}' class="btn btn-sm btn-light"><i class="fa fa-chevron-circle-left"></i>
-                            {{-- <a href="{{route('backend.diklat.peserta.back', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama)])}}" class="btn btn-sm btn-light"><i class="fa fa-chevron-circle-left"></i> --}}
+                            <a href='{{URL::previous()}}' class="btn btn-sm btn-light"><i
+                                    class="fa fa-chevron-circle-left"></i>
                                 Kembali</a>
-                            <input type="submit" name="more" value="Simpan &amp; Tambah Lagi" class="btn btn-sm btn-success">
                             <input type="submit" name="add" value="Simpan" class="btn btn-sm btn-success">
                         </div>
                     </div>
