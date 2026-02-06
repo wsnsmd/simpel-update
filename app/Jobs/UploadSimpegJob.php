@@ -136,7 +136,6 @@ class UploadSimpegJob implements ShouldQueue
             \Log::info('UploadSimpegJob SUCCESS', [
                 'peserta' => $this->peserta->id,
                 'jadwal' => $this->jadwal->id,
-                'sertifikat' => $this->sertifikat->id,
                 'response' => $body,
             ]);
         }
