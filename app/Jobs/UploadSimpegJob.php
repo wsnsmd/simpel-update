@@ -133,6 +133,12 @@ class UploadSimpegJob implements ShouldQueue
                 'simpeg_failed_at' => null,
                 'updated_at' => $at,
             ]);
+            \Log::info('UploadSimpegJob SUCCESS', [
+                'peserta' => $this->peserta->id,
+                'jadwal' => $this->jadwal->id,
+                'sertifikat' => $this->sertifikat->id,
+                'response' => $body,
+            ]);
         }
     }
 
