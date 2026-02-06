@@ -151,7 +151,7 @@ class UploadSimpegJob implements ShouldQueue
             ]);
 
         \Log::error('UploadSimpegJob FAILED', [
-            'peserta' => $this->pes->id,
+            'peserta' => $this->peserta->id,
             'error' => $e->getMessage(),
         ]);
     }
