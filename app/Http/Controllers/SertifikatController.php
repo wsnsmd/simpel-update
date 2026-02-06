@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Crypt;
 use App;
 use DB;
 use Storage;
+use App\Jobs\UploadSimpegJob;
 
 class SertifikatController extends Controller
 {
@@ -40,6 +41,7 @@ class SertifikatController extends Controller
 
         $sertPeserta = DB::table('v_sertifikat')
             ->select(
+                'id',
                 'nip',
                 'nama_lengkap',
                 'tmp_lahir',
@@ -60,7 +62,10 @@ class SertifikatController extends Controller
                 'spesimen_bawah',
                 'spesimen2_kiri',
                 'spesimen2_bawah',
-                'upload'
+                'upload',
+                'simpeg_at',
+                'simpeg_queued_at',
+                'simpeg_failed_at',
             )
             ->where('spid', $sertifikat)
             ->first();
@@ -205,6 +210,42 @@ class SertifikatController extends Controller
 
         if (is_null($sertPeserta->foto)) {
             $sertPeserta->foto = 'media/avatars/avatar8.jpg';
+        }
+
+        // 1. Filter Instansi: Hanya Pemerintah Provinsi Kalimantan Timur
+        $instansi = strtoupper($sertPeserta->instansi);
+        $isPemprov = str_contains($instansi, 'PEMERINTAH PROVINSI KALIMANTAN TIMUR');
+
+        // 2. Filter Status Antrean: Pastikan simpe_queued masih 0 (belum pernah masuk antrean)
+        $isNotQueued = DB::table('sertifikat_peserta')
+            ->where('id', $sertifikat)
+            ->whereNull('simpeg_at')
+            ->whereNull('simpeg_queued_at')
+            ->exists();
+
+        if ($isPemprov && $isNotQueued) {
+            // 3. Tandai langsung di database agar request berikutnya tidak masuk ke sini (Mencegah Loop)
+            DB::table('sertifikat_peserta')
+                ->where('id', $sertifikat)
+                ->update(['simpeg_queued_at' => now()]);
+
+            // 4. Persiapkan variabel untuk Job
+            $simasn = DB::table('sertifikat_simasn')
+                ->where('sertifikat_id', $sertPeserta->sertifikat_id)
+                ->first();
+
+            $pes = $sertPeserta->nip;
+            $jenis = $simasn->jenis; // misal: Diklat, Workshop, dll
+            $kategori = $simasn->kategori;
+            $sub = $simasn->sub_kategori;
+
+            // Gunakan URL saat ini sebagai sumber sertifikat untuk di-upload oleh Job
+            $url_sertifikat = url()->current();
+
+            // 5. Dispatch Job dengan Delay
+            $job = new UploadSimpegJob($pes, $jadwal, $sertifikat, $jenis, $kategori, $sub, $url_sertifikat);
+            $job->delay(now()->addSeconds(5));
+            dispatch($job);
         }
 
         ini_set('memory_limit', '1024M');
