@@ -126,7 +126,7 @@ class SurveyCallbackController extends Controller
 
             DB::commit();
 
-            // $this->checkAndDispatchSimasnIfSurveyComplete((int) $request->peserta_id, (int) $request->jadwal_id);
+            $this->checkAndDispatchSimasnIfSurveyComplete((int) $request->peserta_id, (int) $request->jadwal_id);
 
             return response()->json([
                 'success' => true,
@@ -207,66 +207,75 @@ class SurveyCallbackController extends Controller
                 return;
             }
 
-            if ((int) $pes->status_asn === 0) {
-                \Log::info('[SIMASN] stop: $pes->status_asn === 0');
-                return;
-            }
-
-            $targetInstansi = 'Pemerintah Provinsi Kalimantan Timur';
-            if (strtolower(trim((string) $pes->instansi)) !== strtolower($targetInstansi)) {
-                \Log::info('[SIMASN] stop: $targetInstansi');
-                return;
-            }
-
-            if (!is_null($pes->simpeg_at)) {
-                return;
-            }
-
-            $simasn = DB::table('sertifikat_simasn')
-                ->where('sertifikat_id', $sertifikat->id)
-                ->first();
-
-            if (!$simasn) {
-                // kalau belum diset operator/admin, jangan auto kirim
-                \Log::info('[SIMASN] stop: $simasn');
-                return;
-            }
-
-            $jenis = $simasn->jenis;
-            $kategori = $simasn->kategori;
-            $sub = $simasn->sub_kategori;
-
-            $updated = DB::table('sertifikat_peserta')
+            DB::table('sertifikat_peserta')
                 ->where('id', $pes->spid)
-                ->whereNull('simpeg_at')
-                ->whereNull('simpeg_queued_at')
                 ->update([
-                    'simpeg_queued_at' => now(),
-                    'simpeg_failed_at' => null, // reset gagal jika sebelumnya pernah gagal
                     'updated_at' => now(),
+                    'is_published' => true
                 ]);
+
+            \Log::info('[SERTIFIKAT: ' . $pes->spid . '] peserta_id ' . $pesertaId . ' jadwal_id ' . $jadwalId . ' sertifikat published karena survey lengkap');
+
+            // if ((int) $pes->status_asn === 0) {
+            //     \Log::info('[SIMASN] stop: $pes->status_asn === 0');
+            //     return;
+            // }
+
+            // $targetInstansi = 'Pemerintah Provinsi Kalimantan Timur';
+            // if (strtolower(trim((string) $pes->instansi)) !== strtolower($targetInstansi)) {
+            //     \Log::info('[SIMASN] stop: $targetInstansi');
+            //     return;
+            // }
+
+            // if (!is_null($pes->simpeg_at)) {
+            //     return;
+            // }
+
+            // $simasn = DB::table('sertifikat_simasn')
+            //     ->where('sertifikat_id', $sertifikat->id)
+            //     ->first();
+
+            // if (!$simasn) {
+            //     // kalau belum diset operator/admin, jangan auto kirim
+            //     \Log::info('[SIMASN] stop: $simasn');
+            //     return;
+            // }
+
+            // $jenis = $simasn->jenis;
+            // $kategori = $simasn->kategori;
+            // $sub = $simasn->sub_kategori;
+
+            // $updated = DB::table('sertifikat_peserta')
+            //     ->where('id', $pes->spid)
+            //     ->whereNull('simpeg_at')
+            //     ->whereNull('simpeg_queued_at')
+            //     ->update([
+            //         'simpeg_queued_at' => now(),
+            //         'simpeg_failed_at' => null, // reset gagal jika sebelumnya pernah gagal
+            //         'updated_at' => now(),
+            //     ]);
 
             // Jika 0 artinya:
             // - sudah queued oleh proses lain, ATAU
             // - sudah simpeg_at terisi (sudah sukses)
-            // => JANGAN dispatch lagi
-            if ((int) $updated !== 1) {
-                \Log::info('[SIMASN] stop: $updated');
-                return;
-            }
+            // // => JANGAN dispatch lagi
+            // if ((int) $updated !== 1) {
+            //     \Log::info('[SIMASN] stop: $updated');
+            //     return;
+            // }
 
-            $url_sertifikat = route('sertifikat.show', [
-                'peserta' => $pes->id,
-                'jadwal' => $pes->diklat_jadwal_id,
-                'sertifikat' => $pes->spid,
-                'email' => str_slug($pes->email),
-            ]);
+            // $url_sertifikat = route('sertifikat.show', [
+            //     'peserta' => $pes->id,
+            //     'jadwal' => $pes->diklat_jadwal_id,
+            //     'sertifikat' => $pes->spid,
+            //     'email' => str_slug($pes->email),
+            // ]);
 
-            $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
+            // $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
 
-            $job = new UploadSimpegJob($pes, $jadwal, $sertifikat, $jenis, $kategori, $sub, $url_sertifikat);
-            $job->delay(now()->addSeconds(5));
-            $this->dispatch($job);
+            // $job = new UploadSimpegJob($pes, $jadwal, $sertifikat, $jenis, $kategori, $sub, $url_sertifikat);
+            // $job->delay(now()->addSeconds(5));
+            // $this->dispatch($job);
         } catch (\Exception $e) {
             \Log::info('[SIMASN] stop: exception: ' . $e->getMessage());
         }
