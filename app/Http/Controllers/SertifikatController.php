@@ -234,7 +234,7 @@ class SertifikatController extends Controller
                 ->where('sertifikat_id', $sertPeserta->sertifikat_id)
                 ->first();
 
-            $pes = $sertPeserta->nip;
+            $pes = $sertPeserta;
             $jenis = $simasn->jenis; // misal: Diklat, Workshop, dll
             $kategori = $simasn->kategori;
             $sub = $simasn->sub_kategori;
