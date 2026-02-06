@@ -40,33 +40,6 @@ class SertifikatController extends Controller
         }
 
         $sertPeserta = DB::table('v_sertifikat')
-            ->select(
-                'id',
-                'nip',
-                'nama_lengkap',
-                'tmp_lahir',
-                'tgl_lahir',
-                'jabatan',
-                'foto',
-                'instansi',
-                'satker_nama',
-                'sebagai',
-                'diklat_jadwal_id',
-                'pangkat',
-                'golongan',
-                'nomor',
-                'kualifikasi',
-                'status',
-                'sertifikat_id',
-                'spesimen_kiri',
-                'spesimen_bawah',
-                'spesimen2_kiri',
-                'spesimen2_bawah',
-                'upload',
-                'simpeg_at',
-                'simpeg_queued_at',
-                'simpeg_failed_at',
-            )
             ->where('spid', $sertifikat)
             ->first();
 
