@@ -247,7 +247,7 @@ class SertifikatController extends Controller
             $url_sertifikat = url()->current();
 
             // 5. Dispatch Job dengan Delay
-            $job = new UploadSimpegJob($pes, $jadwal, $sertifikat, $jenis, $kategori, $sub, $url_sertifikat);
+            $job = new UploadSimpegJob($pes, $jadwalRow, $sertifikatRow, $jenis, $kategori, $sub, $url_sertifikat);
             $job->delay(now()->addSeconds(5));
             dispatch($job);
         }
