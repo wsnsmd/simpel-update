@@ -232,7 +232,10 @@ class SertifikatController extends Controller
         if (!$isPublished) {
             DB::table('sertifikat_peserta')
                 ->where('id', $sertifikat)
-                ->update(['is_published' => true]);
+                ->update([
+                    'updated_at' => now(),
+                    'is_published' => true
+                ]);
         }
 
         ini_set('memory_limit', '1024M');
