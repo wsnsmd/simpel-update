@@ -229,8 +229,6 @@ class SertifikatController extends Controller
             ->where('id', $sertifikat)
             ->value('is_published');
 
-        dd($sertifikat);
-
         if (!$isPublished) {
             DB::table('sertifikat_peserta')
                 ->where('id', $sertifikat)
