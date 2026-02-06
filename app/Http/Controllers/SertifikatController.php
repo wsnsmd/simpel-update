@@ -214,6 +214,10 @@ class SertifikatController extends Controller
 
         // 1. Filter Instansi: Hanya Pemerintah Provinsi Kalimantan Timur
         $instansi = strtoupper($sertPeserta->instansi);
+        $pesertaRow = DB::table('peserta')
+            ->where('id', $peserta)
+            ->first();
+        $isAsn = in_array($pesertaRow->status_asn, [1, 2]);
         $isPemprov = str_contains($instansi, 'PEMERINTAH PROVINSI KALIMANTAN TIMUR');
 
         // 2. Filter Status Antrean: Pastikan simpe_queued masih 0 (belum pernah masuk antrean)
@@ -223,7 +227,7 @@ class SertifikatController extends Controller
             ->whereNull('simpeg_queued_at')
             ->exists();
 
-        if ($isPemprov && $isNotQueued) {
+        if ($isPemprov && $isNotQueued && $isAsn) {
             // 3. Tandai langsung di database agar request berikutnya tidak masuk ke sini (Mencegah Loop)
             DB::table('sertifikat_peserta')
                 ->where('id', $sertifikat)
