@@ -225,6 +225,18 @@ class SertifikatController extends Controller
             dispatch($job);
         }
 
+        $isPublished = DB::table('sertifikat_peserta')
+            ->where('id', $sertifikat)
+            ->value('is_published');
+
+        dd($sertifikat);
+
+        if (!$isPublished) {
+            DB::table('sertifikat_peserta')
+                ->where('id', $sertifikat)
+                ->update(['is_published' => true]);
+        }
+
         ini_set('memory_limit', '1024M');
         set_time_limit(30);
 

@@ -126,7 +126,7 @@ class SurveyCallbackController extends Controller
 
             DB::commit();
 
-            $this->checkAndDispatchSimasnIfSurveyComplete((int) $request->peserta_id, (int) $request->jadwal_id);
+            // $this->checkAndDispatchSimasnIfSurveyComplete((int) $request->peserta_id, (int) $request->jadwal_id);
 
             return response()->json([
                 'success' => true,
