@@ -20,11 +20,11 @@
             }
         });
 
-        jQuery(function(){
+        jQuery(function () {
             // Override a few default classes
             jQuery.extend(jQuery.fn.dataTable.ext.classes, {
                 sWrapper: "dataTables_wrapper dt-bootstrap4",
-                sFilterInput:  "form-control",
+                sFilterInput: "form-control",
                 sLengthSelect: "form-control"
             });
 
@@ -55,61 +55,61 @@
         });
 
         @if (session('success'))
-        $.notify({
-            icon: "fa fa-check mr-1",
-            message: "{{ session('success') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'success',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
-        @elseif (session('error'))
-        $.notify({
-            icon: "fa fa-times mr-1",
-            message: "{{ session('error') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'danger',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
-        @endif
-
-        function filterClick(id) {
-            var url = "{{ route('backend.diklat.jadwal.index.filter', ':id') }}";
-            url = url.replace(':id', id);
-            $.ajax({
-                url: url,
-                type: 'post',
-                dataType: 'html',
-                success: function(data) {
-                    $('#div-data').html(data);
+            $.notify({
+                icon: "fa fa-check mr-1",
+                message: "{{ session('success') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'success',
+                placement: {
+                    from: "top",
+                    align: "center"
                 }
             });
-            return false;
-        }
+        @elseif (session('error'))
+            $.notify({
+                icon: "fa fa-times mr-1",
+                message: "{{ session('error') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
+        @endif
+
+            function filterClick(id) {
+                var url = "{{ route('backend.diklat.jadwal.index.filter', ':id') }}";
+                url = url.replace(':id', id);
+                $.ajax({
+                    url: url,
+                    type: 'post',
+                    dataType: 'html',
+                    success: function (data) {
+                        $('#div-data').html(data);
+                    }
+                });
+                return false;
+            }
 
         function showAlert(form) {
             var e = Swal.mixin({
-                        buttonsStyling: !1,
-                        customClass: {
-                            confirmButton: "btn btn-success m-1",
-                            cancelButton: "btn btn-danger m-1",
-                            input: "form-control"
-                        }
-                    });
+                buttonsStyling: !1,
+                customClass: {
+                    confirmButton: "btn btn-success m-1",
+                    cancelButton: "btn btn-danger m-1",
+                    input: "form-control"
+                }
+            });
 
-            e.fire({   
-                title: 'Apakah anda yakin',   
-                text: 'Anda tidak akan dapat mengembalikan data anda',   
-                type: 'warning',   
+            e.fire({
+                title: 'Apakah anda yakin',
+                text: 'Anda tidak akan dapat mengembalikan data anda',
+                type: 'warning',
                 showCancelButton: true,
-                confirmButtonText: 'Ya',  
+                confirmButtonText: 'Ya',
                 cancelButtonText: 'Tidak',
                 customClass: {
                     confirmButton: "btn btn-danger m-1",
@@ -117,7 +117,7 @@
                 },
                 html: !1
             }).then((result) => {
-                if(result.value) {
+                if (result.value) {
                     form.submit();
                 }
             });
@@ -137,7 +137,8 @@
         <div class="pt-4 px-4 bg-body-dark rounded push">
             <div class="row row-deck">
                 <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:void(0)" onclick="filterClick(1)">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                        href="javascript:void(0)" onclick="filterClick(1)">
                         <div class="block-content">
                             <p class="mb-2 d-sm-block">
                                 <i class="fa fa-th-list text-gray-dark fa-2x"></i>
@@ -145,9 +146,10 @@
                             <p class="font-w600 font-size-sm text-uppercase">Semua</p>
                         </div>
                     </a>
-                </div>                
+                </div>
                 <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:void(0)" onclick="filterClick(2)">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                        href="javascript:void(0)" onclick="filterClick(2)">
                         <div class="block-content">
                             <p class="mb-2 d-none d-sm-block">
                                 <i class="fa fa-calendar-alt text-warning fa-2x"></i>
@@ -157,7 +159,8 @@
                     </a>
                 </div>
                 <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:void(0)" onclick="filterClick(3)">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                        href="javascript:void(0)" onclick="filterClick(3)">
                         <div class="block-content">
                             <p class="mb-2 d-none d-sm-block">
                                 <i class="fa fa-calendar-day text-info fa-2x"></i>
@@ -167,7 +170,8 @@
                     </a>
                 </div>
                 <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:void(0)" onclick="filterClick(4)">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                        href="javascript:void(0)" onclick="filterClick(4)">
                         <div class="block-content">
                             <p class="mb-2 d-none d-sm-block">
                                 <i class="fa fa-calendar-check text-xinspire fa-2x"></i>
@@ -177,7 +181,8 @@
                     </a>
                 </div>
                 <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:void(0)" onclick="filterClick(5)">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                        href="javascript:void(0)" onclick="filterClick(5)">
                         <div class="block-content">
                             <p class="mb-2 d-none d-sm-block">
                                 <i class="fa fa-calendar-times text-danger fa-2x"></i>
@@ -187,17 +192,20 @@
                     </a>
                 </div>
                 @can('isUser')
-                <div class="col-6 col-md-4 col-xl-2">
-                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="{{ route('backend.diklat.jadwal.create') }}">
-                        <div class="block-content">
-                            <p class="mb-2 d-none d-sm-block">
-                                <i class="fa fa-plus-circle text-success fa-2x"></i>
-                            </p>
-                            <p class="font-w600 font-size-sm text-uppercase">Tambah Data</p>
-                        </div>
-                    </a>
-                </div>
-                @endcan  
+                    @cannot('isViewer')
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                            href="{{ route('backend.diklat.jadwal.create') }}">
+                            <div class="block-content">
+                                <p class="mb-2 d-none d-sm-block">
+                                    <i class="fa fa-plus-circle text-success fa-2x"></i>
+                                </p>
+                                <p class="font-w600 font-size-sm text-uppercase">Tambah Data</p>
+                            </div>
+                        </a>
+                    </div>
+                    @endcannot
+                @endcan
             </div>
         </div>
         <!-- END Quick Menu -->

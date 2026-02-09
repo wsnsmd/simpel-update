@@ -69,7 +69,7 @@ class JadwalController extends Controller
 
     public function create()
     {
-        if (Gate::denies('isUser')) {
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
             abort(403);
         }
 
@@ -82,7 +82,7 @@ class JadwalController extends Controller
 
     public function store(Request $request)
     {
-        if (Gate::denies('isUser')) {
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
             abort(403);
         }
 
@@ -176,6 +176,10 @@ class JadwalController extends Controller
     {
         $this->checkAuth($id);
 
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
+            abort(403);
+        }
+
         $jadwal = DB::table('diklat_jadwal')->where('id', $id)
             ->where('tahun', $this->tahun)
             ->first();
@@ -191,6 +195,10 @@ class JadwalController extends Controller
     public function update(Request $request, $id)
     {
         $this->checkAuth($id);
+
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
+            abort(403);
+        }
 
         $validator = $request->validate([
             'nama' => 'required',
@@ -281,6 +289,10 @@ class JadwalController extends Controller
     public function destroy($id)
     {
         $this->checkAuth($id);
+
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
+            abort(403);
+        }
 
         $delete = DB::table('diklat_jadwal')->where('id', $id)->delete();
 
@@ -435,6 +447,9 @@ class JadwalController extends Controller
     public function detail($id, $slug)
     {
         $this->checkAuth($id);
+        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
+            abort(403);
+        }
         $jadwal = DB::table('v_jadwal_detail')->where('id', $id)->first();
         $peserta = DB::table('peserta')
             ->where('diklat_jadwal_id', $id)

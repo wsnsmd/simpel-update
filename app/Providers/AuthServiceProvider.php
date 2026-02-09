@@ -31,6 +31,10 @@ class AuthServiceProvider extends ServiceProvider
             return $user->superadmin;
         });
 
+        Gate::define('isViewer', function ($user) {
+            return $user->viewer;
+        });
+
         Gate::define('isUser', function ($user) {
             return ($user->superadmin || $user->usergroup === 'skpk' || $user->usergroup === 'pkt' || $user->usergroup === 'pkmf');
         });
@@ -40,25 +44,24 @@ class AuthServiceProvider extends ServiceProvider
         });
 
         Gate::define('isCreator', function ($user, $data) {
-            if($user->superadmin)
+            if ($user->superadmin)
                 return true;
-                
+
             return ($user->usergroup === $data->usergroup && $user->instansi_id == 1);
         });
 
         Gate::define('isKontribusi', function ($user) {
-            if($user->superadmin)
+            if ($user->superadmin)
                 return true;
-                
+
             return ($user->usergroup === 'kontribusi');
         });
 
-        Gate::define('isKelasKontribusi', function($user, $jadwal) {
-            if($user->superadmin)
+        Gate::define('isKelasKontribusi', function ($user, $jadwal) {
+            if ($user->superadmin)
                 return true;
 
-            if($user->usergroup === 'kontribusi')
-            {
+            if ($user->usergroup === 'kontribusi') {
                 $instansi = session('auth_instansi');
                 return ($instansi === $jadwal->kelas);
             }
