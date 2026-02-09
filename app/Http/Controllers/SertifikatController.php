@@ -299,6 +299,7 @@ class SertifikatController extends Controller
         $nomor = str_replace(' ', '', $request->nomor);
         $sertifikat_peserta = DB::table('sertifikat_peserta')
             ->where(DB::raw("REPLACE(nomor, ' ', '')"), $nomor)
+            ->where('is_published', true)
             ->first();
 
         if (is_null($sertifikat_peserta))
