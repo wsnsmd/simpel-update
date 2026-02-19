@@ -68,6 +68,10 @@
 
                 <td class="font-w600 text-center">
                     <div class="btn-group">
+                        <a href="{{ \App\Services\SurveiLinkService::generateSecureDownloadUrl($s->jadwal_id, $s->survey_code) }}"
+                            class="btn btn-sm btn-success" title="Download Hasil Survei" target="_blank">
+                            <i class="fa fa-download"></i>
+                        </a>
                         <a href="javascript:;" class="btn btn-sm btn-primary" onclick="showEdit({{ $s->id }})" title="Edit">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
