@@ -433,7 +433,7 @@
                                 @csrf
                             </form>
                         </div>
-                        @if(!is_null($email))
+                        @if(!is_null($email) && !empty($simasn))
                             <div class="col-6 col-md-4 col-xl-2">
                                 <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
                                     onclick="event.preventDefault(); document.getElementById('kirim-email-form').submit();">

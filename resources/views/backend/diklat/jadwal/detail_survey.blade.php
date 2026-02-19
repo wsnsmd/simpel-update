@@ -51,11 +51,17 @@
             loadSurvey();
 
             var form_tambah = $('#mdl-tambah-form').validate({
+                rules: {
+                    survey_name: { required: true },
+                    survey_code: { required: true },
+                    is_mandatory: { required: true },
+                    params: { jsonOrEmpty: true }
+                },
                 messages: {
                     survey_name: { required: 'Nama survei tidak boleh kosong!' },
                     survey_code: { required: 'Kode survei tidak boleh kosong!' },
                     is_mandatory: { required: 'Wajib dipilih!' },
-                    params: { jsonOrEmpty: true }
+                    params: { jsonOrEmpty: 'Params harus berupa JSON yang valid!' }
                 },
                 submitHandler: function (form) {
                     let request;
