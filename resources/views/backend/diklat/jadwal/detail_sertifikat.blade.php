@@ -759,7 +759,7 @@ $doneEmail = $stats->done_email ?? 0;
                     </div>
                     <div class="block-content block-content-full">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter" id="table-sertifikat-peserta" style="width:100%">
+                            <table class="table table-bordered table-striped table-vcenter table-hover table-sm" id="table-sertifikat-peserta" style="width:100%">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 30px;" rowspan="2">#</th>

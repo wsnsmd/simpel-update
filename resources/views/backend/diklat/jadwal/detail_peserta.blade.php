@@ -519,8 +519,8 @@
                 <div class="block-content tab-content overflow-hidden mb-3">
                     <div class="tab-pane fade active show" id="tab-verif" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-verif"
-                                style="width: 100%;">
+                            <table class="table table-bordered table-striped table-vcenter table-hover table-sm"
+                                id="table-peserta-verif" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 30px;">#</th>
@@ -540,8 +540,8 @@
 
                     <div class="tab-pane fade" id="tab-noverif" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-noverif"
-                                style="width: 100%;">
+                            <table class="table table-bordered table-striped table-vcenter table-hover table-sm"
+                                id="table-peserta-noverif" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 30px;">#</th>
@@ -561,8 +561,8 @@
 
                     <div class="tab-pane fade" id="tab-confirm" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-confirm"
-                                style="width: 100%;">
+                            <table class="table table-bordered table-striped table-vcenter table-hover table-sm"
+                                id="table-peserta-confirm" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 30px;">#</th>
@@ -582,8 +582,8 @@
 
                     <div class="tab-pane fade" id="tab-batal" role="tabpanel">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-batal"
-                                style="width: 100%;">
+                            <table class="table table-bordered table-striped table-vcenter table-hover table-sm"
+                                id="table-peserta-batal" style="width: 100%;">
                                 <thead>
                                     <tr>
                                         <th class="text-center" style="width: 30px;">#</th>
