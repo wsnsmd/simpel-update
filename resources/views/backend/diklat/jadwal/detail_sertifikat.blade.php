@@ -42,6 +42,36 @@ $doneEmail = $stats->done_email ?? 0;
     <link rel="stylesheet" href="{{ asset('js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
+    <style>
+        .dataTables_processing {
+            position: absolute;
+            top: 50% !important;
+            left: 50% !important;
+            width: 250px !important;
+            margin-left: -125px !important;
+            margin-top: -30px !important;
+            padding: 20px !important;
+            height: auto !important;
+            text-align: center;
+            color: #333;
+            border: none !important;
+            background-color: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.2) !important;
+            border-radius: 0px !important;
+            z-index: 1060 !important;
+        }
+
+        .blur-content {
+            filter: blur(3px);
+            opacity: 0.5;
+            transition: all 0.2s ease;
+            pointer-events: none;
+        }
+
+        #table-sertifikat-peserta {
+            transition: all 0.2s ease;
+        }
+    </style>
 @endsection
 
 @section('js_after')
@@ -74,6 +104,7 @@ $doneEmail = $stats->done_email ?? 0;
 
             jQuery.extend(true, jQuery.fn.dataTable.defaults, {
                 language: {
+                    processing: '<i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Memuat data...',
                     emptyTable: "Tidak ada data tersedia",
                     infoEmpty: "Halaman 0 dari 0",
                     lengthMenu: "_MENU_",
@@ -115,7 +146,7 @@ $doneEmail = $stats->done_email ?? 0;
                 { data: 'status_email', name: 'email_at', class: 'text-center', orderable: false, searchable: false },
                 { data: 'aksi', name: 'aksi', class: 'text-center', orderable: false, searchable: false }
             );
-            $('#table-sertifikat-peserta').DataTable({
+            var table = $('#table-sertifikat-peserta').DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: {
@@ -124,7 +155,20 @@ $doneEmail = $stats->done_email ?? 0;
                 },
                 columns: columnSertifikat,
                 pageLength: 25,
-                autoWidth: false
+                autoWidth: false,
+                drawCallback: function () {
+                    // Pastikan blur hilang saat tabel selesai menggambar (draw)
+                    $('#table-sertifikat-peserta').removeClass('blur-content');
+                }
+            });
+            table.on('processing.dt', function (e, settings, processing) {
+                if (processing) {
+                    // Saat loading aktif, tambahkan blur ke elemen tabel
+                    $('#table-sertifikat-peserta').addClass('blur-content');
+                } else {
+                    // Saat loading selesai, hapus blur
+                    $('#table-sertifikat-peserta').removeClass('blur-content');
+                }
             });
         });
 
