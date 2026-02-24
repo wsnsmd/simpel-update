@@ -387,14 +387,16 @@ class JadwalController extends Controller
         DB::beginTransaction();
         try {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
-            $peserta = DB::table('peserta')
-                ->where('diklat_jadwal_id', $jadwal->id)
-                // ->where('verifikasi', 1)
-                // ->where('batal', 0)
-                ->lockForUpdate()
-                ->get();
+            // $peserta = DB::table('peserta')
+            //     ->where('diklat_jadwal_id', $jadwal->id)
+            //     // ->where('verifikasi', 1)
+            //     // ->where('batal', 0)
+            //     ->lockForUpdate()
+            //     ->get();
 
-            if ($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+            $jumlahPeserta = DB::table('peserta')->where('diklat_jadwal_id', $jadwal->id)->count();
+
+            if ($jadwal->status_registrasi == true && $jadwal->kuota <= $jumlahPeserta) {
                 DB::rollBack();
                 return view('frontend.daftar.tutup', compact('jadwal'));
             }
@@ -471,14 +473,16 @@ class JadwalController extends Controller
         DB::beginTransaction();
         try {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
-            $peserta = DB::table('peserta')
-                ->where('diklat_jadwal_id', $jadwal->id)
-                // ->where('verifikasi', 1)
-                // ->where('batal', 0)
-                ->lockForUpdate()
-                ->get();
+            // $peserta = DB::table('peserta')
+            //     ->where('diklat_jadwal_id', $jadwal->id)
+            //     // ->where('verifikasi', 1)
+            //     // ->where('batal', 0)
+            //     ->lockForUpdate()
+            //     ->get();
 
-            if ($jadwal->status_registrasi == true && $jadwal->kuota <= count($peserta)) {
+            $jumlahPeserta = DB::table('peserta')->where('diklat_jadwal_id', $jadwal->id)->count();
+
+            if ($jadwal->status_registrasi == true && $jadwal->kuota <= $jumlahPeserta) {
                 DB::rollBack();
                 return view('frontend.daftar.tutup', compact('jadwal'));
             }
