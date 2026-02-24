@@ -549,14 +549,26 @@ class JadwalController extends Controller
     public function sertifikat($jadwal, $peserta)
     {
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal->id)->first();
+
         if (!is_null($sertifikat)) {
-            $sertPeserta = DB::table('v_sertifikat')->where('sertifikat_id', $sertifikat->id)->get();
+            $stats = DB::table('v_sertifikat')
+                ->where('sertifikat_id', $sertifikat->id)
+                ->selectRaw("
+                COUNT(*) as total_peserta,
+                SUM(CASE WHEN upload IS NOT NULL THEN 1 ELSE 0 END) as total_uploaded,
+                SUM(CASE WHEN email_at IS NOT NULL THEN 1 ELSE 0 END) as done_email,
+                SUM(CASE WHEN status_asn IN (1,2) AND LOWER(instansi) LIKE '%pemerintah provinsi kalimantan timur%' THEN 1 ELSE 0 END) as total_pemprov,
+                SUM(CASE WHEN status_asn IN (1,2) AND LOWER(instansi) LIKE '%pemerintah provinsi kalimantan timur%' AND simpeg_at IS NOT NULL THEN 1 ELSE 0 END) as done_simasn
+            ")
+                ->first();
+
             $simasn = DB::table('sertifikat_simasn')->where('sertifikat_id', $sertifikat->id)->first();
             $email = DB::table('sertifikat_email')->where('sertifikat_id', $sertifikat->id)->first();
-            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'sertPeserta', 'simasn', 'email'));
-        }
-        $template = DB::table('sertifikat_template')->where('is_tampil', true)->orderBy('nama')->get();
 
+            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'stats', 'simasn', 'email'));
+        }
+
+        $template = DB::table('sertifikat_template')->where('is_tampil', true)->orderBy('nama')->get();
         return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'template'));
     }
 

@@ -1,68 +1,33 @@
 @php
-    $colSatker = 'Satuan Kerja';
-    $isASN = true;
+$colSatker = 'Satuan Kerja';
+$isASN = true;
 
-    $jadwalNama = isset($jadwal->nama) ? (string) $jadwal->nama : '';
-    if (stripos($jadwalNama, 'DPRD') !== false) {
-        $colSatker = 'Partai';
-        $showASNCols = false;
-    }
+$jadwalNama = isset($jadwal->nama) ? (string) $jadwal->nama : '';
+if (stripos($jadwalNama, 'DPRD') !== false) {
+    $colSatker = 'Partai';
+    $isASN = false;
+}
 
-    $hasSertifikat = !is_null($sertifikat);
+$hasSertifikat = !is_null($sertifikat);
 
-    $isGenerate = $hasSertifikat ? ((int) $sertifikat->is_generate === 1) : false;
-    $isUpload = $hasSertifikat ? ((int) $sertifikat->is_upload === 1) : false;
-    $isFinal = $hasSertifikat ? ((int) $sertifikat->is_final === 1) : false;
-    $hasTpl = $hasSertifikat ? (!is_null($sertifikat->tsid)) : false;
-    $hasBarcode = $hasSertifikat ? ((int) $sertifikat->barcode === 1) : false;
-    $hasKual = $hasSertifikat ? ((int) $sertifikat->kualifikasi === 1) : false;
-    $isImport = $hasSertifikat ? ((int) $sertifikat->import === 1) : false;
+$isGenerate = $hasSertifikat ? ((int) $sertifikat->is_generate === 1) : false;
+$isUpload = $hasSertifikat ? ((int) $sertifikat->is_upload === 1) : false;
+$isFinal = $hasSertifikat ? ((int) $sertifikat->is_final === 1) : false;
+$hasTpl = $hasSertifikat ? (!is_null($sertifikat->tsid)) : false;
+$hasBarcode = $hasSertifikat ? ((int) $sertifikat->barcode === 1) : false;
+$hasKual = $hasSertifikat ? ((int) $sertifikat->kualifikasi === 1) : false;
+$isImport = $hasSertifikat ? ((int) $sertifikat->import === 1) : false;
 
-    if (empty($sertPeserta)) {
-        $sertPesertaSafe = [];
-    } else {
-        $sertPesertaSafe = $sertPeserta;
-    }
+// --- Ambil data dari variabel $stats yang dikirim Controller ---
+$totalPeserta = $stats->total_peserta ?? 0;
 
-    if ($sertPesertaSafe instanceof \Illuminate\Support\Collection) {
-        $totalPeserta = $sertPesertaSafe->count();
-    } else {
-        $totalPeserta = is_countable($sertPesertaSafe) ? count($sertPesertaSafe) : 0;
-    }
+// TAMBAHKAN BARIS INI UNTUK MEMPERBAIKI ERROR
+$totalSertifikat = $totalPeserta;
 
-    $totalSertifikat = $totalPeserta;
-
-    $totalUploaded = 0;
-    $totalPemprov = 0;
-    $doneSimasn = 0;
-    $doneEmail = 0;
-
-    if ($totalPeserta > 0) {
-        foreach ($sertPesertaSafe as $sp) {
-
-            if (!empty($sp->upload)) {
-                $totalUploaded++;
-            }
-
-            if (isset($sp->email_at) && !is_null($sp->email_at)) {
-                $doneEmail++;
-            }
-
-            $statusAsn = isset($sp->status_asn) ? (int) $sp->status_asn : 0;
-            $isAsnPerson = in_array($statusAsn, [1, 2], true); // PNS/PPPK
-
-            $instansi = isset($sp->instansi) ? strtolower(trim((string) $sp->instansi)) : '';
-            $isPemprov = ($instansi === strtolower('Pemerintah Provinsi Kalimantan Timur'));
-
-            if ($isAsnPerson && $isPemprov) {
-                $totalPemprov++;
-
-                if (isset($sp->simpeg_at) && !is_null($sp->simpeg_at)) {
-                    $doneSimasn++;
-                }
-            }
-        }
-    }
+$totalUploaded = $stats->total_uploaded ?? 0;
+$totalPemprov = $stats->total_pemprov ?? 0;
+$doneSimasn = $stats->done_simasn ?? 0;
+$doneEmail = $stats->done_email ?? 0;
 @endphp
 
 @extends('layouts.backend')
@@ -76,6 +41,7 @@
     <link rel="stylesheet" href="{{ asset('js/plugins/sweetalert2/sweetalert2.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/select2/css/select2.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
 @endsection
 
 @section('js_after')
@@ -87,6 +53,9 @@
     <script src="{{ asset('js/plugins/jquery-validation/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('js/plugins/jquery-validation/additional-methods.js') }}"></script>
     <script src="{{ asset('js/plugins/select2/js/select2.full.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/jquery-ui/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('js/plugins/datatables/dataTables.bootstrap4.min.js') }}"></script>
     <script>
         $.ajaxSetup({
             headers: {
@@ -96,6 +65,67 @@
 
         jQuery(function () {
             Dashmix.helpers(['datepicker', 'validation', 'select2']);
+
+            jQuery.extend(jQuery.fn.dataTable.ext.classes, {
+                sWrapper: "dataTables_wrapper dt-bootstrap4",
+                sFilterInput: "form-control",
+                sLengthSelect: "form-control"
+            });
+
+            jQuery.extend(true, jQuery.fn.dataTable.defaults, {
+                language: {
+                    emptyTable: "Tidak ada data tersedia",
+                    infoEmpty: "Halaman 0 dari 0",
+                    lengthMenu: "_MENU_",
+                    search: "_INPUT_",
+                    searchPlaceholder: "Cari...",
+                    info: "Halaman <strong>_PAGE_</strong> dari <strong>_PAGES_</strong>",
+                    paginate: {
+                        first: '<i class="fa fa-angle-double-left"></i>',
+                        previous: '<i class="fa fa-angle-left"></i>',
+                        next: '<i class="fa fa-angle-right"></i>',
+                        last: '<i class="fa fa-angle-double-right"></i>'
+                    }
+                }
+            });
+            
+            var columnSertifikat = [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center' },
+                { data: 'nomor_render', name: 'nomor' },
+            ];
+
+            @if($isASN)
+                columnSertifikat.push({ data: 'nip', name: 'nip' });
+                columnSertifikat.push({
+                    data: 'status_asn',
+                    name: 'status_asn',
+                    render: function (data) {
+                        if (data == 1) return 'PNS';
+                        if (data == 2) return 'PPPK';
+                        return 'Non-ASN';
+                    }
+                });
+            @endif
+
+            columnSertifikat.push(
+                { data: 'nama_lengkap', name: 'nama_lengkap' },
+                { data: 'satker_nama', name: 'satker_nama' },
+                { data: 'instansi', name: 'instansi' },
+                { data: 'status_simasn', name: 'simpeg_at', class: 'text-center', orderable: false, searchable: false },
+                { data: 'status_email', name: 'email_at', class: 'text-center', orderable: false, searchable: false },
+                { data: 'aksi', name: 'aksi', class: 'text-center', orderable: false, searchable: false }
+            );
+            $('#table-sertifikat-peserta').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('backend.diklat.sertifikat.datatable', $jadwal->id) }}",
+                    type: "POST"
+                },
+                columns: columnSertifikat,
+                pageLength: 25,
+                autoWidth: false
+            });
         });
 
         function showAlert(form) {
@@ -685,121 +715,27 @@
                     </div>
                     <div class="block-content block-content-full">
                         <div class="table-responsive">
-                            <table class="table table-bordered table-striped table-vcenter">
+                            <table class="table table-bordered table-striped table-vcenter" id="table-sertifikat-peserta" style="width:100%">
                                 <thead>
                                     <tr>
-                                        <th class="font-w700 text-center" style="width: 30px; vertical-align: middle;" rowspan="2">#
-                                        </th>
-                                        <th class="font-w700 text-center" style="width: 60px; vertical-align: middle;" rowspan="2">
-                                            Nomor</th>
+                                        <th class="text-center" style="width: 30px;" rowspan="2">#</th>
+                                        <th class="text-center" style="width: 150px;" rowspan="2">Nomor</th>
                                         @if($isASN)
-                                            <th class="font-w700 text-center" style="width: 12%; vertical-align: middle;" rowspan="2">
-                                                NIP</th>
-                                            <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">ASN</th>
+                                            <th class="text-center" style="width: 140px;" rowspan="2">NIP</th>
+                                            <th class="text-center" style="width: 80px;" rowspan="2">ASN</th>
                                         @endif
-                                        <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">Nama</th>
-                                        <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">
-                                            {{ $colSatker }}</th>
-                                        <th class="font-w700 text-center" style="vertical-align: middle;" rowspan="2">Instansi</th>
-                                        <th class="font-w700 text-center" colspan="2">Status Kirim</th>
-                                        <th class="font-w700 text-center" style="width: 10%; vertical-align: middle;" rowspan="2">
-                                            Aksi</th>
+                                        <th class="text-center" rowspan="2">Nama</th>
+                                        <th class="text-center" rowspan="2">{{ $colSatker }}</th>
+                                        <th class="text-center" rowspan="2">Instansi</th>
+                                        <th class="text-center" colspan="2">Status Kirim</th>
+                                        <th class="text-center" style="width: 150px;" rowspan="2">Aksi</th>
                                     </tr>
                                     <tr>
-                                        <th class="font-w700 text-center">SIMASN</th>
-                                        <th class="font-w700 text-center">Email</th>
+                                        <th class="text-center" style="width: 80px;">SIMASN</th>
+                                        <th class="text-center" style="width: 80px;">Email</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    @foreach ($sertPeserta as $sp)
-                                        <tr>
-                                            <td class="text-center">{{ $loop->iteration }}</td>
-                                            <td>
-                                                {{-- <img
-                                                    src="{{ is_null($sp->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($sp->foto)) }}"
-                                                    class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;"> --}}
-                                                {{ removeSpace($sp->nomor) }}
-                                            </td>
-                                            @if($isASN)
-                                                <td class="font-w400">
-                                                    {{ $sp->nip }}
-                                                </td>
-                                                <td class="font-w400">
-                                                    @if($sp->status_asn == 1)
-                                                        PNS
-                                                    @elseif($sp->status_asn == 2)
-                                                        PPPK
-                                                    @else
-                                                        Non-ASN
-                                                    @endif
-                                                </td>
-                                            @endif
-                                            <td class="font-w400">
-                                                {{ $sp->nama_lengkap }}
-                                            </td>
-                                            <td class="font-w400">
-                                                {{ $sp->satker_nama }}
-                                            </td>
-                                            <td class="font-w400">
-                                                {{ $sp->instansi }}
-                                            </td>
-                                            <td class="font-w600 text-center">
-                                                @if(is_null($sp->simpeg_at))
-                                                    <span class="badge badge-danger">Belum</span>
-                                                @else
-                                                    <span class="badge badge-success">Sudah</span>
-                                                @endif
-                                            </td>
-                                            <td class="font-w600">
-                                                @if(is_null($sp->email_at))
-                                                    <span class="badge badge-danger">Belum</span>
-                                                @else
-                                                    <span class="badge badge-success">Sudah</span>
-                                                @endif
-                                            </td>
-                                            <td class="text-center fs-base">
-                                                <div class="d-flex justify-content-center">
-                                                    @if($sertifikat->is_generate)
-                                                        <form action="{{ route('backend.diklat.sertifikat.cetak', $sp->spid) }}"
-                                                            method="POST" target="_cetak">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-sm btn-primary" title="Cetak">
-                                                                <i class="fa fa-print"></i>
-                                                            </button>
-                                                        </form>
-                                                        @if(!is_null($sertifikat->tsid))
-                                                            <button type="button" class="btn btn-sm btn-info mx-1" title="Posisi Spesimen"
-                                                                onclick="showSpesimen({{$sp->spid}})">
-                                                                <i class="fa fa-file-alt"></i>
-                                                            </button>
-                                                        @endif
-                                                    @endif
-                                                    @if($sertifikat->is_upload)
-                                                        <button type="button" class="btn btn-sm btn-warning" title="Upload"
-                                                            onclick="showUpload({{$sp->spid}})">
-                                                            <i class="fa fa-upload"></i>
-                                                        </button>
-                                                        @if (!is_null($sp->upload))
-                                                            <a href="{{ asset(\Storage::url($sp->upload)) }}"
-                                                                class="btn btn-sm btn-success mx-1" title="Lihat" target="_blank">
-                                                                <i class="fa fa-eye"></i>
-                                                            </a>
-                                                        @endif
-                                                    @endif
-                                                    @if(!is_null($sp->email_at))
-                                                        <form action="{{ route('backend.diklat.sertifikat.kirimulang.email', $sp->spid) }}"
-                                                            method="POST">
-                                                            @csrf
-                                                            <button type="submit" class="btn btn-sm btn-warning" title="Kirim Ulang Email">
-                                                                <i class="fa fa-paper-plane"></i>
-                                                            </button>
-                                                        </form>
-                                                    @endif
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
+                                <tbody></tbody>
                             </table>
                         </div>
                     </div>

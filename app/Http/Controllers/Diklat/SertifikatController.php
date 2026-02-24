@@ -1090,4 +1090,74 @@ class SertifikatController extends Controller
                 'success' => $notifikasi,
             ]);
     }
+
+    public function datatableSertifikat(Request $request, $jadwal_id)
+    {
+        // 1. Ambil data sertifikat induk dulu
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
+
+        // Jika sertifikat belum dibuat, kirim data kosong agar datatable tidak error
+        if (!$sertifikat) {
+            return datatables()->of(collect([]))->make(true);
+        }
+
+        // 2. Query dari View v_sertifikat sesuai kode lama Bapak
+        $query = DB::table('v_sertifikat')
+            ->where('sertifikat_id', $sertifikat->id);
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('nomor_render', function ($row) {
+                // Gunakan fungsi removeSpace seperti di blade lama jika perlu
+                return '<span class="font-w600">' . ($row->nomor ?? '-') . '</span>';
+            })
+            ->addColumn('status_simasn', function ($row) {
+                return is_null($row->simpeg_at)
+                    ? '<span class="badge badge-danger">Belum</span>'
+                    : '<span class="badge badge-success">Sudah</span>';
+            })
+            ->addColumn('status_email', function ($row) {
+                return is_null($row->email_at)
+                    ? '<span class="badge badge-danger">Belum</span>'
+                    : '<span class="badge badge-success">Sudah</span>';
+            })
+            ->addColumn('aksi', function ($row) use ($sertifikat) {
+                $btn = '<div class="btn-group">';
+
+                // Logika Cetak & Spesimen
+                if ($sertifikat->is_generate) {
+                    $btn .= '
+                <form action="' . route('backend.diklat.sertifikat.cetak', $row->spid) . '" method="POST" target="_cetak" style="display:inline">
+                    ' . csrf_field() . '
+                    <button type="submit" class="btn btn-sm btn-primary" title="Cetak"><i class="fa fa-print"></i></button>
+                </form>';
+
+                    if (!is_null($sertifikat->tsid)) {
+                        $btn .= '<button type="button" class="btn btn-sm btn-info ml-1" onclick="showSpesimen(' . $row->spid . ')"><i class="fa fa-file-alt"></i></button>';
+                    }
+                }
+
+                // Logika Upload
+                if ($sertifikat->is_upload) {
+                    $btn .= '<button type="button" class="btn btn-sm btn-warning ml-1" onclick="showUpload(' . $row->spid . ')"><i class="fa fa-upload"></i></button>';
+                    if (!is_null($row->upload)) {
+                        $btn .= '<a href="' . asset(\Storage::url($row->upload)) . '" class="btn btn-sm btn-success ml-1" target="_blank"><i class="fa fa-eye"></i></a>';
+                    }
+                }
+
+                // Logika Kirim Ulang Email
+                if (!is_null($row->email_at)) {
+                    $btn .= '
+                <form action="' . route('backend.diklat.sertifikat.kirimulang.email', $row->spid) . '" method="POST" style="display:inline">
+                    ' . csrf_field() . '
+                    <button type="submit" class="btn btn-sm btn-warning ml-1" title="Kirim Ulang Email"><i class="fa fa-paper-plane"></i></button>
+                </form>';
+                }
+
+                $btn .= '</div>';
+                return $btn;
+            })
+            ->rawColumns(['nomor_render', 'status_simasn', 'status_email', 'aksi'])
+            ->make(true);
+    }
 }

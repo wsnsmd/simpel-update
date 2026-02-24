@@ -194,6 +194,7 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::get('sertifikat/{id}/{jadwal}/edit', 'Diklat\SertifikatController@edit')->name('sertifikat.edit');
         Route::patch('sertifikat/{id}', 'Diklat\SertifikatController@update')->name('sertifikat.update');
         Route::post('sertifikat/{jadwal}/simasn/simpan', 'Diklat\SertifikatController@SimasnSimpan')->name('sertifikat.simasn.simpan');
+        Route::post('sertifikat/datatable/{jadwal}', 'Diklat\SertifikatController@datatableSertifikat')->name('sertifikat.datatable');
 
         // Seminar
         Route::get('seminar/{jadwal}/{slug}/kelompok/create', 'Diklat\SeminarController@createKelompok')->name('seminar.kelompok.create');
