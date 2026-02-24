@@ -11,6 +11,11 @@ use DB;
 
 class AuthentikController extends Controller
 {
+    public function loginRedirect()
+    {
+        return redirect()->route('authentik.redirect');
+    }
+
     public function redirect(Request $request)
     {
         $provider = AuthentikAuth::makeProvider();
@@ -31,12 +36,12 @@ class AuthentikController extends Controller
         // cek error dari Authentik
         if ($request->has('error')) {
             return redirect('/login')->withErrors([
-                'authentik' => 'Login via SSO gagal: '.$request->get('error_description', $request->get('error')),
+                'authentik' => 'Login via SSO gagal: ' . $request->get('error_description', $request->get('error')),
             ]);
         }
 
         // cek state
-        $state = $request->get('state'); 
+        $state = $request->get('state');
         $savedState = $request->session()->pull('authentik_oauth2state'); // hapus setelah diambil
 
         if (!$state || !$savedState || $state !== $savedState) {
@@ -67,7 +72,7 @@ class AuthentikController extends Controller
             // dd($data); // pakai sekali untuk lihat struktur data dari Authentik
 
             $email = isset($data['email']) ? $data['email'] : null;
-            $name  = isset($data['name']) ? $data['name'] : ($email ?: 'User');
+            $name = isset($data['name']) ? $data['name'] : ($email ?: 'User');
             $username = $data['preferred_username'];
 
             // Kalau kamu pakai NIP, cek claim-nya (contoh: 'nip' atau klaim custom)
@@ -117,7 +122,7 @@ class AuthentikController extends Controller
 
         } catch (\Exception $e) {
             return redirect('/login')->withErrors([
-                'authentik' => 'Terjadi error saat proses SSO: '.$e->getMessage(),
+                'authentik' => 'Terjadi error saat proses SSO: ' . $e->getMessage(),
             ]);
         }
     }
@@ -140,6 +145,10 @@ class AuthentikController extends Controller
         return redirect()->away($authentikLogoutUrl);
     }
 
+    public function profileSSO(Request $request)
+    {
+        return redirect()->away('https://auth.bpsdmkaltim.net/if/user/#/settings;');
+    }
 }
 
 /**

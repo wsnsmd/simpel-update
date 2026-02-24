@@ -34,6 +34,11 @@ class HomeController extends Controller
         return view('home');
     }
 
+    public function dashboard()
+    {
+        return view('dashboard');
+    }
+
     public function mail()
     {
         // $jadwal = DB::table('v_jadwal_detail')->find(1);
@@ -70,15 +75,17 @@ class HomeController extends Controller
             ],
             'template_id' => '9474095',
             'template_data' => [
-              'peserta' => 'XXX',
-              'jadwal_nama' => 'YYY',
-              'konfirmasi_url' => 'https://xyz.com',
-              'tahun' => '2020'
+                'peserta' => 'XXX',
+                'jadwal_nama' => 'YYY',
+                'konfirmasi_url' => 'https://xyz.com',
+                'tahun' => '2020'
             ],
-            'custom_headers' => array([
-              'header' => 'Reply-To',
-              'value' => 'Actual Person <test3@example.com>'
-            ])
+            'custom_headers' => array(
+                [
+                    'header' => 'Reply-To',
+                    'value' => 'Actual Person <test3@example.com>'
+                ]
+            )
         ];
         $request = new \GuzzleHttp\Psr7\Request('POST', 'https://api.smtp2go.com/v3/email/send', $headers, json_encode($body));
         $res = $client->sendAsync($request)->wait();

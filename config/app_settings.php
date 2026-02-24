@@ -35,17 +35,8 @@ return [
                     'class' => 'form-control',
                     'rules' => 'required',
                     'value' => '',
-                    // SOLUSI: Mengubah Closure menjadi Array Statis
-                    'options' => [
-                        'xdream' => 'xdream',
-                        'xeco' => 'xeco',
-                        'xinspire' => 'xinspire',
-                        'xmodern' => 'xmodern',
-                        'xplay' => 'xplay',
-                        'xpro' => 'xpro',
-                        'xsmooth' => 'xsmooth',
-                        'xwork' => 'xwork',
-                    ]
+                    // Gunakan JSON string langsung agar tidak melanggar aturan serialisasi cache
+                    'options' => '[{"value":"xdream","label":"xdream"},{"value":"xeco","label":"xeco"},{"value":"xinspire","label":"xinspire"},{"value":"xmodern","label":"xmodern"},{"value":"xplay","label":"xplay"},{"value":"xpro","label":"xpro"},{"value":"xsmooth","label":"xsmooth"},{"value":"xwork","label":"xwork"}]'
                 ],
             ]
         ],
