@@ -88,7 +88,7 @@ $doneEmail = $stats->done_email ?? 0;
                     }
                 }
             });
-            
+
             var columnSertifikat = [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center' },
                 { data: 'nomor_render', name: 'nomor' },
@@ -731,8 +731,8 @@ $doneEmail = $stats->done_email ?? 0;
                                         <th class="text-center" style="width: 150px;" rowspan="2">Aksi</th>
                                     </tr>
                                     <tr>
-                                        <th class="text-center" style="width: 80px;">SIMASN</th>
-                                        <th class="text-center" style="width: 80px;">Email</th>
+                                        <th class="text-center" style="width: 80px; border-bottom-width: 1px;">SIMASN</th>
+                                        <th class="text-center" style="width: 80px; border-bottom-width: 1px; border-right-width: 1px;">Email</th>
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
