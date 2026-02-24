@@ -942,7 +942,7 @@ class PesertaController extends Controller
             ->addIndexColumn()
             ->addColumn('foto_render', function ($row) {
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
-                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
             })
             ->addColumn('aksi', function ($pv) use ($jadwal, $canAddEdit) {
 
@@ -1006,7 +1006,7 @@ class PesertaController extends Controller
             ->addIndexColumn()
             ->addColumn('foto_render', function ($row) {
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
-                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
             })
             ->addColumn('verifikasi', function ($pn) use ($canAddEdit) {
                 if ($canAddEdit) {
@@ -1059,7 +1059,7 @@ class PesertaController extends Controller
             ->addIndexColumn()
             ->addColumn('foto_render', function ($row) {
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
-                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
             })
             ->addColumn('konfirmasi', function ($pc) use ($canAddEdit) {
                 if ($canAddEdit && (auth()->user()->can('isUser') || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3))) {
@@ -1110,7 +1110,7 @@ class PesertaController extends Controller
             ->addIndexColumn()
             ->addColumn('foto_render', function ($row) {
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
-                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
             })
             ->addColumn('aksi', function ($pb) use ($jadwal, $canAddEdit) {
                 $isUser = auth()->user()->can('isUser');
