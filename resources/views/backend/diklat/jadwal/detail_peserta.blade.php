@@ -2,12 +2,11 @@
     $colSatker = "Satuan Kerja";
     $isASN = true;
     $canAddEdit = true;
-    if(stripos($jadwal->nama, 'DPRD') !== false)
-    {
+    if (stripos($jadwal->nama, 'DPRD') !== false) {
         $colSatker = "Partai";
         $isASN = false;
     }
-    if(!is_null($sertifikat) && $sertifikat->is_final == true)
+    if (!is_null($sertifikat) && $sertifikat->is_final == true)
         $canAddEdit = false;
 @endphp
 
@@ -41,16 +40,14 @@
             }
         });
 
-        jQuery(function(){
-            // Dashmix.helpers(['datepicker', 'validation']);
-            // Override a few default classes
+        jQuery(function () {
+            Dashmix.helpers(['core-bootstrap-tabs']);
             jQuery.extend(jQuery.fn.dataTable.ext.classes, {
                 sWrapper: "dataTables_wrapper dt-bootstrap4",
-                sFilterInput:  "form-control",
+                sFilterInput: "form-control",
                 sLengthSelect: "form-control"
             });
 
-            // Override a few defaults
             jQuery.extend(true, jQuery.fn.dataTable.defaults, {
                 language: {
                     emptyTable: "Tidak ada data tersedia",
@@ -68,79 +65,145 @@
                 }
             });
 
-            jQuery('.js-dataTable-full').dataTable({
-                pageLength: 25,
-                lengthMenu: [[10, 25, 50], [10, 25, 50]],
-                autoWidth: false,
+            initTableVerif();
+
+            $(document).on('shown.bs.tab', 'a[data-toggle="tab"]', function (e) {
+                var target = $(e.target).attr("href");
+
+                if (target === '#tab-noverif' && !$.fn.DataTable.isDataTable('#table-peserta-noverif')) {
+                    initTableNoVerif();
+                } else if (target === '#tab-confirm' && !$.fn.DataTable.isDataTable('#table-peserta-confirm')) {
+                    initTableConfirm();
+                } else if (target === '#tab-batal' && !$.fn.DataTable.isDataTable('#table-peserta-batal')) {
+                    initTableBatal();
+                }
+
+                $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
             });
         });
 
-        @if (session('success'))
-        $.notify({
-            icon: "fa fa-check mr-1",
-            message: "{{ session('success') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'success',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
-        @elseif (session('error'))
-        $.notify({
-            icon: "fa fa-times mr-1",
-            message: "{{ session('error') }}"
-        }, {
-            allow_dismiss: false,
-            type: 'danger',
-            placement: {
-                from: "top",
-                align: "center"
-            }
-        });
-        @endif
+        function createDataTable(selector, url, customColumns) {
+            var commonColumns = [
+                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center' },
+                { data: 'foto_render', name: 'foto_render', orderable: false, searchable: false },
+            ];
 
-        function showAlert(form) {
-            var e = Swal.mixin({
-                        buttonsStyling: !1,
-                        customClass: {
-                            confirmButton: "btn btn-success m-1",
-                            cancelButton: "btn btn-danger m-1",
-                            input: "form-control"
-                        }
-                    });
+            @if($isASN)
+                commonColumns.push({ data: 'nip', name: 'nip' });
+            @endif
 
-            e.fire({
-                title: 'Apakah anda yakin',
-                text: 'Anda tidak akan dapat mengembalikan data anda',
-                type: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya',
-                cancelButtonText: 'Tidak',
-                customClass: {
-                    confirmButton: "btn btn-danger m-1",
-                    cancelButton: "btn btn-secondary m-1"
-                },
-                html: !1
-            }).then((result) => {
-                if(result.value) {
-                    form.submit();
-                }
+            commonColumns.push(
+                { data: 'nama_lengkap', name: 'nama_lengkap' },
+                { data: 'satker_nama', name: 'satker_nama' },
+                { data: 'instansi', name: 'instansi' },
+            );
+
+            return jQuery(selector).DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: { url: url, type: "POST" },
+                columns: [...commonColumns, ...customColumns],
+                pageLength: 25,
+                autoWidth: false
             });
         }
 
+        // --- Inisialisasi per tabel ---
+        const colCenter = { orderable: false, searchable: false, class: 'text-center' };
+
+        function initTableVerif() {
+            createDataTable('#table-peserta-verif', "{{ route('backend.diklat.peserta.datatable.verif', $jadwal->id) }}", [
+                { data: 'aksi', name: 'aksi', ...colCenter },
+                { data: 'batal', name: 'batal', ...colCenter }
+            ]);
+        }
+
+        function initTableNoVerif() {
+            createDataTable('#table-peserta-noverif', "{{ route('backend.diklat.peserta.datatable.noverif', $jadwal->id) }}", [
+                { data: 'verifikasi', name: 'verifikasi', ...colCenter },
+                { data: 'aksi', name: 'aksi', ...colCenter }
+            ]);
+        }
+
+        function initTableConfirm() {
+            createDataTable('#table-peserta-confirm', "{{ route('backend.diklat.peserta.datatable.confirm', $jadwal->id) }}", [
+                { data: 'konfirmasi', name: 'konfirmasi', ...colCenter },
+                { data: 'aksi', name: 'aksi', ...colCenter }
+            ]);
+        }
+
+        function initTableBatal() {
+            createDataTable('#table-peserta-batal', "{{ route('backend.diklat.peserta.datatable.batal', $jadwal->id) }}", [
+                { data: 'aksi', name: 'aksi', ...colCenter }
+            ]);
+        }
+
+        @if (session('success'))
+            $.notify({
+                icon: "fa fa-check mr-1",
+                message: "{{ session('success') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'success',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
+        @elseif (session('error'))
+            $.notify({
+                icon: "fa fa-times mr-1",
+                message: "{{ session('error') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
+        @endif
+
+            function showAlert(form) {
+                var e = Swal.mixin({
+                    buttonsStyling: !1,
+                    customClass: {
+                        confirmButton: "btn btn-success m-1",
+                        cancelButton: "btn btn-danger m-1",
+                        input: "form-control"
+                    }
+                });
+
+                e.fire({
+                    title: 'Apakah anda yakin',
+                    text: 'Anda tidak akan dapat mengembalikan data anda',
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya',
+                    cancelButtonText: 'Tidak',
+                    customClass: {
+                        confirmButton: "btn btn-danger m-1",
+                        cancelButton: "btn btn-secondary m-1"
+                    },
+                    html: !1
+                }).then((result) => {
+                    if (result.value) {
+                        form.submit();
+                    }
+                });
+            }
+
         function showVerifikasi(form, id) {
             var e = Swal.mixin({
-                        buttonsStyling: !1,
-                        customClass: {
-                            confirmButton: "btn btn-success m-1",
-                            cancelButton: "btn btn-danger m-1",
-                            input: "form-control"
-                        }
-                    });
+                buttonsStyling: !1,
+                customClass: {
+                    confirmButton: "btn btn-success m-1",
+                    cancelButton: "btn btn-danger m-1",
+                    input: "form-control"
+                }
+            });
 
-            if(id == 1) {
+            if (id == 1) {
                 e.fire({
                     title: 'Apakah anda yakin',
                     text: 'Melakukan verifikasi dan menyetujui peserta?',
@@ -154,13 +217,13 @@
                     },
                     html: !1
                 }).then((result) => {
-                    if(result.value) {
+                    if (result.value) {
                         form.append('<input type="hidden" name="setuju" value="1" /> ');
                         form.submit();
                     }
                 });
             }
-            else if(id == 2) {
+            else if (id == 2) {
                 e.fire({
                     title: 'Apakah anda yakin',
                     text: 'Melakukan verifikasi dan menolak peserta?',
@@ -174,7 +237,7 @@
                     },
                     html: !1
                 }).then((result) => {
-                    if(result.value) {
+                    if (result.value) {
                         form.append('<input type="hidden" name="setuju" value="2" /> ');
                         form.submit();
                     }
@@ -184,15 +247,15 @@
 
         function showKonfirmasi(form, id) {
             var e = Swal.mixin({
-                        buttonsStyling: !1,
-                        customClass: {
-                            confirmButton: "btn btn-success m-1",
-                            cancelButton: "btn btn-danger m-1",
-                            input: "form-control"
-                        }
-                    });
+                buttonsStyling: !1,
+                customClass: {
+                    confirmButton: "btn btn-success m-1",
+                    cancelButton: "btn btn-danger m-1",
+                    input: "form-control"
+                }
+            });
 
-            if(id == 1) {
+            if (id == 1) {
                 e.fire({
                     title: 'Apakah anda yakin',
                     text: 'Melakukan konfirmasi manual peserta?',
@@ -206,13 +269,13 @@
                     },
                     html: !1
                 }).then((result) => {
-                    if(result.value) {
+                    if (result.value) {
                         form.append('<input type="hidden" name="konfirmasi" value="1" /> ');
                         form.submit();
                     }
                 });
             }
-            else if(id == 2) {
+            else if (id == 2) {
                 e.fire({
                     title: 'Apakah anda yakin',
                     text: 'Mengirim ulang email konfirmasi peserta?',
@@ -226,7 +289,7 @@
                     },
                     html: !1
                 }).then((result) => {
-                    if(result.value) {
+                    if (result.value) {
                         form.append('<input type="hidden" name="konfirmasi" value="2" /> ');
                         form.submit();
                     }
@@ -236,13 +299,13 @@
 
         async function showBatal(form) {
             var e = Swal.mixin({
-                        buttonsStyling: !1,
-                        customClass: {
-                            confirmButton: "btn btn-danger m-1",
-                            cancelButton: "btn btn-secondary m-1",
-                            input: "form-control",
-                        }
-                    });
+                buttonsStyling: !1,
+                customClass: {
+                    confirmButton: "btn btn-danger m-1",
+                    cancelButton: "btn btn-secondary m-1",
+                    input: "form-control",
+                }
+            });
 
             const { value: text } = await e.fire({
                 title: 'Apakah anda yakin',
@@ -262,7 +325,7 @@
                 }
             });
 
-            if(text) {
+            if (text) {
                 form.append('<input type="hidden" name="batal_ket" value="' + text + '" /> ');
                 form.submit();
             }
@@ -292,397 +355,208 @@
 
     <!-- Quick Menu -->
     @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
-    <div class="pt-4 px-4 bg-body-dark rounded push">
-        <div class="row row-deck">
-            @if($canAddEdit)
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="{{ route('backend.diklat.peserta.create', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]) }}">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-plus-circle text-success fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Tambah Peserta</p>
+        <div class="pt-4 px-4 bg-body-dark rounded push">
+            <div class="row row-deck">
+                @if($canAddEdit)
+                    <div class="col-6 col-md-4 col-xl-2">
+                        <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                            href="{{ route('backend.diklat.peserta.create', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama)]) }}">
+                            <div class="block-content">
+                                <p class="mb-2 d-sm-block">
+                                    <i class="fa fa-plus-circle text-success fa-2x"></i>
+                                </p>
+                                <p class="font-w600 font-size-sm text-uppercase">Tambah Peserta</p>
+                            </div>
+                        </a>
                     </div>
-                </a>
-            </div>
-            @endif
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export-form1').submit();">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-upload text-info fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Ekspor Peserta</p>
-                    </div>
-                </a>
-                <form id="export-form1" action="{{ route('backend.diklat.peserta.export') }}" method="post" style="display: none;" target="_export">
-                    @csrf
-                    <input type="hidden" name="export" value="1">
-                    <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
-                </form>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export-form2').submit();">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-school text-danger fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Ekspor Moodle</p>
-                    </div>
-                </a>
-                <form id="export-form2" action="{{ route('backend.diklat.peserta.export') }}" method="post" style="display: none;" target="_export">
-                    @csrf
-                    <input type="hidden" name="export" value="2">
-                    <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
-                </form>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('export-form3').submit();">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-file-image text-secondary fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Foto</p>
-                    </div>
-                </a>
-                <form id="export-form3" action="{{ route('backend.diklat.peserta.export') }}" method="post" style="display: none;" target="_export">
-                    @csrf
-                    <input type="hidden" name="export" value="3">
-                    <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
-                </form>
-            </div>
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="event.preventDefault(); document.getElementById('import-form').submit();">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-download text-warning fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Impor Peserta</p>
-                    </div>
-                </a>
-                <form id="import-form" action="{{ route('backend.diklat.peserta.import', ['jadwal' => $jadwal->id]) }}" method="post" style="display: none;">
-                    @csrf
-                </form>
+                @endif
+                <div class="col-6 col-md-4 col-xl-2">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
+                        onclick="event.preventDefault(); document.getElementById('export-form1').submit();">
+                        <div class="block-content">
+                            <p class="mb-2 d-sm-block">
+                                <i class="fa fa-upload text-info fa-2x"></i>
+                            </p>
+                            <p class="font-w600 font-size-sm text-uppercase">Ekspor Peserta</p>
+                        </div>
+                    </a>
+                    <form id="export-form1" action="{{ route('backend.diklat.peserta.export') }}" method="post"
+                        style="display: none;" target="_export">
+                        @csrf
+                        <input type="hidden" name="export" value="1">
+                        <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
+                    </form>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
+                        onclick="event.preventDefault(); document.getElementById('export-form2').submit();">
+                        <div class="block-content">
+                            <p class="mb-2 d-sm-block">
+                                <i class="fa fa-school text-danger fa-2x"></i>
+                            </p>
+                            <p class="font-w600 font-size-sm text-uppercase">Ekspor Moodle</p>
+                        </div>
+                    </a>
+                    <form id="export-form2" action="{{ route('backend.diklat.peserta.export') }}" method="post"
+                        style="display: none;" target="_export">
+                        @csrf
+                        <input type="hidden" name="export" value="2">
+                        <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
+                    </form>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
+                        onclick="event.preventDefault(); document.getElementById('export-form3').submit();">
+                        <div class="block-content">
+                            <p class="mb-2 d-sm-block">
+                                <i class="fa fa-file-image text-secondary fa-2x"></i>
+                            </p>
+                            <p class="font-w600 font-size-sm text-uppercase">Foto</p>
+                        </div>
+                    </a>
+                    <form id="export-form3" action="{{ route('backend.diklat.peserta.export') }}" method="post"
+                        style="display: none;" target="_export">
+                        @csrf
+                        <input type="hidden" name="export" value="3">
+                        <input type="hidden" name="jadwal_id" value="{{ $jadwal->id}}">
+                    </form>
+                </div>
+                <div class="col-6 col-md-4 col-xl-2">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
+                        onclick="event.preventDefault(); document.getElementById('import-form').submit();">
+                        <div class="block-content">
+                            <p class="mb-2 d-sm-block">
+                                <i class="fa fa-download text-warning fa-2x"></i>
+                            </p>
+                            <p class="font-w600 font-size-sm text-uppercase">Impor Peserta</p>
+                        </div>
+                    </a>
+                    <form id="import-form" action="{{ route('backend.diklat.peserta.import', ['jadwal' => $jadwal->id]) }}"
+                        method="post" style="display: none;">
+                        @csrf
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
     @endif
     <!-- END Quick Menu -->
 
     <!-- Page Content -->
     <div class="content">
-        <!-- Dynamic Table Full -->
-        <!-- Peserta Belum Verifikasi -->
-        <div class="block block-bordered block-themed">
-            <div class="block-header bg-warning">
-                <h3 class="block-title">Belum di Verifikasi</h3>
+        <div class="block block-rounded block-bordered block-fx-shadow block-themed">
+            <div class="block-header bg-primary">
+                <h3 class="block-title">Manajemen Peserta - {{ $jadwal->nama }}</h3>
             </div>
-            <div class="block-content block-content-full border-top">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 30px;">#</th>
-                                <th style="width: 60px;">Foto</th>
-                                @if($isASN)
-                                <th style="width: 12%;">NIP</th>
-                                @endif
-                                <th>Nama</th>
-                                <th>{{ $colSatker }}</th>
-                                <th>Instansi</th>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <th style="width: 5%;">Verifikasi</th>
-                                <th style="width: 5%;">Aksi</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pes_noverif as $pn)
-                            <tr>
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>
-                                    <img src="{{ is_null($pn->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pn->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
-                                </td>
-                                @if($isASN)
-                                <td class="font-w600">
-                                    {{ $pn->nip }}
-                                </td>
-                                @endif
-                                <td class="font-w600">
-                                    {{ $pn->nama_lengkap }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pn->satker_nama }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pn->instansi }}
-                                </td>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.verifikasi', $pn->id) }}" method="POST">
-                                        @csrf
-                                        <div class="btn-group">
-                                            <a href="javascript:;" onclick="return showVerifikasi($(this).closest('form'), 1);" class="btn btn-sm btn-success" title="Setuju"><i class="fa fa-check"></i></a>
-                                            <a href="javascript:;" onclick="return showVerifikasi($(this).closest('form'), 2);" class="btn btn-sm btn-danger" title="Tolak"><i class="fa fa-times"></i></a>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.destroy', $pn->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <div class="btn-group">
-                                            <a href="{{ route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pn->id]) }}" class="btn btn-sm btn-primary" title="Edit">
-                                                <i class="fa fa-pencil-alt"></i>
-                                            </a>
-                                            <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="far fa-trash-alt"></i>
-                                            </a>
-                                        </div>
-                                    </form>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <div class="block-content">
+                <ul class="nav nav-tabs nav-tabs-block" data-toggle="tabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="tab" href="#tab-verif">
+                            <i class="fa fa-check-circle text-success mr-1"></i> Sudah Verifikasi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tab-noverif">
+                            <i class="fa fa-question-circle text-warning mr-1"></i> Belum Verifikasi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tab-confirm">
+                            <i class="fa fa-envelope text-secondary mr-1"></i> Belum Konfirmasi
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="tab" href="#tab-batal">
+                            <i class="fa fa-times-circle text-danger mr-1"></i> Batal
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="block-content tab-content overflow-hidden mb-3">
+                    <div class="tab-pane fade active show" id="tab-verif" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-verif"
+                                style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 30px;">#</th>
+                                        <th style="width: 60px;">Foto</th>
+                                        @if($isASN)
+                                        <th style="width: 12%;">NIP</th> @endif
+                                        <th>Nama</th>
+                                        <th>{{ $colSatker }}</th>
+                                        <th>Instansi</th>
+                                        <th class="text-center">Aksi</th>
+                                        <th class="text-center">Batal</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-noverif" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-noverif"
+                                style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 30px;">#</th>
+                                        <th style="width: 60px;">Foto</th>
+                                        @if($isASN)
+                                        <th>NIP</th> @endif
+                                        <th>Nama</th>
+                                        <th>{{ $colSatker }}</th>
+                                        <th>Instansi</th>
+                                        <th style="width: 5%;">Verifikasi</th>
+                                        <th style="width: 5%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-confirm" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-confirm"
+                                style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 30px;">#</th>
+                                        <th style="width: 60px;">Foto</th>
+                                        @if($isASN)
+                                        <th>NIP</th> @endif
+                                        <th>Nama</th>
+                                        <th>{{ $colSatker }}</th>
+                                        <th>Instansi</th>
+                                        <th style="width: 5%;">Konfirmasi</th>
+                                        <th style="width: 5%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="tab-batal" role="tabpanel">
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped table-vcenter" id="table-peserta-batal"
+                                style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th class="text-center" style="width: 30px;">#</th>
+                                        <th style="width: 60px;">Foto</th>
+                                        @if($isASN)
+                                        <th>NIP</th> @endif
+                                        <th>Nama</th>
+                                        <th>{{ $colSatker }}</th>
+                                        <th>Instansi</th>
+                                        <th style="width: 8%;">Aksi</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <!-- END Peserta Belum Verifikasi -->
-        <!-- Peserta Belum Konfirmasi -->
-        <div class="block block-bordered block-themed">
-            <div class="block-header bg-secondary">
-                <h3 class="block-title">Belum Konfirmasi Email</h3>
-            </div>
-            <div class="block-content block-content-full border-top">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 30px;">#</th>
-                                <th style="width: 60px;">Foto</th>
-                                @if($isASN)
-                                <th style="width: 12%;">NIP</th>
-                                @endif
-                                <th>Nama</th>
-                                <th>{{ $colSatker }}</th>
-                                <th>Instansi</th>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <th style="width: 5%;">Konfirmasi</th>
-                                <th style="width: 5%;">Aksi</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pes_confirm as $pc)
-                            <tr>
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>
-                                    <img src="{{ is_null($pc->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pc->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
-                                </td>
-                                @if($isASN)
-                                <td class="font-w600">
-                                    {{ $pc->nip }}
-                                </td>
-                                @endif
-                                <td class="font-w600">
-                                    {{ $pc->nama_lengkap }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pc->satker_nama }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pc->instansi }}
-                                </td>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.konfirmasi', $pc->id) }}" method="POST">
-                                        @csrf
-                                        <div class="btn-group">
-                                            <a href="javascript:;" onclick="return showKonfirmasi($(this).closest('form'), 1);" class="btn btn-sm btn-success" title="Konfirmasi Manual"><i class="fa fa-check"></i></a>
-                                            <a href="javascript:;" onclick="return showKonfirmasi($(this).closest('form'), 2);" class="btn btn-sm btn-warning" title="Kirim Ulang Email"><i class="fa fa-paper-plane"></i></a>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.destroy', $pc->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <div class="btn-group">
-                                            <a href="{{ route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pc->id]) }}" class="btn btn-sm btn-primary" title="Edit">
-                                                <i class="fa fa-pencil-alt"></i>
-                                            </a>
-                                            <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="far fa-trash-alt"></i>
-                                            </a>
-                                        </div>
-                                    </form>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- END Peserta Belum Konfirmasi -->
-        <!-- Peserta Verifikasi -->
-        <div class="block block-bordered block-themed">
-            <div class="block-header bg-success">
-                <h3 class="block-title">Sudah di Verifikasi</h3>
-            </div>
-            <div class="block-content block-content-full">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 30px;">#</th>
-                                <th style="width: 60px;">Foto</th>
-                                @if($isASN)
-                                <th style="width: 12%;">NIP</th>
-                                @endif
-                                <th>Nama</th>
-                                <th>{{ $colSatker }}</th>
-                                <th>Instansi</th>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <th style="width: 5%;">Aksi</th>
-                                <th style="width: 5%;">Batal</th>
-                                @else
-                                <th style="width: 5%;">Aksi</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pes_verif as $pv)
-                            <tr>
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>
-                                    <img src="{{ is_null($pv->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pv->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
-                                </td>
-                                @if($isASN)
-                                <td class="font-w600">
-                                    {{ $pv->nip }}
-                                </td>
-                                @endif
-                                <td class="font-w600">
-                                    {{ $pv->nama_lengkap }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pv->satker_nama }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pv->instansi }}
-                                </td>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.destroy', $pv->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <div class="btn-group">
-                                            <a href="{{ route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pv->id]) }}" class="btn btn-sm btn-primary" title="Edit">
-                                                <i class="fa fa-pencil-alt"></i>
-                                            </a>
-                                            <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="far fa-trash-alt"></i>
-                                            </a>
-                                        </div>
-                                    </form>
-                                </td>
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.batal', $pv->id) }}" method="POST">
-                                        @csrf
-                                        <div class="btn-group">
-                                            <a href="javascript:;" onclick="return showBatal($(this).closest('form'));" class="btn btn-sm btn-danger" title="Batal"><i class="fa fa-times"></i></a>
-                                        </div>
-                                    </form>
-                                </td>
-                                @else
-                                <td class="text-center">
-                                    <div class="btn-group">
-                                        <a href="{{ route('backend.diklat.peserta.view', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pv->id]) }}" class="btn btn-sm btn-success" title="Lihat">
-                                            <i class="fa fa-eye"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- END Peserta Verifikasi -->
-        <!-- Peserta Batal -->
-        <div class="block block-bordered block-themed">
-            <div class="block-header bg-danger">
-                <h3 class="block-title">Batal</h3>
-            </div>
-            <div class="block-content block-content-full border-top">
-                <div class="table-responsive">
-                    <table class="table table-bordered table-striped table-vcenter js-dataTable-full">
-                        <thead>
-                            <tr>
-                                <th class="text-center" style="width: 30px;">#</th>
-                                <th style="width: 60px;">Foto</th>
-                                @if($isASN)
-                                <th style="width: 12%;">NIP</th>
-                                @endif
-                                <th>Nama</th>
-                                <th>{{ $colSatker }}</th>
-                                <th>Instansi</th>
-                                @if(Gate::check('isUser') || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
-                                <th style="width: 8%;">Aksi</th>
-                                @endif
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($pes_batal as $pb)
-                            <tr>
-                                <td class="text-center">{{ $loop->iteration }}</td>
-                                <td>
-                                    <img src="{{ is_null($pb->foto) ? asset('media/avatars/avatar8.jpg') :  asset(\Storage::url($pb->foto)) }}" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">
-                                </td>
-                                @if($isASN)
-                                <td class="font-w600">
-                                    {{ $pb->nip }}
-                                </td>
-                                @endif
-                                <td class="font-w600">
-                                    {{ $pb->nama_lengkap }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pb->satker_nama }}
-                                </td>
-                                <td class="font-w600">
-                                    {{ $pb->instansi }}
-                                </td>
-                                @if((Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit)
-                                <td class="text-center">
-                                    <form action="{{ route('backend.diklat.peserta.destroy', $pb->id) }}" method="POST">
-                                        @csrf
-                                        @method('DELETE')
-                                        <div class="btn-group">
-                                            <a href="{{ route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pb->id]) }}" class="btn btn-sm btn-primary" title="Edit">
-                                                <i class="fa fa-pencil-alt"></i>
-                                            </a>
-                                            <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger" title="Hapus">
-                                                <i class="far fa-trash-alt"></i>
-                                            </a>
-                                        </div>
-                                    </form>
-                                </td>
-                                @endif
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!-- END Peserta Batal -->
     </div>
     <!-- END Page Content -->
 @endsection

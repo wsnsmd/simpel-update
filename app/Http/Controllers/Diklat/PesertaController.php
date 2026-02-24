@@ -17,6 +17,7 @@ use Gate;
 use Session;
 use Storage;
 use ZipArchive;
+use Yajra\DataTables\DataTables;
 
 class PesertaController extends Controller
 {
@@ -921,6 +922,215 @@ class PesertaController extends Controller
                 'success' => $notifikasi,
                 'page' => 'peserta'
             ]);
+    }
+
+    public function datatableVerif(Request $request, $jadwal_id)
+    {
+        $jadwal = DB::table('diklat_jadwal')->find($jadwal_id); // Ambil data jadwal untuk cek status
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
+
+        $canAddEdit = true;
+        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+            $canAddEdit = false;
+        }
+        $query = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal_id)
+            ->where('verifikasi', 1)
+            ->where('batal', 0);
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('foto_render', function ($row) {
+                $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+            })
+            ->addColumn('aksi', function ($pv) use ($jadwal, $canAddEdit) {
+
+                if ((auth()->user()->can('isCreator', $jadwal) || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit) {
+                    return '
+                    <form action="' . route('backend.diklat.peserta.destroy', $pv->id) . '" method="POST">
+                        ' . csrf_field() . '
+                        <input type="hidden" name="_method" value="DELETE">
+                        <div class="btn-group">
+                            <a href="' . route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pv->id]) . '" class="btn btn-sm btn-primary" title="Edit">
+                                <i class="fa fa-pencil-alt"></i>
+                            </a>
+                            <a href="javascript:;" onclick="return showAlert($(this).closest(\'form\'));" class="btn btn-sm btn-danger" title="Hapus">
+                                <i class="far fa-trash-alt"></i>
+                            </a>
+                        </div>
+                    </form>';
+                } else {
+                    return '
+                    <div class="btn-group">
+                        <a href="' . route('backend.diklat.peserta.view', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pv->id]) . '" class="btn btn-sm btn-success" title="Lihat">
+                            <i class="fa fa-eye"></i>
+                        </a>
+                    </div>';
+                }
+            })
+            ->addColumn('batal', function ($pv) use ($jadwal, $canAddEdit) {
+                if ((auth()->user()->can('isCreator', $jadwal) || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3)) && $canAddEdit) {
+                    return '
+                    <form action="' . route('backend.diklat.peserta.batal', $pv->id) . '" method="POST">
+                        ' . csrf_field() . '
+                        <div class="btn-group">
+                            <a href="javascript:;" onclick="return showBatal($(this).closest(\'form\'));" class="btn btn-sm btn-danger" title="Batal"><i class="fa fa-times"></i></a>
+                        </div>
+                    </form>';
+                }
+                return '-';
+            })
+            ->rawColumns(['foto_render', 'aksi', 'batal'])
+            ->make(true);
+    }
+
+    public function datatableNoVerif(Request $request, $jadwal_id)
+    {
+        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
+
+        // Logika Kunci Data
+        $canAddEdit = true;
+        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+            $canAddEdit = false;
+        }
+
+        $query = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal_id)
+            ->where('verifikasi', 0)
+            ->where('konfirmasi', 1)
+            ->where('batal', 0);
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('foto_render', function ($row) {
+                $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+            })
+            ->addColumn('verifikasi', function ($pn) use ($canAddEdit) {
+                if ($canAddEdit) {
+                    return '
+                <form action="' . route('backend.diklat.peserta.verifikasi', $pn->id) . '" method="POST">
+                    ' . csrf_field() . '
+                    <div class="btn-group">
+                        <a href="javascript:;" onclick="return showVerifikasi($(this).closest(\'form\'), 1);" class="btn btn-sm btn-success" title="Setuju"><i class="fa fa-check"></i></a>
+                        <a href="javascript:;" onclick="return showVerifikasi($(this).closest(\'form\'), 2);" class="btn btn-sm btn-danger" title="Tolak"><i class="fa fa-times"></i></a>
+                    </div>
+                </form>';
+                }
+                return '<span class="badge badge-secondary">Locked</span>';
+            })
+            ->addColumn('aksi', function ($pn) use ($jadwal, $canAddEdit) {
+                if ($canAddEdit) {
+                    return '
+                <form action="' . route('backend.diklat.peserta.destroy', $pn->id) . '" method="POST">
+                    ' . csrf_field() . '
+                    <input type="hidden" name="_method" value="DELETE">
+                    <div class="btn-group">
+                        <a href="' . route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pn->id]) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil-alt"></i></a>
+                        <a href="javascript:;" onclick="return showAlert($(this).closest(\'form\'));" class="btn btn-sm btn-danger" title="Hapus"><i class="far fa-trash-alt"></i></a>
+                    </div>
+                </form>';
+                }
+                return '-';
+            })
+            ->rawColumns(['foto_render', 'verifikasi', 'aksi'])
+            ->make(true);
+    }
+
+    public function datatableConfirm(Request $request, $jadwal_id)
+    {
+        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
+
+        $canAddEdit = true;
+        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+            $canAddEdit = false;
+        }
+
+        $query = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal_id)
+            ->where('verifikasi', 0)
+            ->where('konfirmasi', 0) // Belum klik link email
+            ->where('batal', 0);
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('foto_render', function ($row) {
+                $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+            })
+            ->addColumn('konfirmasi', function ($pc) use ($canAddEdit) {
+                if ($canAddEdit && (auth()->user()->can('isUser') || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3))) {
+                    return '
+                <form action="' . route('backend.diklat.peserta.konfirmasi', $pc->id) . '" method="POST">
+                    ' . csrf_field() . '
+                    <div class="btn-group">
+                        <a href="javascript:;" onclick="return showKonfirmasi($(this).closest(\'form\'), 1);" class="btn btn-sm btn-success" title="Konfirmasi Manual"><i class="fa fa-check"></i></a>
+                        <a href="javascript:;" onclick="return showKonfirmasi($(this).closest(\'form\'), 2);" class="btn btn-sm btn-warning" title="Kirim Ulang Email"><i class="fa fa-paper-plane"></i></a>
+                    </div>
+                </form>';
+                }
+                return '-';
+            })
+            ->addColumn('aksi', function ($pc) use ($jadwal, $canAddEdit) {
+                if ($canAddEdit && (auth()->user()->can('isUser') || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3))) {
+                    return '
+                <form action="' . route('backend.diklat.peserta.destroy', $pc->id) . '" method="POST">
+                    ' . csrf_field() . '
+                    <input type="hidden" name="_method" value="DELETE">
+                    <div class="btn-group">
+                        <a href="' . route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pc->id]) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil-alt"></i></a>
+                        <a href="javascript:;" onclick="return showAlert($(this).closest(\'form\'));" class="btn btn-sm btn-danger" title="Hapus"><i class="far fa-trash-alt"></i></a>
+                    </div>
+                </form>';
+                }
+                return '-';
+            })
+            ->rawColumns(['foto_render', 'konfirmasi', 'aksi'])
+            ->make(true);
+    }
+
+    public function datatableBatal(Request $request, $jadwal_id)
+    {
+        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
+
+        $canAddEdit = true;
+        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+            $canAddEdit = false;
+        }
+
+        $query = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal_id)
+            ->where('batal', 1); // Hanya data yang dibatalkan
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('foto_render', function ($row) {
+                $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
+                return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: 40px; width: 40px;">';
+            })
+            ->addColumn('aksi', function ($pb) use ($jadwal, $canAddEdit) {
+                $isUser = auth()->user()->can('isUser');
+                $isKontribusi = auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3;
+
+                if (($isUser || $isKontribusi) && $canAddEdit) {
+                    return '
+                <form action="' . route('backend.diklat.peserta.destroy', $pb->id) . '" method="POST">
+                    ' . csrf_field() . '
+                    <input type="hidden" name="_method" value="DELETE">
+                    <div class="btn-group">
+                        <a href="' . route('backend.diklat.peserta.edit', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'id' => $pb->id]) . '" class="btn btn-sm btn-primary" title="Edit"><i class="fa fa-pencil-alt"></i></a>
+                        <a href="javascript:;" onclick="return showAlert($(this).closest(\'form\'));" class="btn btn-sm btn-danger" title="Hapus"><i class="far fa-trash-alt"></i></a>
+                    </div>
+                </form>';
+                }
+                return '-';
+            })
+            ->rawColumns(['foto_render', 'aksi'])
+            ->make(true);
     }
 
     public function checkAuth($id)

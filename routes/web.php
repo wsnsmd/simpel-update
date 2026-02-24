@@ -158,6 +158,10 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::patch('peserta/{peserta}/simple', 'Diklat\PesertaController@updateSimple')->name('peserta.update.simple');
         Route::post('peserta/konfirmasi/jadwal', 'Diklat\PesertaController@konfirmasiJadwal')->name('peserta.konfirmasi.jadwal');
         Route::get('peserta/{jadwal}/{slug}/{peserta}/view', 'Diklat\PesertaController@show')->name('peserta.view');
+        Route::post('peserta/datatable/verif/{jadwal}', 'Diklat\PesertaController@datatableVerif')->name('peserta.datatable.verif');
+        Route::post('peserta/datatable/noverif/{jadwal}', 'Diklat\PesertaController@datatableNoVerif')->name('peserta.datatable.noverif');
+        Route::post('peserta/datatable/confirm/{jadwal}', 'Diklat\PesertaController@datatableConfirm')->name('peserta.datatable.confirm');
+        Route::post('peserta/datatable/batal/{jadwal}', 'Diklat\PesertaController@datatableBatal')->name('peserta.datatable.batal');
 
         // Checklist
         Route::post('checklist', 'Diklat\ChecklistController@index')->name('checklist.index');

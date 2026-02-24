@@ -497,6 +497,9 @@ class JadwalController extends Controller
 
     public function peserta($jadwal, $peserta)
     {
+        if (!$jadwal->registrasi_lengkap)
+            return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal'));
+
         $pes_verif = DB::table('peserta')
             ->where('diklat_jadwal_id', $jadwal->id)
             ->where('verifikasi', true)
@@ -528,9 +531,6 @@ class JadwalController extends Controller
         $sertifikat = DB::table('sertifikat')
             ->where('diklat_jadwal_id', $jadwal->id)
             ->first();
-
-        if (!$jadwal->registrasi_lengkap)
-            return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
 
         return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
     }
