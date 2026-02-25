@@ -659,4 +659,27 @@ class JadwalController extends Controller
 
         return view('frontend.tautan', compact('jadwal', 'tautan'));
     }
+
+    public function datatablePeserta(Request $request, $jadwal_id)
+    {
+        $query = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal_id)
+            ->where('verifikasi', 1)
+            ->where('batal', 0)
+            ->select('id', 'nip', 'nama_lengkap', 'instansi', 'satker_nama');
+
+        return datatables()->of($query)
+            ->addIndexColumn()
+            ->addColumn('nip_masking', function ($row) {
+                if (!empty($row->nip) && strlen($row->nip) == 18) {
+                    return substr($row->nip, 0, 2) . str_repeat('*', 10) . substr($row->nip, -6);
+                }
+                return '-';
+            })
+            ->addColumn('instansi_render', function ($row) {
+                return $row->satker_nama . ' ' . strtoupper($row->instansi);
+            })
+            ->rawColumns(['nip_masking'])
+            ->make(true);
+    }
 }

@@ -4,6 +4,18 @@
     <!-- Page JS Plugins CSS -->
     <link rel="stylesheet" href="{{ asset('js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css') }}">
     <link rel="stylesheet" href="{{ asset('js/plugins/datatables/dataTables.bootstrap4.css') }}">
+    <style>
+        .dataTables_processing {
+            position: absolute; top: 50% !important; left: 50% !important;
+            width: 200px !important; margin-left: -100px !important; margin-top: -30px !important;
+            padding: 15px !important; text-align: center; color: #333;
+            border: none !important; background-color: rgba(255, 255, 255, 0.95) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important; border-radius: 4px !important;
+            z-index: 1060 !important;
+        }
+        .blur-content { filter: blur(2px); opacity: 0.5; transition: all 0.2s ease; pointer-events: none; }
+        #table-peserta-frontend { transition: all 0.2s ease; }
+    </style>
 @endsection
 
 
@@ -15,17 +27,19 @@
 
     <script>
         jQuery(function() {
-            Dashmix.helpers(['datepicker']);
-                // Override a few default classes
-                jQuery.extend(jQuery.fn.dataTable.ext.classes, {
+            $.ajaxSetup({
+                headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') }
+            });
+
+            jQuery.extend(jQuery.fn.dataTable.ext.classes, {
                 sWrapper: "dataTables_wrapper dt-bootstrap4",
                 sFilterInput:  "form-control",
                 sLengthSelect: "form-control"
             });
 
-            // Override a few defaults
             jQuery.extend(true, jQuery.fn.dataTable.defaults, {
                 language: {
+                    processing: '<i class="fa fa-spinner fa-spin fa-2x text-primary"></i><br>Memuat...',
                     emptyTable: "Tidak ada data tersedia",
                     infoEmpty: "Halaman 0 dari 0",
                     lengthMenu: "_MENU_",
@@ -41,11 +55,32 @@
                 }
             });
 
-            jQuery('.js-dataTable-full').dataTable({
-                pageLength: 100,
-                lengthMenu: [[10, 50, 100], [10, 50, 100]],
+            var table = $('#table-peserta-frontend').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: {
+                    url: "{{ route('jadwal.peserta.datatable', $jadwal->id) }}",
+                    type: "POST"
+                },
+                columns: [
+                    { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center' },
+                    { data: 'nip_masking', name: 'nip', searchable: false, class: 'text-center' },
+                    { data: 'nama_lengkap', name: 'nama_lengkap' },
+                    { data: 'instansi_render', name: 'instansi' }
+                ],
+                pageLength: 25,
                 autoWidth: false,
-                scrollX: true,
+                drawCallback: function() {
+                    $('#table-peserta-frontend').removeClass('blur-content');
+                }
+            });
+
+            table.on('processing.dt', function (e, settings, processing) {
+                if (processing) {
+                    $('#table-peserta-frontend').addClass('blur-content');
+                } else {
+                    $('#table-peserta-frontend').removeClass('blur-content');
+                }
             });
         });
     </script>
@@ -109,38 +144,17 @@
                         </ul>
                         <div class="block-content tab-content overflow-hidden">
                             <div class="tab-pane fade active show" id="daftar-peserta" role="tabpanel">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-hover js-dataTable-full" style="width:100%">
-                                        <thead class="">
-                                            <th class="font-w700">No</th>
-                                            <th class="font-w700">NIP</th>
-                                            <th class="font-w700" style="width: 25%">Nama</th>
-                                            <th class="font-w700">Instansi</th>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($peserta as $p)
+                                <div class="table-responsive mb-3">
+                                    <table class="table table-bordered table-hover table-vcenter table-sm" id="table-peserta-frontend" style="width:100%">
+                                        <thead class="bg-gray-lighter">
                                             <tr>
-                                                <td>{{ $loop->iteration }}</td>
-                                                <td>
-												@php
-                                                    $output = '';
-                                                    if(!is_null($p->nip) && strlen($p->nip) == 18)
-                                                    {
-                                                        $count = strlen($p->nip) - 8;
-                                                        $output = substr_replace($p->nip, str_repeat('*', $count), 2, $count);
-                                                    }
-                                                    else
-                                                    {
-                                                        $output = '-';
-                                                    }
-                                                    echo $output;
-												@endphp
-												</td>
-                                                <td>{{ $p->nama_lengkap }}</td>
-                                                <td>{{ $p->satker_nama }} {{ strtoupper($p->instansi) }}</td>
+                                                <th class="text-center" style="width: 50px;">No</th>
+                                                <th style="width: 200px;">NIP</th>
+                                                <th>Nama Lengkap</th>
+                                                <th>Instansi</th>
                                             </tr>
-                                            @endforeach
-                                        </tbody>
+                                        </thead>
+                                        <tbody></tbody>
                                     </table>
                                 </div>
                             </div>
