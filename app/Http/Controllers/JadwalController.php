@@ -96,13 +96,7 @@ class JadwalController extends Controller
         if ($slug != str_slug($jadwal->nama))
             abort(404);
 
-        $peserta = DB::table('peserta')
-            ->where('diklat_jadwal_id', $id)
-            ->where('verifikasi', 1)
-            ->where('batal', 0)
-            ->get();
-
-        return view('frontend.jadwal_detail', compact('jadwal', 'peserta'));
+        return view('frontend.jadwal_detail', compact('jadwal'));
     }
 
     public function daftar(Request $request)

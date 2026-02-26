@@ -20,12 +20,10 @@ class AuthentikController extends Controller
     {
         $provider = AuthentikAuth::makeProvider();
 
-        // scope OIDC: minimal openid, profile, email
         $authorizationUrl = $provider->getAuthorizationUrl([
             'scope' => 'openid profile email simpel_profile',
         ]);
 
-        // simpan state ke session untuk proteksi CSRF
         $request->session()->put('authentik_oauth2state', $provider->getState());
 
         return redirect()->away($authorizationUrl);
@@ -33,16 +31,14 @@ class AuthentikController extends Controller
 
     public function callback(Request $request)
     {
-        // cek error dari Authentik
         if ($request->has('error')) {
             return redirect('/login')->withErrors([
                 'authentik' => 'Login via SSO gagal: ' . $request->get('error_description', $request->get('error')),
             ]);
         }
 
-        // cek state
         $state = $request->get('state');
-        $savedState = $request->session()->pull('authentik_oauth2state'); // hapus setelah diambil
+        $savedState = $request->session()->pull('authentik_oauth2state');
 
         if (!$state || !$savedState || $state !== $savedState) {
             return redirect('/login')->withErrors([
@@ -60,25 +56,19 @@ class AuthentikController extends Controller
         $provider = AuthentikAuth::makeProvider();
 
         try {
-            // tukar code dengan access token
             $accessToken = $provider->getAccessToken('authorization_code', [
                 'code' => $code,
             ]);
 
-            // ambil data user dari /userinfo
             $resourceOwner = $provider->getResourceOwner($accessToken);
             $data = $resourceOwner->toArray();
-
-            // dd($data); // pakai sekali untuk lihat struktur data dari Authentik
 
             $email = isset($data['email']) ? $data['email'] : null;
             $name = isset($data['name']) ? $data['name'] : ($email ?: 'User');
             $username = $data['preferred_username'];
 
-            // Kalau kamu pakai NIP, cek claim-nya (contoh: 'nip' atau klaim custom)
             $nip = isset($data['nip']) ? $data['nip'] : null;
 
-            // Cari atau buat user lokal
             $user = User::where('username', $username)->first();
 
             if (!$user) {
@@ -98,51 +88,60 @@ class AuthentikController extends Controller
                 // $user->save();
             }
 
-            // Login user di Laravel
+            // Update data terbaru dari SSO setiap kali login (Sync)
             $user->name = $name;
             $user->email = $email;
-            $user->username = $username;
-            $user->superadmin = $data['superadmin'];
-            $user->usergroup = $data['group'];
-            $user->instansi_id = $data['instansi_id'];
-            $user->last_login = now();  // Atur waktu terakhir login ke waktu sekarang
-            $user->last_login_ip = $request->ip();  // Ambil alamat IP
-            $user->last_login_browser = $request->header('User-Agent');  // Ambil informasi browser
-            $user->save();  // Simpan perubahan ke database
 
-            $request->session()->put('apps_tahun', setting()->get('app_tahun'));
-            $instansi = DB::table('instansi')->where('id', $user->instansi_id)->first();
-            $tahun = DB::table('tahun')->where('aktif', true)->get();
-            $request->session()->put('apps_tahuns', $tahun);
-            $request->session()->put('auth_instansi', $instansi->nama);
+            // Mapping custom attribute dari Authentik
+            $user->superadmin = $data['superadmin'] ?? 0;
+            $user->usergroup = $data['group'] ?? 'user';
+            $user->instansi_id = $data['instansi_id'] ?? null;
+
+            // Log akses
+            $user->last_login = now();
+            $user->last_login_ip = $request->ip();
+            $user->last_login_browser = $request->header('User-Agent');
+            $user->save();
+
+            // Set Session Aplikasi SIMPel
+            $this->setAppSessions($request, $user);
 
             Auth::login($user, true);
 
-            return redirect()->intended('/backend/dashboard'); // dashboard
+            return redirect()->intended('/backend/dashboard');
 
         } catch (\Exception $e) {
             return redirect('/login')->withErrors([
-                'authentik' => 'Terjadi error saat proses SSO: ' . $e->getMessage(),
+                'authentik' => 'Gagal sinkronisasi data: ' . $e->getMessage(),
             ]);
+        }
+    }
+
+    private function setAppSessions(Request $request, $user)
+    {
+        $request->session()->put('apps_tahun', setting()->get('app_tahun'));
+
+        $tahun = DB::table('tahun')->where('aktif', true)->get();
+        $request->session()->put('apps_tahuns', $tahun);
+
+        if ($user->instansi_id) {
+            $instansi = DB::table('instansi')->where('id', $user->instansi_id)->first();
+            $request->session()->put('auth_instansi', $instansi->nama ?? 'BPSDM');
         }
     }
 
     public function logout(Request $request)
     {
-        // 1. Logout dari sistem Laravel
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // 2. Redirect kembali ke halaman login aplikasi (setelah logout dari Authentik)
-        $redirectAfterLogout = url('https://bpsdm.kaltimprov.go.id');
+        $baseUrl = rtrim(config('services.authentik.base_url'), '/');
+        $returnTo = url('/');
 
-        // 3. URL logout di Authentik
-        $authentikLogoutUrl = rtrim(env('AUTHENTIK_BASE_URL'), '/') .
-            '/application/o/simpel/end-session/?post_logout_redirect_uri=';
+        $logoutUrl = "{$baseUrl}/application/o/simpel/end-session/?post_logout_redirect_uri=" . urlencode($returnTo);
 
-        // 4. Redirect ke Authentik logout endpoint
-        return redirect()->away($authentikLogoutUrl);
+        return redirect()->away($logoutUrl);
     }
 
     public function profileSSO(Request $request)
