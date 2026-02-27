@@ -137,7 +137,7 @@ class AuthentikController extends Controller
         $request->session()->regenerateToken();
 
         $baseUrl = rtrim(config('services.authentik.base_url'), '/');
-        $returnTo = url('/');
+        $returnTo = url('https://bpsdm.kaltimprov.go.id');
 
         $logoutUrl = "{$baseUrl}/application/o/simpel/end-session/?post_logout_redirect_uri=" . urlencode($returnTo);
 

@@ -45,11 +45,18 @@ return [
     ],
 
     'keycloak' => [
-        'client_id'     => env('KEYCLOAK_CLIENT_ID'),
+        'client_id' => env('KEYCLOAK_CLIENT_ID'),
         'client_secret' => env('KEYCLOAK_CLIENT_SECRET'),
-        'redirect'      => env('KEYCLOAK_REDIRECT_URI'),
-        'base_url'      => env('KEYCLOAK_BASE_URL'),   // https://sso.bpsdmkaltim.net
-        'realms'        => env('KEYCLOAK_REALM'),      // bpsdm-realm
+        'redirect' => env('KEYCLOAK_REDIRECT_URI'),
+        'base_url' => env('KEYCLOAK_BASE_URL'),   // https://sso.bpsdmkaltim.net
+        'realms' => env('KEYCLOAK_REALM'),      // bpsdm-realm
+    ],
+
+    'authentik' => [
+        'base_url' => env('AUTHENTIK_BASE_URL', 'https://auth.bpsdmkaltim.net'),
+        'client_id' => env('AUTHENTIK_CLIENT_ID'),
+        'client_secret' => env('AUTHENTIK_CLIENT_SECRET'),
+        'redirect' => env('AUTHENTIK_REDIRECT_URI'),
     ],
 
 ];
