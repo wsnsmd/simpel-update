@@ -447,7 +447,7 @@ class JadwalController extends Controller
     public function detail($id, $slug)
     {
         $this->checkAuth($id);
-        if (Gate::denies('isUser') || Gate::allows('isViewer')) {
+        if (!Gate::any(['isUser', 'isViewer'], Jadwal::find($id)) && Gate::denies('isKelasKontribusi', Jadwal::find($id))) {
             abort(403);
         }
         $jadwal = DB::table('v_jadwal_detail')->where('id', $id)->first();
@@ -500,39 +500,39 @@ class JadwalController extends Controller
         if (!$jadwal->registrasi_lengkap)
             return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal'));
 
-        $pes_verif = DB::table('peserta')
-            ->where('diklat_jadwal_id', $jadwal->id)
-            ->where('verifikasi', true)
-            ->where('batal', false)
-            ->orderby('nama_lengkap')
-            ->get();
-        $pes_noverif = DB::table('peserta')
-            ->where('diklat_jadwal_id', $jadwal->id)
-            ->where('verifikasi', false)
-            ->where('batal', false)
-            ->where('konfirmasi', true)
-            ->get();
-        $pes_confirm = DB::table('peserta')
-            ->where('diklat_jadwal_id', $jadwal->id)
-            ->where('verifikasi', false)
-            ->where('batal', false)
-            ->where('konfirmasi', false)
-            ->get();
-        $pes_tolak = DB::table('peserta')
-            ->where('diklat_jadwal_id', $jadwal->id)
-            ->where('verifikasi', 2)
-            ->where('batal', false)
-            ->get();
-        $pes_batal = DB::table('peserta')
-            ->where('diklat_jadwal_id', $jadwal->id)
-            ->where('batal', true)
-            ->get();
+        // $pes_verif = DB::table('peserta')
+        //     ->where('diklat_jadwal_id', $jadwal->id)
+        //     ->where('verifikasi', true)
+        //     ->where('batal', false)
+        //     ->orderby('nama_lengkap')
+        //     ->get();
+        // $pes_noverif = DB::table('peserta')
+        //     ->where('diklat_jadwal_id', $jadwal->id)
+        //     ->where('verifikasi', false)
+        //     ->where('batal', false)
+        //     ->where('konfirmasi', true)
+        //     ->get();
+        // $pes_confirm = DB::table('peserta')
+        //     ->where('diklat_jadwal_id', $jadwal->id)
+        //     ->where('verifikasi', false)
+        //     ->where('batal', false)
+        //     ->where('konfirmasi', false)
+        //     ->get();
+        // $pes_tolak = DB::table('peserta')
+        //     ->where('diklat_jadwal_id', $jadwal->id)
+        //     ->where('verifikasi', 2)
+        //     ->where('batal', false)
+        //     ->get();
+        // $pes_batal = DB::table('peserta')
+        //     ->where('diklat_jadwal_id', $jadwal->id)
+        //     ->where('batal', true)
+        //     ->get();
 
         $sertifikat = DB::table('sertifikat')
             ->where('diklat_jadwal_id', $jadwal->id)
             ->first();
 
-        return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'pes_verif', 'pes_noverif', 'pes_confirm', 'pes_batal', 'pes_tolak', 'sertifikat'));
+        return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'sertifikat'));
     }
 
     public function cetak($jadwal, $peserta)

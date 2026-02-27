@@ -926,7 +926,7 @@ class PesertaController extends Controller
 
     public function datatableVerif(Request $request, $jadwal_id)
     {
-        $jadwal = DB::table('diklat_jadwal')->find($jadwal_id); // Ambil data jadwal untuk cek status
+        $jadwal = DB::table('v_jadwal_detail')->find($jadwal_id); // Ambil data jadwal untuk cek status
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
@@ -987,7 +987,7 @@ class PesertaController extends Controller
 
     public function datatableNoVerif(Request $request, $jadwal_id)
     {
-        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwal_id)->first();
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         // Logika Kunci Data
@@ -1041,7 +1041,7 @@ class PesertaController extends Controller
 
     public function datatableConfirm(Request $request, $jadwal_id)
     {
-        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwal_id)->first();
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
@@ -1094,7 +1094,7 @@ class PesertaController extends Controller
 
     public function datatableBatal(Request $request, $jadwal_id)
     {
-        $jadwal = DB::table('v_front_jadwal')->where('id', $jadwal_id)->first();
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwal_id)->first();
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
