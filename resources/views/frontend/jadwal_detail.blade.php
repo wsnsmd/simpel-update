@@ -237,7 +237,7 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            @if($jadwal->status_registrasi == true && $jadwal->registrasi_lengkap == true && $jadwal->kuota > count($peserta))
+                            @if($jadwal->status_registrasi == true && $jadwal->registrasi_lengkap == true && $jadwal->kuota > $peserta)
                             <form action="{{ route('jadwal.daftar') }}" method="POST">
                                 @csrf
                                 <input type="hidden" id="jadwal_id" name="jadwal_id" value="{{$jadwal->id}}">
