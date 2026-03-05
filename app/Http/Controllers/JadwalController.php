@@ -440,14 +440,14 @@ class JadwalController extends Controller
 
             $url = \URL::signedRoute('jadwal.konfirmasi', $id);
             // Mail::to($request->email)->send(new DaftarMailable($request->nama_lengkap, $url));
-            $job = new EmailDaftarHadirJob($request->nama_lengkap, $request->email, $jadwal, $url);
-            $this->dispatch($job);
+            // $job = new EmailDaftarHadirJob($request->nama_lengkap, $request->email, $jadwal, $url);
+            // $this->dispatch($job);
 
             $request->session()->flush();
 
             $peserta = DB::table('peserta')->find($id);
 
-            return view('frontend.daftar.finish_simple', compact('jadwal', 'peserta'));
+            return view('frontend.daftar.finish_simple2', compact('jadwal', 'peserta', 'url'));
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
