@@ -127,19 +127,25 @@ class JadwalController extends Controller
             'foto_temp',
             'status_asn',
         ]);
+
         if ($request->has('jadwal_id')) {
             $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
-            $peserta = DB::table('peserta')
+
+            $jumlahPeserta = DB::table('peserta')
                 ->where('diklat_jadwal_id', $jadwal->id)
                 ->whereIn('verifikasi', [0, 1])
                 ->where('batal', 0)
-                ->get();
+                ->count();
 
-            if ($jadwal->status_registrasi == true && $jadwal->kuota > count($peserta))
-                return view('frontend.daftar.1', compact('jadwal'));
+            if ($jadwal->status_registrasi == true) {
+                if ($jadwal->kuota == 0 || $jadwal->kuota > $jumlahPeserta) {
+                    return view('frontend.daftar.1', compact('jadwal'));
+                }
+            }
 
             return view('frontend.daftar.tutup', compact('jadwal'));
         }
+
         abort(404);
     }
 

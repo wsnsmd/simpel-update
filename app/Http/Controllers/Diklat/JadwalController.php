@@ -19,10 +19,10 @@ class JadwalController extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->tahun = Session::get('apps_tahun');
-
+            $this->user = Auth::user();
+            dd($this->user);
             return $next($request);
         });
-        $this->user = Auth::user();
     }
 
     public function index()

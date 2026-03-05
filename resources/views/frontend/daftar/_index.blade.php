@@ -119,7 +119,13 @@
                                     </tr>
                                     <tr>
                                         <td class="font-w700">Kuota</td>
-                                        <td>{{$jadwal->kuota}} Peserta</td>
+                                        <td>
+                                            @if($jadwal->kuota == 0)
+                                                <span class="text-primary" title="Tidak Dibatasi">&infin;</span> 
+                                            @else
+                                                {{ $jadwal->kuota }} Peserta
+                                            @endif
+                                        </td>
                                     </tr>
                                     <tr>
                                         <td class="font-w700">Registrasi</td>

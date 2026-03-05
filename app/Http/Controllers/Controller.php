@@ -17,7 +17,7 @@ class Controller extends BaseController
 
     public function isAdmin()
     {
-        if($this->user->superadmin)
+        if ($this->user->superadmin)
             return true;
 
         return false;
@@ -30,20 +30,19 @@ class Controller extends BaseController
 
     public function checkLevel()
     {
-        if($this->user->superadmin)
+        if ($this->user->superadmin)
             return 'admin';
 
         $group = $this->user->usergroup;
 
-        switch($group)
-        {
+        switch ($group) {
             case 'skpk':
             case 'pkt':
             case 'pkmf':
                 $level = 'user';
                 break;
 
-            case 'kontribusi';
+            case 'kontribusi':
                 $level = 'kontribusi';
                 break;
 

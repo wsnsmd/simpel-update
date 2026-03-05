@@ -61,7 +61,13 @@
                             </tr>
                             <tr>
                                 <td class="font-w700 text-right">Kuota:</td>
-                                <td>{{$jadwal->kuota}} Peserta</td>
+                                <td>
+                                    @if($jadwal->kuota == 0)
+                                        <span class="text-primary" title="Tidak Dibatasi">&infin;</span>
+                                    @else
+                                        {{ $jadwal->kuota }} Peserta
+                                    @endif
+                                </td>
                             </tr>
                             <tr>
                                 <td class="font-w700 text-right">Panitia:</td>
@@ -71,9 +77,9 @@
                                 <td class="font-w700 text-right">Lampiran:</td>
                                 <td>
                                     @if(!is_null($jadwal->lampiran))
-                                    <a href="#" class="font-w700 link-fx">Unduh-File</a>
+                                        <a href="#" class="font-w700 link-fx">Unduh-File</a>
                                     @else
-                                    -
+                                        -
                                     @endif
                                 </td>
                             </tr>
