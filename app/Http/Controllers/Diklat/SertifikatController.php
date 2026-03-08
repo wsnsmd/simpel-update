@@ -30,10 +30,9 @@ class SertifikatController extends Controller
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->tahun = Session::get('apps_tahun');
-
+            $this->user = Auth::user();
             return $next($request);
         });
-        $this->user = Auth::user();
     }
 
     public function store(Request $request)
@@ -905,6 +904,7 @@ class SertifikatController extends Controller
         // dd((Str::uuid()));
         $jadwalController = new JadwalController();
         $jadwalController->tahun = $this->tahun;
+        $jadwalController->user = Auth::user();
         $jadwalController->checkAuth($jadwal);
 
         $sertifikat = DB::table('sertifikat')

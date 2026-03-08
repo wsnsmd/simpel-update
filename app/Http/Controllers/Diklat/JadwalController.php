@@ -15,7 +15,6 @@ class JadwalController extends Controller
 {
     public function __construct()
     {
-
         $this->middleware('auth');
         $this->middleware(function ($request, $next) {
             $this->tahun = Session::get('apps_tahun');
