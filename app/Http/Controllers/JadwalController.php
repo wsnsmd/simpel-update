@@ -407,8 +407,8 @@ class JadwalController extends Controller
                 ->count();
 
             if ($jadwal->status_registrasi == true) {
-                if ($jadwal->kuota == 0 || $jadwal->kuota > $jumlahPeserta) {
-                    return view('frontend.daftar.1', compact('jadwal'));
+                if ($jadwal->kuota != 0 || $jadwal->kuota < $jumlahPeserta) {
+                    return view('frontend.daftar.tutup', compact('jadwal'));
                 }
             }
 
