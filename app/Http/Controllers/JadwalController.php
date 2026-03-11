@@ -400,11 +400,16 @@ class JadwalController extends Controller
             //     ->lockForUpdate()
             //     ->get();
 
-            $jumlahPeserta = DB::table('peserta')->where('diklat_jadwal_id', $jadwal->id)->count();
+            $jumlahPeserta = DB::table('peserta')
+                ->where('diklat_jadwal_id', $jadwal->id)
+                ->whereIn('verifikasi', [0, 1])
+                ->where('batal', 0)
+                ->count();
 
-            if ($jadwal->status_registrasi == true && $jadwal->kuota <= $jumlahPeserta) {
-                DB::rollBack();
-                return view('frontend.daftar.tutup', compact('jadwal'));
+            if ($jadwal->status_registrasi == true) {
+                if ($jadwal->kuota == 0 || $jadwal->kuota > $jumlahPeserta) {
+                    return view('frontend.daftar.1', compact('jadwal'));
+                }
             }
 
             $token = str_random(40);
