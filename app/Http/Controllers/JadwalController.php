@@ -407,58 +407,58 @@ class JadwalController extends Controller
                 ->count();
 
             if ($jadwal->status_registrasi == true) {
-                if ($jadwal->kuota != 0 || $jadwal->kuota < $jumlahPeserta) {
-                    return view('frontend.daftar.tutup', compact('jadwal'));
+                if ($jadwal->kuota == 0 || $jadwal->kuota > $jumlahPeserta) {
+                    $token = str_random(40);
+                    $nip = session('nip');
+
+                    $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
+                    $bulan = date('m');
+                    $tahun = date('Y');
+                    $created_at = date('Y-m-d H:i:s');
+
+                    $result = DB::table('peserta')
+                        ->whereMonth('created_at', '=', $bulan)
+                        ->whereYear('created_at', '=', $tahun)
+                        ->count();
+
+                    $kode = "R" . sprintf("%s%02s%04s", $tahun, $bulan, ++$result);
+                    $status_asn = session('status_asn');
+
+                    $id = DB::table('peserta')->insertGetId([
+                        'kode' => $kode,
+                        'nip' => $nip,
+                        'nama_lengkap' => $request->nama_lengkap,
+                        'nama_panggil' => $request->nama_panggil,
+                        'jk' => $request->jk,
+                        'hp' => $request->hp,
+                        'email' => $request->email,
+                        'jabatan' => $request->jabatan,
+                        'instansi' => $request->instansi,
+                        'satker_nama' => $request->satker_nama ?? '-',
+                        'diklat_jadwal_id' => $jadwal->id,
+                        'token' => $token,
+                        'status_asn' => $status_asn,
+                        'sebagai' => 'Peserta',
+                        'pendidikan' => $request->pendidikan,
+                        'created_at' => $created_at,
+                    ]);
+
+                    DB::commit();
+
+                    $url = \URL::signedRoute('jadwal.konfirmasi', $id);
+                    // Mail::to($request->email)->send(new DaftarMailable($request->nama_lengkap, $url));
+                    // $job = new EmailDaftarHadirJob($request->nama_lengkap, $request->email, $jadwal, $url);
+                    // $this->dispatch($job);
+
+                    $request->session()->flush();
+
+                    $peserta = DB::table('peserta')->find($id);
+
+                    return view('frontend.daftar.finish_simple2', compact('jadwal', 'peserta', 'url'));
                 }
+
+                return view('frontend.daftar.tutup', compact('jadwal'));
             }
-
-            $token = str_random(40);
-            $nip = session('nip');
-
-            $jadwal = DB::table('v_front_jadwal')->where('id', session('jadwal_id'))->first();
-            $bulan = date('m');
-            $tahun = date('Y');
-            $created_at = date('Y-m-d H:i:s');
-
-            $result = DB::table('peserta')
-                ->whereMonth('created_at', '=', $bulan)
-                ->whereYear('created_at', '=', $tahun)
-                ->count();
-
-            $kode = "R" . sprintf("%s%02s%04s", $tahun, $bulan, ++$result);
-            $status_asn = session('status_asn');
-
-            $id = DB::table('peserta')->insertGetId([
-                'kode' => $kode,
-                'nip' => $nip,
-                'nama_lengkap' => $request->nama_lengkap,
-                'nama_panggil' => $request->nama_panggil,
-                'jk' => $request->jk,
-                'hp' => $request->hp,
-                'email' => $request->email,
-                'jabatan' => $request->jabatan,
-                'instansi' => $request->instansi,
-                'satker_nama' => $request->satker_nama ?? '-',
-                'diklat_jadwal_id' => $jadwal->id,
-                'token' => $token,
-                'status_asn' => $status_asn,
-                'sebagai' => 'Peserta',
-                'pendidikan' => $request->pendidikan,
-                'created_at' => $created_at,
-            ]);
-
-            DB::commit();
-
-            $url = \URL::signedRoute('jadwal.konfirmasi', $id);
-            // Mail::to($request->email)->send(new DaftarMailable($request->nama_lengkap, $url));
-            // $job = new EmailDaftarHadirJob($request->nama_lengkap, $request->email, $jadwal, $url);
-            // $this->dispatch($job);
-
-            $request->session()->flush();
-
-            $peserta = DB::table('peserta')->find($id);
-
-            return view('frontend.daftar.finish_simple2', compact('jadwal', 'peserta', 'url'));
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->with('error', $e->getMessage());
