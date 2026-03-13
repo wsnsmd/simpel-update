@@ -72,6 +72,8 @@ Route::post('/daftar/step2simple', 'JadwalController@poststep2simple')->name('ja
 Route::get('/daftar/step3', 'JadwalController@step3')->name('jadwal.daftar.step3');
 Route::post('/daftar/step3', 'JadwalController@poststep3')->name('jadwal.daftar.step3');
 Route::get('/daftar/konfirmasi/{id}', 'JadwalController@konfirmasi')->name('jadwal.konfirmasi');
+Route::get('/daftar/cek-status', 'JadwalController@cekIndex')->name('jadwal.cek_status');
+Route::post('/daftar/cek-status', 'JadwalController@cekStatus')->name('jadwal.cek_status.post');
 
 Route::resource('/alumni', 'AlumniController', [
     'only' => ['index']

@@ -25,7 +25,7 @@
                 @else
                             message: "{{ session('error') }}"
                         @endif
-                                                                                                                            }, {
+                                                                                                                                    }, {
                     allow_dismiss: false,
                     type: 'danger',
                     placement: {
@@ -39,7 +39,6 @@
                 type: "GET",
                 url: "{{ route('reload.captcha') }}",
                 success: function (data) {
-                    console.log(data);
                     $(".captcha span").html(data.captcha);
                 }
             });

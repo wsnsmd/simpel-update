@@ -693,4 +693,51 @@ class JadwalController extends Controller
             ->rawColumns(['nip_masking'])
             ->make(true);
     }
+
+    public function cekIndex()
+    {
+        // Mengambil jadwal yang sedang buka registrasi atau sedang berjalan
+        $jadwals = DB::table('v_front_jadwal')
+            ->where('status_registrasi', 1)
+            ->Where('status_jadwal', 1)
+            ->where('registrasi_lengkap', false)
+            ->orderBy('tgl_awal', 'desc')
+            ->get();
+
+        return view('frontend.daftar.cari', [
+            'jadwals' => $jadwals,
+            'jadwal' => null,
+        ]);
+    }
+
+    public function cekStatus(Request $request)
+    {
+        // Validasi input
+        $request->validate([
+            'diklat_jadwal_id' => 'required',
+            'email' => 'required|email',
+            'captcha' => 'required|captcha',
+        ], [
+            'captcha.captcha' => 'Kode keamanan yang Anda masukkan salah.',
+        ]);
+
+        // Cari peserta berdasarkan Jadwal dan Email
+        $peserta = DB::table('peserta')
+            ->where('diklat_jadwal_id', $request->diklat_jadwal_id)
+            ->where('email', $request->email)
+            ->where('batal', 0)
+            ->first();
+
+        if (!$peserta) {
+            return redirect()->back()->with('error', 'Data pendaftaran tidak ditemukan. Pastikan Jadwal dan Email yang Anda masukkan sudah benar.');
+        }
+
+        $jadwal = DB::table('v_front_jadwal')->where('id', $peserta->diklat_jadwal_id)->first();
+
+        // Generate kembali Signed URL untuk keamanan akses
+        $url = \URL::signedRoute('jadwal.konfirmasi', ['id' => $peserta->id]);
+
+        // Tampilkan kembali halaman sukses pendaftaran
+        return view('frontend.daftar.finish_simple2', compact('jadwal', 'peserta', 'url'));
+    }
 }
