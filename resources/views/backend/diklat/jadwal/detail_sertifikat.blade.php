@@ -28,6 +28,13 @@ $totalUploaded = $stats->total_uploaded ?? 0;
 $totalPemprov = $stats->total_pemprov ?? 0;
 $doneSimasn = $stats->done_simasn ?? 0;
 $doneEmail = $stats->done_email ?? 0;
+
+$totalPeserta = $stats->total_peserta ?? 0; // Ini biasanya jumlah sertifikat yang sudah ada di tabel sertifikat_peserta
+$countPeserta = $countPeserta ?? 0; // Pastikan ini dikirim dari Controller (jumlah peserta verif)
+
+// Perhitungan Selisih
+$selisih = $countPeserta - $totalPeserta;
+$isLengkap = ($selisih <= 0);
 @endphp
 
 @extends('layouts.backend')
@@ -589,14 +596,37 @@ $doneEmail = $stats->done_email ?? 0;
                                         <div class="d-flex justify-content-between">
                                             <div>
                                                 <div class="font-w600">Mode Sertifikat</div>
+                                                @if($selisih > 0)
+                                                    <div class="alert alert-danger d-flex align-items-center justify-content-between mb-0 mt-3" role="alert">
+                                                        <div class="flex-fill">
+                                                            <p class="mb-0 font-size-sm">
+                                                                <i class="fa fa-exclamation-triangle mr-1"></i>
+                                                                Terdapat <strong>{{ $selisih }}</strong> peserta terverifikasi yang <strong>belum dibuatkan</strong> data
+                                                                sertifikatnya.
+                                                                Silakan klik tombol <strong>Buat Sertifikat Peserta</strong> pada menu di atas.
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                                 <div class="mt-2">
                                                     <span class="badge badge-info mr-1">
-                                                        <i class="fa fa-users mr-1"></i> Peserta: <strong>{{ $totalPeserta }}</strong>
+                                                        <i class="fa fa-users mr-1"></i> Peserta: <strong>{{ $countPeserta }}</strong>
                                                     </span>
 
                                                     <span class="badge badge-primary mr-1">
-                                                        <i class="fa fa-certificate mr-1"></i> Sertifikat: <strong>{{ $totalSertifikat }}</strong>
+                                                        <i class="fa fa-certificate mr-1"></i> Sertifikat Dibuat: <strong>{{ $totalPeserta }}</strong>
                                                     </span>
+
+                                                    {{-- Badge Selisih --}}
+                                                    @if($selisih > 0)
+                                                        <span class="badge badge-danger animated bounceIn">
+                                                            <i class="fa fa-exclamation-circle mr-1"></i> Kurang: <strong>{{ $selisih }}</strong>
+                                                        </span>
+                                                    @else
+                                                        <span class="badge badge-success">
+                                                            <i class="fa fa-check-double mr-1"></i> Lengkap
+                                                        </span>
+                                                    @endif
 
                                                     @if($isUpload)
                                                         <span class="badge badge-secondary">

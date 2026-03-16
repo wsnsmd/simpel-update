@@ -495,8 +495,40 @@ class JadwalController extends Controller
 
     public function peserta($jadwal, $peserta)
     {
+        $countVerif = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', 1)
+            ->where('konfirmasi', 1)
+            ->where('batal', 0)
+            ->count();
+
+        $countNoVerif = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', 0)
+            ->where('konfirmasi', 1)
+            ->where('batal', 0)
+            ->count();
+
+        $countConfirm = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('verifikasi', 0)
+            ->where('konfirmasi', 0)
+            ->where('batal', 0)
+            ->count();
+
+        $countBatal = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwal->id)
+            ->where('batal', 1)
+            ->count();
+
         if (!$jadwal->registrasi_lengkap)
-            return view('backend.diklat.jadwal.detail_peserta_s', compact('jadwal'));
+            return view('backend.diklat.jadwal.detail_peserta_s', compact(
+                'jadwal',
+                'countVerif',
+                'countNoVerif',
+                'countConfirm',
+                'countBatal'
+            ));
 
         // $pes_verif = DB::table('peserta')
         //     ->where('diklat_jadwal_id', $jadwal->id)
@@ -530,7 +562,14 @@ class JadwalController extends Controller
             ->where('diklat_jadwal_id', $jadwal->id)
             ->first();
 
-        return view('backend.diklat.jadwal.detail_peserta', compact('jadwal', 'sertifikat'));
+        return view('backend.diklat.jadwal.detail_peserta', compact(
+            'jadwal',
+            'sertifikat',
+            'countVerif',
+            'countNoVerif',
+            'countConfirm',
+            'countBatal'
+        ));
     }
 
     public function cetak($jadwal, $peserta)
@@ -562,8 +601,14 @@ class JadwalController extends Controller
 
             $simasn = DB::table('sertifikat_simasn')->where('sertifikat_id', $sertifikat->id)->first();
             $email = DB::table('sertifikat_email')->where('sertifikat_id', $sertifikat->id)->first();
+            $countPeserta = DB::table('peserta')
+                ->where('diklat_jadwal_id', $jadwal->id)
+                ->where('verifikasi', 1)
+                ->where('konfirmasi', 1)
+                ->where('batal', 0)
+                ->count();
 
-            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'stats', 'simasn', 'email'));
+            return view('backend.diklat.jadwal.detail_sertifikat', compact('jadwal', 'sertifikat', 'stats', 'simasn', 'email', 'countPeserta'));
         }
 
         $template = DB::table('sertifikat_template')->where('is_tampil', true)->orderBy('nama')->get();

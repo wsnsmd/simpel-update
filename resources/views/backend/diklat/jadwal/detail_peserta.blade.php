@@ -497,21 +497,25 @@
                     <li class="nav-item">
                         <a class="nav-link active" data-toggle="tab" href="#tab-verif">
                             <i class="fa fa-check-circle text-success mr-1"></i> Sudah Verifikasi
+                            <span class="badge badge-pill badge-success ml-1">{{ $countVerif }}</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab-noverif">
                             <i class="fa fa-question-circle text-warning mr-1"></i> Belum Verifikasi
+                            <span class="badge badge-pill badge-warning ml-1">{{ $countNoVerif }}</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab-confirm">
                             <i class="fa fa-envelope text-secondary mr-1"></i> Belum Konfirmasi
+                            <span class="badge badge-pill badge-secondary ml-1">{{ $countConfirm }}</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" data-toggle="tab" href="#tab-batal">
                             <i class="fa fa-times-circle text-danger mr-1"></i> Batal
+                            <span class="badge badge-pill badge-danger ml-1">{{ $countBatal }}</span>
                         </a>
                     </li>
                 </ul>
