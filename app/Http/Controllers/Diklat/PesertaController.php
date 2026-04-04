@@ -1061,7 +1061,7 @@ class PesertaController extends Controller
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
                 return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
             })
-            ->addColumn('konfirmasi', function ($pc) use ($canAddEdit) {
+            ->addColumn('konfirmasi', function ($pc) use ($jadwal, $canAddEdit) {
                 if ($canAddEdit && (auth()->user()->can('isUser') || (auth()->user()->can('isKontribusi') && $jadwal->status_jadwal < 3))) {
                     return '
                 <form action="' . route('backend.diklat.peserta.konfirmasi', $pc->id) . '" method="POST">
