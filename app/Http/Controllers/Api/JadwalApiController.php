@@ -47,7 +47,7 @@ class JadwalApiController extends Controller
     public function auth(Request $request)
     {
         $peserta = Peserta::select('nip', 'nama_lengkap', 'jk', 'hp', 'email', 'jabatan', 'instansi', 'satker_nama', 'status_asn')
-            ->where(['nip' => $request->username, 'hp' => $request->password, 'konfirmasi' => true, 'batal' => false, 'sebagai' => 'Peserta'])
+            ->where(['nip' => $request->username, 'hp' => $request->password, 'konfirmasi' => true, 'batal' => false])
             ->latest()->first();
 
         if ($peserta)
