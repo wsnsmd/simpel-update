@@ -74,6 +74,7 @@ class AuthentikController extends Controller
             if (!$user) {
                 $user = new User();
                 $user->password = bcrypt(str_random(40));
+                $user->username = $username;
 
                 // // kalau di tabel users ada kolom 'nip'
                 // if (schema_has_column('users', 'nip') && $nip) {
@@ -111,6 +112,7 @@ class AuthentikController extends Controller
             return redirect()->intended('/backend/dashboard');
 
         } catch (\Exception $e) {
+            dd($e);
             return redirect('/login')->withErrors([
                 'authentik' => 'Gagal sinkronisasi data: ' . $e->getMessage(),
             ]);
