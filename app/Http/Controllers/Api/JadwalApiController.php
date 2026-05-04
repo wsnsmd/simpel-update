@@ -61,7 +61,7 @@ class JadwalApiController extends Controller
 
         // 3. Ambil data pembimbing (Coach & Penguji)
         $seminarRaw = DB::table('v_coachpenguji')
-            ->select(['coach', 'penguji', 'mentor']) // Tambahkan mentor jika kolom tersedia di view
+            ->select(['coach', 'penguji'])
             ->where([
                 'peid' => $peserta->id,
                 'jid' => $request->jadwal
@@ -74,7 +74,6 @@ class JadwalApiController extends Controller
             'seminar' => [
                 'coach' => $seminarRaw->coach ?? '',
                 'penguji' => $seminarRaw->penguji ?? '',
-                'mentor' => $seminarRaw->mentor ?? ''
             ]
         ], 200);
     }
