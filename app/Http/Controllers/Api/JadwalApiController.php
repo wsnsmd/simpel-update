@@ -28,14 +28,55 @@ class JadwalApiController extends Controller
 
     public function pesertaDinov(Request $request)
     {
+        // 1. Validasi Input
         $validator = Validator::make($request->all(), ['jadwal' => 'required', 'nip' => 'required']);
         if ($validator->fails())
             return response()->json(['success' => false, 'message' => 'Bad Request'], 400);
 
-        $data = [];
-        $data['peserta'] = DB::table('v_peserta')->where(['nip' => $request->nip, 'diklat_jadwal_id' => $request->jadwal])->first();
-        $data['seminar'] = DB::table('v_coachpenguji')->where(['peid' => $data['peserta']->id, 'jid' => $request->jadwal])->first();
-        return response()->json($data, 200);
+        // 2. Ambil data peserta (Hanya kolom yang dibutuhkan)
+        $peserta = DB::table('v_peserta')
+            ->select([
+                'id',
+                'nip',
+                'nama_lengkap',
+                'email',
+                'hp',
+                'instansi',
+                'satker_nama', // Digunakan untuk Unit Kerja
+                'jabatan'
+            ])
+            ->where([
+                'nip' => $request->nip,
+                'diklat_jadwal_id' => $request->jadwal
+            ])
+            ->first();
+
+        // Jika peserta tidak ditemukan
+        if (!$peserta) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peserta tidak terdaftar pada jadwal ini.'
+            ], 404);
+        }
+
+        // 3. Ambil data pembimbing (Coach & Penguji)
+        $seminarRaw = DB::table('v_coachpenguji')
+            ->select(['coach', 'penguji', 'mentor']) // Tambahkan mentor jika kolom tersedia di view
+            ->where([
+                'peid' => $peserta->id,
+                'jid' => $request->jadwal
+            ])
+            ->first();
+
+        // 4. Susun Response yang Bersih
+        return response()->json([
+            'peserta' => $peserta,
+            'seminar' => [
+                'coach' => $seminarRaw->coach ?? '',
+                'penguji' => $seminarRaw->penguji ?? '',
+                'mentor' => $seminarRaw->mentor ?? ''
+            ]
+        ], 200);
     }
 
     public function jpBulan(Request $request)
