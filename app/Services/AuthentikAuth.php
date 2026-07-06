@@ -11,12 +11,12 @@ class AuthentikAuth
         $baseUrl = rtrim(env('AUTHENTIK_BASE_URL'), '/');
 
         return new GenericProvider([
-            'clientId'                => env('AUTHENTIK_CLIENT_ID'),
-            'clientSecret'            => env('AUTHENTIK_CLIENT_SECRET'),
-            'redirectUri'             => env('AUTHENTIK_REDIRECT_URI'),
-            'urlAuthorize'            => $baseUrl.'/application/o/authorize/',
-            'urlAccessToken'          => $baseUrl.'/application/o/token/',
-            'urlResourceOwnerDetails' => $baseUrl.'/application/o/userinfo/',
+            'clientId' => config('AUTHENTIK_CLIENT_ID'),
+            'clientSecret' => config('AUTHENTIK_CLIENT_SECRET'),
+            'redirectUri' => config('AUTHENTIK_REDIRECT_URI'),
+            'urlAuthorize' => $baseUrl . '/application/o/authorize/',
+            'urlAccessToken' => $baseUrl . '/application/o/token/',
+            'urlResourceOwnerDetails' => $baseUrl . '/application/o/userinfo/',
         ]);
     }
 }
