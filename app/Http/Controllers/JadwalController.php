@@ -153,9 +153,6 @@ class JadwalController extends Controller
     {
         $request->validate([
             // 'captcha' => 'required|captcha',
-            'instansi' => 'required',
-            'status' => 'required',
-            // field lain...
             'cf-turnstile-response' => 'required',
         ]);
 
