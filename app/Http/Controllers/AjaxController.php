@@ -16,13 +16,12 @@ class AjaxController extends Controller
         $client = new Client(['http_errors' => false, 'verify' => false]);
 
         try {
-            // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
             $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
             $headers = [
                 'Authorization' => 'Bearer ' . $tokenData->token,
                 'Accept' => 'application/json'
             ];
-            $url_pegawai = env('SIMASN_PEGAWAI') . $id;
+            $url_pegawai = config('services.simasn.pegawai_url') . $id;
             $req_pegawai = $client->get($url_pegawai, [
                 'headers' => $headers
             ]);
@@ -33,8 +32,7 @@ class AjaxController extends Controller
                 if (!$pegawai['success'])
                     return redirect()->back()->with('error', $pegawai['keterangan']);
 
-                // $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
-                $url_opd = env('SIMASN_LISTOPD');
+                $url_opd = config('services.simasn.listopd_url');
                 $req_satker = $client->get($url_opd, [
                     'headers' => $headers
                 ]);
@@ -76,7 +74,6 @@ class AjaxController extends Controller
                         'tgl_lahir' => $pegawai['tgl_lahir'],
                         'jk' => simpegJK($pegawai['jk']),
                         'agama' => $pegawai['agama'],
-                        // 'marital' => $pegawai['id_status_nikah'],
                         'alamat' => $pegawai['alamat'],
                         'jabatan' => $pegawai['jabatan'],
                         'pangkat' => konversiGolongan($pegawai['golongan_id'], $pegawai['jenis_asn']),
@@ -152,14 +149,20 @@ class AjaxController extends Controller
     {
         try {
             $kalendar = DB::table('v_kalendar')
-                ->whereRaw("
-                            (start BETWEEN '" . $request->start . "' and '" . $request->end . "') or
-                            (end BETWEEN '" . $request->start . "' and '" . $request->end . "') or
-                            ('" . $request->start . "' BETWEEN date(start) and date(end)) or
-                            ('" . $request->end . "' between date(start) and date(end))
-                        ")
+                ->whereRaw(
+                    "(start BETWEEN ? AND ?) OR (end BETWEEN ? AND ?) OR (? BETWEEN DATE(start) AND DATE(end)) OR (? BETWEEN DATE(start) AND DATE(end))",
+                    [
+                        $request->start,
+                        $request->end,
+                        $request->start,
+                        $request->end,
+                        $request->start,
+                        $request->end,
+                    ]
+                )
                 ->select('title', 'start', 'end')
                 ->get();
+
             if (count($kalendar)) {
                 $jum_color = count($kalendar);
                 $color = (RandomColor::many($jum_color, array('luminosity' => 'light')));
@@ -174,10 +177,9 @@ class AjaxController extends Controller
                     ];
                 }
 
-                // dd($data);
                 return response()->json($data, 200);
             }
-            // dd(RandomColor::many(27, array('luminosity'=>'light')));
+
             return response()->json($kalendar, 200);
         } catch (\Exception $e) {
             return response()->json(null, 200);

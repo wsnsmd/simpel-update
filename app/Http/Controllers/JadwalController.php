@@ -153,6 +153,8 @@ class JadwalController extends Controller
     {
         $request->validate([
             // 'captcha' => 'required|captcha',
+            'instansi' => 'required',
+            'status' => 'required',
             'cf-turnstile-response' => 'required',
         ]);
 
@@ -229,7 +231,7 @@ class JadwalController extends Controller
                         'Authorization' => 'Bearer ' . $tokenData->token,
                         'Accept' => 'application/json'
                     ];
-                    $url_pegawai = env('SIMASN_PEGAWAI') . $id;
+                    $url_pegawai = config('services.simasn.pegawai_url') . $id;
                     $req_pegawai = $client->get($url_pegawai, [
                         'headers' => $headers
                     ]);
@@ -244,7 +246,7 @@ class JadwalController extends Controller
 
                         //$req_satker = $client->get(env('SIMPEG_SATKER') . $data_pegawai['id_skpd'] . '/?api_token=' . env('SIMPEG_KEY'));
                         // $req_satker = $client->get(env('SIMPEG_SATKER') . '/?id_skpd=' . $data_pegawai['id_skpd'] . '&api_token=' . env('SIMPEG_KEY'));
-                        $url_opd = env('SIMASN_LISTOPD');
+                        $url_opd = config('services.simasn.listopd_url');
                         $req_satker = $client->get($url_opd, [
                             'headers' => $headers
                         ]);
