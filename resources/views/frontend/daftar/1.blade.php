@@ -25,7 +25,7 @@
                 @else
                             message: "{{ session('error') }}"
                         @endif
-                                                                                                                                    }, {
+                                }, {
                     allow_dismiss: false,
                     type: 'danger',
                     placement: {
@@ -34,15 +34,6 @@
                     }
                 });
         @endif
-        $("#reload").click(function () {
-            $.ajax({
-                type: "GET",
-                url: "{{ route('reload.captcha') }}",
-                success: function (data) {
-                    $(".captcha span").html(data.captcha);
-                }
-            });
-        });
     </script>
 @endsection
 
@@ -82,19 +73,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <div class="captcha">
-                    <span>
-                        {!! captcha_img('flat') !!}
-                    </span>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="input-group">
-                    <input type="text" class="form-control form-control" id="captcha" name="captcha"
-                        placeholder="Captcha..." required>
-                    <div class="input-group-append">
-                        <button type="reset" class="btn btn-dark" id="reload"><i class="fa fa-sync"></i></button>
-                    </div>
+                <div class="cf-turnstile" data-sitekey="{{ config('services.turnstile.site_key') }}" data-theme="light">
                 </div>
             </div>
         </div>

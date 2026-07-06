@@ -12,6 +12,7 @@
     <script src="{{ asset('js/plugins/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
     <script src="{{ asset('js/plugins/jasny-bootstrap/js/jasny-bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/plugins/magnific-popup/jquery.magnific-popup.min.js') }}"></script>
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <script>
         jQuery(function () {
@@ -53,7 +54,8 @@
                         <li class="breadcrumb-item"><i class="fa fa-home"></i></li>
                         <li class="breadcrumb-item">Jadwal</li>
                         <li class="breadcrumb-item active" aria-current="page">
-                            {{ isset($jadwal) ? $jadwal->nama : 'Pencarian Data' }}</li>
+                            {{ isset($jadwal) ? $jadwal->nama : 'Pencarian Data' }}
+                        </li>
                     </ol>
                 </nav>
             </div>

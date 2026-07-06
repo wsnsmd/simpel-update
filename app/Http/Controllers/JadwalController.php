@@ -152,8 +152,29 @@ class JadwalController extends Controller
     public function poststep1(Request $request)
     {
         $request->validate([
-            'captcha' => 'required|captcha',
+            // 'captcha' => 'required|captcha',
+            'instansi' => 'required',
+            'status' => 'required',
+            // field lain...
+            'cf-turnstile-response' => 'required',
         ]);
+
+        $client = new Client();
+        $response = $client->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+            'form_params' => [
+                'secret' => config('services.turnstile.secret_key'),
+                'response' => $request->input('cf-turnstile-response'),
+                'remoteip' => $request->ip(),
+            ],
+        ]);
+
+        $body = json_decode($response->getBody(), true);
+
+        if (!$body['success']) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors(['captcha' => 'Captcha salah!']);
+        }
 
         if ($request->status != 0) {
             $validator = $request->validate([
