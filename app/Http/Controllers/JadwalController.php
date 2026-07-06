@@ -40,49 +40,46 @@ class JadwalController extends Controller
 
     public function cari(Request $request)
     {
-        // dd($request->all());
         $jenis = DB::table('diklat_jenis')->orderBy('nama')->get();
-        $sql = "SELECT * FROM v_front_jadwal";
-        $where = array();
 
-        if (!is_null($request->nama))
-            $where[] = " nama like '%" . $request->nama . "%'";
+        $query = DB::table('v_front_jadwal');
 
-        if (!is_null($request->tgl_awal) and !is_null($request->tgl_akhir)) {
-            $where[] = " ('" . $request->tgl_awal . "' <= tgl_awal)";
-            $where[] = " ('" . $request->tgl_akhir . "' >= tgl_akhir)";
+        if (!is_null($request->nama)) {
+            $query->where('nama', 'like', '%' . $request->nama . '%');
+        }
+
+        if (!is_null($request->tgl_awal) && !is_null($request->tgl_akhir)) {
+            $query->where('tgl_awal', '>=', $request->tgl_awal)
+                ->where('tgl_akhir', '<=', $request->tgl_akhir);
         }
 
         if ($request->has('waktu')) {
             switch ($request->waktu) {
                 case 1:
-                    $where[] = " (status=1)";
-                    $where[] = " (CURDATE() BETWEEN tgl_awal AND tgl_akhir)";
+                    $query->where('status', 1)
+                        ->whereRaw('CURDATE() BETWEEN tgl_awal AND tgl_akhir');
                     break;
                 case 2:
-                    $where[] = " (status=1)";
-                    $where[] = " (CURDATE() < tgl_awal)";
+                    $query->where('status', 1)
+                        ->whereRaw('CURDATE() < tgl_awal');
                     break;
                 case 3:
-                    $where[] = " (status=1)";
-                    $where[] = " (CURDATE() > tgl_akhir)";
+                    $query->where('status', 1)
+                        ->whereRaw('CURDATE() > tgl_akhir');
                     break;
             }
         }
+
         if ($request->has('jenis')) {
-            if ($request->jenis > 0)
-                $where[] = " diklat_jenis_id=" . $request->jenis;
+            if ($request->jenis > 0) {
+                $query->where('diklat_jenis_id', $request->jenis);
+            }
         }
 
-        $where[] = " tahun=" . $this->tahun;
-        $where[] = " is_tampil=1";
+        $query->where('tahun', $this->tahun)
+            ->where('is_tampil', 1);
 
-        if (count($where) > 0)
-            $sql .= " WHERE" . implode(" AND", $where);
-
-        $sql .= ' ORDER BY tgl_awal DESC';
-
-        $jadwal = DB::select($sql);
+        $jadwal = $query->orderBy('tgl_awal', 'desc')->get();
 
         return view('frontend.jadwal_cari', compact('jadwal'));
     }
@@ -656,21 +653,18 @@ class JadwalController extends Controller
 
     public function postWi(Request $request)
     {
-        $validator = $request->validate([
-            'widyaiswara' => 'required',
-            'bulan' => 'required',
+        $request->validate([
+            'widyaiswara' => 'required|integer',
+            'bulan' => 'required|integer',
         ]);
-        $sql = "SELECT * FROM `v_spwi_query`";
-        $where = array();
-        $where[] = " `fid`=" . $request->widyaiswara;
-        $where[] = " MONTH(`tanggal`)=" . $request->bulan;
-        $where[] = " `tahun`=" . $this->tahun;
 
-        if (count($where) > 0)
-            $sql .= " WHERE" . implode(" AND", $where);
+        $jadwal = DB::table('v_spwi_query')
+            ->where('fid', $request->widyaiswara)
+            ->whereRaw('MONTH(`tanggal`) = ?', [$request->bulan])
+            ->where('tahun', $this->tahun)
+            ->orderBy('tanggal', 'asc')
+            ->get();
 
-        $sql .= ' ORDER BY tanggal ASC';
-        $jadwal = DB::select($sql);
         return view('frontend.wi_cari', compact('jadwal'));
     }
 
