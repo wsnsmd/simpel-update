@@ -79,7 +79,7 @@
                                         @endforeach
                                     @else
                                         <div class="mb-3">
-                                            <form action="{{ route('jadwal.daftar') }}" method="POST" target="_blank">
+                                            <form action="{{ route('jadwal.daftar') }}" method="POST">
                                                 @csrf
                                                 <input type="hidden" id="jadwal_id" name="jadwal_id"
                                                     value="{{$jadwal->id}}">

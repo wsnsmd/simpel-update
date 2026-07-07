@@ -104,7 +104,15 @@ class JadwalController extends Controller
 
     public function daftar(Request $request)
     {
-        $request->session()->flush();
+        // $request->session()->flush();
+        $request->session()->forget([
+            'jadwal_id',
+            'nip',
+            'instansi',
+            'peserta',
+            'foto_temp',
+            'status_asn',
+        ]);
 
         $jadwal = DB::table('v_front_jadwal')->where('id', $request->jadwal_id)->first();
         if (empty($jadwal))
