@@ -44,9 +44,15 @@ return [
         ],
     ],
 
+    'mailtrap' => [
+        'bearer_token' => env('MAIL_BEARER'),
+    ],
+
     'simasn' => [
         'pegawai_url' => env('SIMASN_PEGAWAI'),
         'listopd_url' => env('SIMASN_LISTOPD'),
+        'subkategori_url' => env('SIMASN_SUBKATEGORI'),
+        'kategori_url' => env('SIMASN_KATEGORI'),
     ],
 
     'authentik' => [

@@ -59,7 +59,8 @@ class UploadSimpegJob implements ShouldQueue
         $headers = [
             'Authorization' => 'Bearer ' . $tokenData->token
         ];
-        $url = env('SIMASN_KIRIM_DIKLAT');
+        //$url = env('SIMASN_KIRIM_DIKLAT');
+        $url = config('services.simasn.kirim_diklat_url');
 
         $client = new Client();
         $res = $client->get($this->url_sertifikat);

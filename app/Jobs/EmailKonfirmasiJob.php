@@ -47,8 +47,7 @@ class EmailKonfirmasiJob implements ShouldQueue
     public function handle()
     {
         $client = new Client();
-        try
-        {
+        try {
             // $headers = [
             //     'Content-Type' => 'application/json'
             // ];
@@ -76,18 +75,20 @@ class EmailKonfirmasiJob implements ShouldQueue
             // $res = $client->sendAsync($request)->wait();
             $response = $client->post('https://send.api.mailtrap.io/api/send', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+                    'Authorization' => 'Bearer ' . config('services.mailtrap.bearer_token'),
                     'Content-Type' => 'application/json'
                 ],
                 'json' => [
                     'from' => [
-                        'email' => env('MAIL_FROM_ADDRESS'),
-                        'name' => env('MAIL_FROM_NAME')
+                        'email' => config('mail.from.address'),
+                        'name' => config('mail.from.name')
                     ],
-                    'to' => [[
-                        'email' => $this->email,
-                        'name' => $this->nama
-                    ]],
+                    'to' => [
+                        [
+                            'email' => $this->email,
+                            'name' => $this->nama
+                        ]
+                    ],
                     'template_uuid' => 'e16c2bdd-b048-4b08-87fe-27f5011456df',
                     'template_variables' => [
                         'peserta' => $this->nama,
@@ -98,9 +99,7 @@ class EmailKonfirmasiJob implements ShouldQueue
                     ],
                 ],
             ]);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Error in Job: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);

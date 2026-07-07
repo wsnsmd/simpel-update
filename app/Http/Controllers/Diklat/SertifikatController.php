@@ -699,7 +699,9 @@ class SertifikatController extends Controller
             'Authorization' => 'Bearer ' . $tokenData->token
         ];
 
-        $request = $client->get(env('SIMASN_KATEGORI'), ['headers' => $headers, 'timeout' => 120]);
+        // $request = $client->get(env('SIMASN_KATEGORI'), ['headers' => $headers, 'timeout' => 120]);
+        $request = $client->get(config('services.simasn.kategori_url'), ['headers' => $headers, 'timeout' => 120]);
+
 
         if ($request->getStatusCode() == 200) {
             $result = $request->getBody();
@@ -726,7 +728,9 @@ class SertifikatController extends Controller
             'Authorization' => 'Bearer ' . $tokenData->token
         ];
 
-        $request = $client->get(env('SIMASN_SUBKATEGORI'), ['headers' => $headers, 'timeout' => 120]);
+        // $request = $client->get(env('SIMASN_SUBKATEGORI'), ['headers' => $headers, 'timeout' => 120]);
+        $request = $client->get(config('services.simasn.subkategori_url'), ['headers' => $headers, 'timeout' => 120]);
+
 
         if ($request->getStatusCode() == 200) {
             $result = $request->getBody();

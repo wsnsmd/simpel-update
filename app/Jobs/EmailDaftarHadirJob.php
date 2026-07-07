@@ -47,8 +47,7 @@ class EmailDaftarHadirJob implements ShouldQueue
     public function handle()
     {
         $client = new Client();
-        try
-        {
+        try {
             // $headers = [
             //     'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
             //     'Content-Type' => 'application/json'
@@ -76,18 +75,20 @@ class EmailDaftarHadirJob implements ShouldQueue
             // $request = new \GuzzleHttp\Psr7\Request('POST', 'https://send.api.mailtrap.io/api/send', $headers, json_encode($body));
             $response = $client->post('https://send.api.mailtrap.io/api/send', [
                 'headers' => [
-                    'Authorization' => 'Bearer ' . env('MAIL_BEARER'),
+                    'Authorization' => 'Bearer ' . config('services.mailtrap.bearer_token'),
                     'Content-Type' => 'application/json'
                 ],
                 'json' => [
                     'from' => [
-                        'email' => env('MAIL_FROM_ADDRESS'),
-                        'name' => env('MAIL_FROM_NAME')
+                        'email' => config('mail.from.address'),
+                        'name' => config('mail.from.name')
                     ],
-                    'to' => [[
-                        'email' => $this->email,
-                        'name' => $this->nama
-                    ]],
+                    'to' => [
+                        [
+                            'email' => $this->email,
+                            'name' => $this->nama
+                        ]
+                    ],
                     'template_uuid' => 'acf60173-9e96-449a-a31a-21c5c3276e7c',
                     'template_variables' => [
                         'peserta' => $this->nama,
@@ -99,9 +100,7 @@ class EmailDaftarHadirJob implements ShouldQueue
                     ],
                 ],
             ]);
-        }
-        catch(\Exception $e)
-        {
+        } catch (\Exception $e) {
             Log::error('Error in Job: ' . $e->getMessage(), [
                 'exception' => $e,
             ]);
