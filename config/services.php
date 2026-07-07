@@ -53,6 +53,7 @@ return [
         'listopd_url' => env('SIMASN_LISTOPD'),
         'subkategori_url' => env('SIMASN_SUBKATEGORI'),
         'kategori_url' => env('SIMASN_KATEGORI'),
+        'kirim_diklat_url' => env('SIMASN_KIRIM_DIKLAT'),
     ],
 
     'authentik' => [
