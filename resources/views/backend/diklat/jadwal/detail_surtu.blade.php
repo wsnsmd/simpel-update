@@ -24,7 +24,7 @@
             }
         });
 
-        jQuery(function(){
+        jQuery(function () {
             Dashmix.helpers(['validation']);
         });
 
@@ -58,8 +58,8 @@
                         required: 'Tidak boleh kosong!'
                     }
                 },
-                submitHandler: function(form) {
-                    if(action === 'add') {
+                submitHandler: function (form) {
+                    if (action === 'add') {
                         request = $.ajax({
                             type: 'POST',
                             cache: false,
@@ -77,7 +77,7 @@
                         });
                     }
                     // Called on success.
-                    request.done(function(msg) {
+                    request.done(function (msg) {
                         $('#mdl-tambah').modal('toggle');
                         showNotifikasi(msg.pesan);
                         loadSurtu();
@@ -95,7 +95,7 @@
                 }
             })
 
-            $('#mdl-tambah').on('hidden.bs.modal', function() {
+            $('#mdl-tambah').on('hidden.bs.modal', function () {
                 form_tambah.resetForm();
                 $('select[name=tipe]').val('');
                 $('textarea[name=keterangan]').val('');
@@ -109,7 +109,7 @@
             $('#mdl-tambah').modal('show');
         }
 
-        function showNotifikasi(msg, type='success') {
+        function showNotifikasi(msg, type = 'success') {
             var icon = type === 'success' ? 'fa fa-check mr-1' : 'fa fa-times mr-1';
 
             $.notify({
@@ -149,22 +149,25 @@
     <!-- END Hero -->
 
     <!-- Quick Menu -->
+    @cannot('isViewer')
     @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
-    <div class="pt-4 px-4 bg-body-dark rounded push">
-        <div class="row row-deck">
-            <div class="col-6 col-md-4 col-xl-2">
-                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;" onclick="showTambah()">
-                    <div class="block-content">
-                        <p class="mb-2 d-sm-block">
-                            <i class="fa fa-plus-circle text-success fa-2x"></i>
-                        </p>
-                        <p class="font-w600 font-size-sm text-uppercase">Tambah</p>
-                    </div>
-                </a>
+        <div class="pt-4 px-4 bg-body-dark rounded push">
+            <div class="row row-deck">
+                <div class="col-6 col-md-4 col-xl-2">
+                    <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
+                        onclick="showTambah()">
+                        <div class="block-content">
+                            <p class="mb-2 d-sm-block">
+                                <i class="fa fa-plus-circle text-success fa-2x"></i>
+                            </p>
+                            <p class="font-w600 font-size-sm text-uppercase">Tambah</p>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
     @endif
+    @endcannot
     <!-- END Quick Menu -->
 
     <!-- Page Content -->
@@ -188,35 +191,37 @@
                     @csrf
                     <input type="hidden" name="jadwal_id" value="{{ $jadwal->id }}">
                     <div class="modal-content">
-                            <div class="block block-themed block-transparent mb-0">
-                                <div class="block-header bg-primary-dark">
-                                    <h3 class="block-title" id="mdl-form-title">Tambah Surat Tugas</h3>
-                                    <div class="block-options">
-                                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
-                                            <i class="fa fa-fw fa-times"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="block-content" id="mdl-form-content">
-                                    <div class="form-group">
-                                        <label for="tipe" class="control-label">Tipe <span class="text-danger">*</span></label>
-                                        <select class="form-control" id="tipe" name="tipe" style="width: 100%;" required>
-                                            <option value="" selected>-- Pilih Tipe --</option>
-                                            <option value="individu">Individu</option>
-                                            <option value="panitia">Team/Panitia</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="keterangan" class="control-label">Keterangan <span class="text-danger">*</span></label>
-                                        <textarea class="form-control" id="keterangan" name="keterangan" placeholder="Keterangan..." required></textarea>
-                                    </div>
-                                </div>
-                                <div class="block-content block-content-full text-right bg-light">
-                                    <button type="button" class="btn btn-sm btn-light" data-dismiss="modal">Batal</button>
-                                    <button type="submit" class="btn btn-sm btn-primary btn-submit"></i> Simpan</button>
+                        <div class="block block-themed block-transparent mb-0">
+                            <div class="block-header bg-primary-dark">
+                                <h3 class="block-title" id="mdl-form-title">Tambah Surat Tugas</h3>
+                                <div class="block-options">
+                                    <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                        <i class="fa fa-fw fa-times"></i>
+                                    </button>
                                 </div>
                             </div>
+                            <div class="block-content" id="mdl-form-content">
+                                <div class="form-group">
+                                    <label for="tipe" class="control-label">Tipe <span class="text-danger">*</span></label>
+                                    <select class="form-control" id="tipe" name="tipe" style="width: 100%;" required>
+                                        <option value="" selected>-- Pilih Tipe --</option>
+                                        <option value="individu">Individu</option>
+                                        <option value="panitia">Team/Panitia</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="keterangan" class="control-label">Keterangan <span
+                                            class="text-danger">*</span></label>
+                                    <textarea class="form-control" id="keterangan" name="keterangan"
+                                        placeholder="Keterangan..." required></textarea>
+                                </div>
+                            </div>
+                            <div class="block-content block-content-full text-right bg-light">
+                                <button type="button" class="btn btn-sm btn-light" data-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-sm btn-primary btn-submit"></i> Simpan</button>
+                            </div>
                         </div>
+                    </div>
                 </form>
             </div>
         </div>

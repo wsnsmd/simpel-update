@@ -554,7 +554,7 @@ class SertifikatController extends Controller
     {
         $validator = $request->validate([
             'jadwal_id' => 'required',
-            'file' => 'required|mimetypes:application/pdf|max:1024'
+            'file' => 'required|mimetypes:application/pdf|max:10240'
         ]);
 
         $input = $request->all();

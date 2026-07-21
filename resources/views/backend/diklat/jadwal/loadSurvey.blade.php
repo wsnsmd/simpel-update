@@ -6,7 +6,9 @@
             <th class="font-w700 text-center" style="width: 18%;">Kode Survei</th>
             <th class="font-w700 text-center" style="width: 27%;">Params (JSON)</th>
             <th class="font-w700 text-center" style="width: 10%;">Wajib</th>
+            @cannot('isViewer')
             <th class="font-w700 text-center" style="width: 5%;">Aksi</th>
+            @endcannot
         </tr>
     </thead>
 
@@ -66,6 +68,7 @@
                     @endif
                 </td>
 
+                @cannot('isViewer')
                 <td class="font-w600 text-center">
                     <div class="btn-group">
                         <a href="{{ \App\Services\SurveiLinkService::generateSecureDownloadUrl($s->jadwal_id, $s->survey_code) }}"
@@ -81,6 +84,7 @@
                         </a>
                     </div>
                 </td>
+                @endcannot
             </tr>
         @empty
             <tr>

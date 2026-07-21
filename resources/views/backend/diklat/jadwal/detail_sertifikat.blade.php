@@ -409,6 +409,7 @@ $isLengkap = ($selisih <= 0);
     <!-- END Hero -->
 
     <!-- Quick Menu -->
+    @cannot('isViewer')
     @if(Gate::check('isCreator', $jadwal) && Gate::check('isUser'))
         <div class="pt-4 px-4 bg-body-dark rounded push">
             <div class="row row-deck">
@@ -566,6 +567,7 @@ $isLengkap = ($selisih <= 0);
             </div>
         </div>
     @endif
+    @endcannot
     <!-- END Quick Menu -->
 
     <!-- Page Content -->

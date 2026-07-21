@@ -8,9 +8,7 @@
             <th>Kelas</th>
             <th>Kuota (Peserta)</th>
             <th>Status</th>
-            @cannot('isViewer')
             <th style="width: 1%;">Aksi</th>
-            @endcannot
         </tr>
     </thead>
     <tbody>
@@ -44,7 +42,6 @@
                         <span class="badge badge-danger">Selesai</span>
                 @endswitch
             </td>
-            @cannot('isViewer')
             <td class="text-center">
                 {{-- @if (Auth::user()->can('update', $j)) --}}
                 <form action="{{ route('backend.diklat.jadwal.destroy', $j->id) }}" method="POST">
@@ -55,18 +52,19 @@
                             <i class="fa fa-cog"></i>
                         </a>
                         @can('isCreator', $j)
+                        @cannot('isViewer')
                         <a href="{{ route('backend.diklat.jadwal.edit', $j->id) }}" class="btn btn-sm btn-primary">
                             <i class="fa fa-pencil-alt"></i>
                         </a>
                         <a href="javascript:;" onclick="return showAlert($(this).closest('form'));" class="btn btn-sm btn-danger">
                             <i class="far fa-trash-alt"></i>
                         </a>
+                        @endcannot
                         @endcan
                     </div>
                 </form>
                 {{-- @endif --}}
             </td>
-            @endcannot
         </tr>
         @endforeach
     </tbody>

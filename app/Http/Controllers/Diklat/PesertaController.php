@@ -930,7 +930,7 @@ class PesertaController extends Controller
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
-        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+        if ((!is_null($sertifikat) && $sertifikat->is_final == true) || auth()->user()->can('isViewer')) {
             $canAddEdit = false;
         }
         $query = DB::table('peserta')
@@ -992,7 +992,7 @@ class PesertaController extends Controller
 
         // Logika Kunci Data
         $canAddEdit = true;
-        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+        if (!is_null($sertifikat) && $sertifikat->is_final == true || auth()->user()->can('isViewer')) {
             $canAddEdit = false;
         }
 
@@ -1045,7 +1045,7 @@ class PesertaController extends Controller
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
-        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+        if ((!is_null($sertifikat) && $sertifikat->is_final == true) || auth()->user()->can('isViewer')) {
             $canAddEdit = false;
         }
 
@@ -1098,7 +1098,7 @@ class PesertaController extends Controller
         $sertifikat = DB::table('sertifikat')->where('diklat_jadwal_id', $jadwal_id)->first();
 
         $canAddEdit = true;
-        if (!is_null($sertifikat) && $sertifikat->is_final == true) {
+        if ((!is_null($sertifikat) && $sertifikat->is_final == true) || auth()->user()->can('isViewer')) {
             $canAddEdit = false;
         }
 

@@ -226,6 +226,7 @@
     <!-- END Hero -->
 
     <!-- Quick Menu -->
+    @cannot('isViewer')
     @if(Gate::check('isCreator', $jadwal) || (Gate::check('isKontribusi') && $jadwal->status_jadwal < 3))
         <div class="pt-4 px-4 bg-body-dark rounded push">
             <div class="row row-deck">
@@ -243,6 +244,7 @@
             </div>
         </div>
     @endif
+    @endcannot
     <!-- END Quick Menu -->
 
     <!-- Page Content -->
