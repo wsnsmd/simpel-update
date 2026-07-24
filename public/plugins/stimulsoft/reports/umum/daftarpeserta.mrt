@@ -158,7 +158,7 @@
                 "Ident": "StiInteraction"
               },
               "Text": {
-                "Value": "DAFTAR NAMA PESERTA\r\n{ToUpperCase(var_tipe)} {ToUpperCase(var_jadwal)}\r\n{ToUpperCase(var_kelas)} {ToUpperCase(var_tahun)}"
+                "Value": "DAFTAR NAMA PESERTA\r\n{ToUpperCase(var_jadwal)}\r\n{ToUpperCase(var_kelas)} {ToUpperCase(var_tahun)}"
               },
               "HorAlignment": "Center",
               "VertAlignment": "Center",
