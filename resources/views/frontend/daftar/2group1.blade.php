@@ -188,4 +188,7 @@
         </div>
     </form>
     <!-- END Form -->
-@endsection    
+@section('js_sub')
+@include('frontend.daftar._foto_upload_handler')
+@endsection
+@endsection

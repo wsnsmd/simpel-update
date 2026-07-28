@@ -374,6 +374,15 @@ class JadwalController extends Controller
                 'satker_alamat' => 'required',
                 'pendidikan' => 'required',
                 //'satker_telp' => 'required',
+            ], [
+                'foto.mimetypes' => 'Format foto tidak valid. Gunakan file JPG atau PNG.',
+                'foto.max'       => 'Ukuran foto terlalu besar. Maksimal 512 KB. Kompres foto terlebih dahulu sebelum diupload.',
+                'nip.required'   => 'NIP wajib diisi.',
+                'ktp.required'   => 'NIK (No. KTP) wajib diisi.',
+                'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+                'email.required' => 'Email wajib diisi.',
+                'email.email'    => 'Format email tidak valid.',
+                'hp.required'    => 'No. HP wajib diisi.',
             ]);
         } else {
             $validator = $request->validate([
@@ -396,6 +405,14 @@ class JadwalController extends Controller
                 'satker_alamat' => 'required',
                 'pendidikan' => 'required',
                 //'satker_telp' => 'required',
+            ], [
+                'foto.mimetypes' => 'Format foto tidak valid. Gunakan file JPG atau PNG.',
+                'foto.max'       => 'Ukuran foto terlalu besar. Maksimal 512 KB. Kompres foto terlebih dahulu sebelum diupload.',
+                'ktp.required'   => 'NIK (No. KTP) wajib diisi.',
+                'nama_lengkap.required' => 'Nama lengkap wajib diisi.',
+                'email.required' => 'Email wajib diisi.',
+                'email.email'    => 'Format email tidak valid.',
+                'hp.required'    => 'No. HP wajib diisi.',
             ]);
         }
 

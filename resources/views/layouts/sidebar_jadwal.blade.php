@@ -97,6 +97,20 @@
             </li>
             <li class="nav-main-item">
                 <a class="nav-main-link"
+                    href="{{ route('backend.diklat.dokumen_syarat.index', $jadwal->id) }}">
+                    <i class="nav-main-link-icon fa fa-folder-open"></i>
+                    <span class="nav-main-link-name">Dok. Persyaratan</span>
+                </a>
+            </li>
+            <li class="nav-main-item">
+                <a class="nav-main-link"
+                    href="{{ route('backend.diklat.dokumen_syarat.rekap', $jadwal->id) }}">
+                    <i class="nav-main-link-icon fa fa-table"></i>
+                    <span class="nav-main-link-name">Rekap Dokumen</span>
+                </a>
+            </li>
+            <li class="nav-main-item">
+                <a class="nav-main-link"
                     href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat']) }}">
                     <i class="nav-main-link-icon fa fa-certificate"></i>
                     <span class="nav-main-link-name">Sertifikat</span>

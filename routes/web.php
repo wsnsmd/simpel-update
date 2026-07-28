@@ -45,6 +45,28 @@ Route::get('/logout', [
     'uses' => 'Auth\AuthentikController@logout'
 ]);
 
+// ============================================================
+// Portal Peserta — login page (guest:peserta) & logout
+// ============================================================
+Route::get('/peserta/login', function () {
+    return view('peserta.login');
+})->name('peserta.login')->middleware('guest:peserta');
+
+Route::post('/peserta/logout', [
+    'as' => 'peserta.logout',
+    'uses' => 'Auth\AuthentikController@logoutPeserta',
+])->middleware('auth:peserta');
+
+// Portal Peserta — halaman yang butuh login
+Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:peserta'], function () {
+    Route::get('/dashboard', 'Peserta\DashboardController@index')->name('dashboard');
+    Route::get('/sertifikat/{pesertaId}/download', 'Peserta\DashboardController@downloadSertifikat')->name('sertifikat.download');
+    Route::post('/peserta/{pesertaId}/foto', 'Peserta\DashboardController@uploadFoto')->name('foto.upload');
+
+    // Upload dokumen persyaratan (syaratId = id di jadwal_dokumen_syarat)
+    Route::post('/peserta/{pesertaId}/dokumen/{syaratId}', 'Peserta\DashboardController@uploadDokumen')
+        ->name('dokumen.upload');
+});
 
 // Authentication Routes
 
@@ -240,6 +262,21 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::get('survei/{id}', 'Diklat\SurveyController@show')->name('survei.show');
         Route::patch('survei/{id}', 'Diklat\SurveyController@update')->name('survei.update');
         Route::delete('survei/{id}', 'Diklat\SurveyController@destroy')->name('survei.destroy');
+
+        // Syarat dokumen per jadwal
+        Route::get('dokumen-syarat/{jadwalId}', 'Diklat\DokumenSyaratController@index')->name('dokumen_syarat.index');
+        Route::get('dokumen-syarat/{jadwalId}/rekap', 'Diklat\DokumenSyaratController@rekap')->name('dokumen_syarat.rekap');
+        Route::get('dokumen-syarat/{jadwalId}/download', 'Diklat\DokumenSyaratController@downloadZipAll')->name('dokumen_syarat.download_all');
+        Route::get('dokumen-syarat/{jadwalId}/download/{pesertaId}', 'Diklat\DokumenSyaratController@downloadZipByPeserta')->name('dokumen_syarat.download_by_peserta');
+        Route::post('dokumen-syarat/{jadwalId}', 'Diklat\DokumenSyaratController@store')->name('dokumen_syarat.store');
+        Route::patch('dokumen-syarat/item/{id}', 'Diklat\DokumenSyaratController@update')->name('dokumen_syarat.update');
+        Route::delete('dokumen-syarat/item/{id}', 'Diklat\DokumenSyaratController@destroy')->name('dokumen_syarat.destroy');
+
+        // Upload peserta & preview file
+        Route::get('dokumen-syarat/upload/{syaratId}', 'Diklat\DokumenSyaratController@listUpload')->name('dokumen_syarat.list_upload');
+        Route::get('dokumen-syarat/upload/{syaratId}/download', 'Diklat\DokumenSyaratController@downloadZipBySyarat')->name('dokumen_syarat.download_by_syarat');
+        Route::get('dokumen-peserta/{dokumenId}/file', 'Diklat\DokumenSyaratController@previewFile')->name('dokumen_peserta.file');
+        Route::post('dokumen-peserta/{dokumenId}/verifikasi', 'Diklat\DokumenSyaratController@verifikasi')->name('dokumen_peserta.verifikasi');
     });
 
     // Route::resource('user', 'UserController');

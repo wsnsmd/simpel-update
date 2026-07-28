@@ -213,4 +213,7 @@
         </div>
     </form>
     <!-- END Form -->
+@section('js_sub')
+@include('frontend.daftar._foto_upload_handler')
+@endsection
 @endsection

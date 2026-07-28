@@ -41,6 +41,11 @@ return [
             'provider' => 'users',
         ],
 
+        'peserta' => [
+            'driver' => 'session',
+            'provider' => 'peserta',
+        ],
+
         'api' => [
             'driver' => 'token',
             'provider' => 'users',
@@ -69,6 +74,11 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\User::class,
+        ],
+
+        'peserta' => [
+            'driver' => 'eloquent',
+            'model' => App\Peserta::class,
         ],
 
         // 'users' => [

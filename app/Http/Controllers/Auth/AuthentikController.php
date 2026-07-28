@@ -7,6 +7,7 @@ use App\Services\AuthentikAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\User;
+use App\Peserta;
 use DB;
 
 class AuthentikController extends Controller
@@ -63,61 +64,107 @@ class AuthentikController extends Controller
             $resourceOwner = $provider->getResourceOwner($accessToken);
             $data = $resourceOwner->toArray();
 
-            $email = isset($data['email']) ? $data['email'] : null;
-            $name = isset($data['name']) ? $data['name'] : ($email ?: 'User');
-            $username = $data['preferred_username'];
+            // Penentu percabangan: cek field 'groups' dari JWT payload
+            $groups = $data['groups'] ?? [];
 
-            $nip = isset($data['nip']) ? $data['nip'] : null;
-
-            $user = User::where('username', $username)->first();
-
-            if (!$user) {
-                $user = new User();
-                $user->password = bcrypt(str_random(40));
-                $user->username = $username;
-
-                // // kalau di tabel users ada kolom 'nip'
-                // if (schema_has_column('users', 'nip') && $nip) {
-                //     $user->nip = $nip;
-                // }
-
-                // // kalau ada kolom 'password', isi dummy random (tidak dipakai untuk login SSO)
-                // if (schema_has_column('users', 'password')) {
-                //     $user->password = bcrypt(str_random(40));
-                // }
-
-                // $user->save();
+            if (in_array('peserta', $groups)) {
+                return $this->loginAsPeserta($request, $data);
             }
 
-            // Update data terbaru dari SSO setiap kali login (Sync)
-            $user->name = $name;
-            $user->email = $email;
-
-            // Mapping custom attribute dari Authentik
-            $user->superadmin = $data['superadmin'] ?? 0;
-            $user->usergroup = $data['group'] ?? 'user';
-            $user->instansi_id = $data['instansi_id'] ?? null;
-
-            // Log akses
-            $user->last_login = now();
-            $user->last_login_ip = $request->ip();
-            $user->last_login_browser = $request->header('User-Agent');
-            $user->save();
-
-            // Set Session Aplikasi SIMPel
-            $this->setAppSessions($request, $user);
-
-            Auth::login($user, true);
-
-            return redirect()->intended('/backend/dashboard');
+            return $this->loginAsAdmin($request, $data);
 
         } catch (\Exception $e) {
-            dd($e);
+            \Log::error('SSO callback error: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
             return redirect('/login')->withErrors([
-                'authentik' => 'Gagal sinkronisasi data: ' . $e->getMessage(),
+                'authentik' => 'Gagal memproses login. Silakan coba lagi atau hubungi admin.',
             ]);
         }
     }
+
+    // -------------------------------------------------------------------------
+    // Login sebagai Admin / Operator
+    // -------------------------------------------------------------------------
+
+    private function loginAsAdmin(Request $request, array $data)
+    {
+        $username = $data['preferred_username'];
+        $email = $data['email'] ?? null;
+        $name = $data['name'] ?? ($email ?: 'User');
+
+        $user = User::where('username', $username)->first();
+
+        if (!$user) {
+            $user = new User();
+            $user->username = $username;
+            $user->password = bcrypt(str_random(40));
+        }
+
+        $user->name = $name;
+        $user->email = $email;
+        $user->superadmin = $data['superadmin'] ?? 0;
+        $user->usergroup = $data['group'] ?? 'user';
+        $user->instansi_id = $data['instansi_id'] ?? null;
+
+        $user->last_login = now();
+        $user->last_login_ip = $request->ip();
+        $user->last_login_browser = $request->header('User-Agent');
+        $user->save();
+
+        $this->setAppSessions($request, $user);
+
+        Auth::login($user, true);
+
+        return redirect()->intended('/backend/dashboard');
+    }
+
+    // -------------------------------------------------------------------------
+    // Login sebagai Peserta
+    // -------------------------------------------------------------------------
+
+    private function loginAsPeserta(Request $request, array $data)
+    {
+        // Untuk akun peserta, preferred_username diisi dengan NIP
+        $nip = trim($data['preferred_username'] ?? '');
+
+        if (!$nip) {
+            \Log::warning('Login peserta gagal: preferred_username (NIP) kosong', ['data' => $data]);
+
+            return redirect('/login')->withErrors([
+                'authentik' => 'Data NIP tidak ditemukan pada akun SSO Anda. Hubungi admin BPSDM.',
+            ]);
+        }
+
+        // Ambil satu baris peserta aktif terbaru sebagai representasi session login.
+        // Dashboard nanti akan query ulang semua riwayat berdasarkan NIP yang sama.
+        $peserta = Peserta::where('nip', $nip)
+            ->where('batal', false)
+            ->orderByDesc('created_at')
+            ->first();
+
+        if (!$peserta) {
+            \Log::warning('Login peserta gagal: NIP tidak ditemukan di tabel peserta', [
+                'nip' => $nip,
+                'name' => $data['name'] ?? '-',
+            ]);
+
+            return redirect('/login')->withErrors([
+                'authentik' => 'NIP Anda tidak ditemukan sebagai peserta terdaftar di SIMPel. Silakan hubungi admin BPSDM.',
+            ]);
+        }
+
+        Auth::guard('peserta')->login($peserta);
+
+        // Simpan NIP di session — dipakai DashboardController untuk query semua riwayat
+        $request->session()->put('peserta_nip', $nip);
+        $request->session()->put('peserta_name', $data['name'] ?? $peserta->nama_lengkap);
+
+        return redirect()->route('peserta.dashboard');
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
 
     private function setAppSessions(Request $request, $user)
     {
@@ -146,6 +193,16 @@ class AuthentikController extends Controller
         return redirect()->away($logoutUrl);
     }
 
+    public function logoutPeserta(Request $request)
+    {
+        Auth::guard('peserta')->logout();
+        $request->session()->forget(['peserta_nip', 'peserta_name']);
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('peserta.login');
+    }
+
     public function profileSSO(Request $request)
     {
         return redirect()->away('https://auth.bpsdmkaltim.net/if/user/#/settings;');
@@ -153,7 +210,7 @@ class AuthentikController extends Controller
 }
 
 /**
- * Helper sederhana untuk cek kolom ada/tidak (karena di L5.4 tidak ada Schema::hasColumn di mana-mana)
+ * Helper cek kolom ada/tidak (kompatibel Laravel 5.6)
  */
 if (!function_exists('schema_has_column')) {
     function schema_has_column($table, $column)
