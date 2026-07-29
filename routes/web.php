@@ -48,9 +48,10 @@ Route::get('/logout', [
 // ============================================================
 // Portal Peserta — login page (guest:peserta) & logout
 // ============================================================
-Route::get('/peserta/login', function () {
-    return view('peserta.login');
-})->name('peserta.login')->middleware('guest:peserta');
+Route::get('/peserta/login', [
+    'as' => 'peserta.login',
+    'uses' => 'Auth\PesertaLoginController@showLoginForm',
+]);
 
 Route::post('/peserta/logout', [
     'as' => 'peserta.logout',
