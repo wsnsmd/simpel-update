@@ -126,7 +126,7 @@ class DokumenSyaratController extends Controller
     // Preview / download file yang diupload peserta
     // =========================================================================
 
-    public function previewFile($dokumenId)
+    public function previewFile(Request $request, $dokumenId)
     {
         $dokumen = PesertaDokumen::findOrFail($dokumenId);
 
@@ -134,7 +134,108 @@ class DokumenSyaratController extends Controller
             abort(404, 'File tidak ditemukan.');
         }
 
-        return Storage::response($dokumen->file_path, $dokumen->file_original_name);
+        $path = Storage::path($dokumen->file_path);
+        $ext  = strtolower(pathinfo($dokumen->file_path, PATHINFO_EXTENSION));
+
+        // Fallback ekstensi dari nama file asli
+        if (!$ext && $dokumen->file_original_name) {
+            $ext = strtolower(pathinfo($dokumen->file_original_name, PATHINFO_EXTENSION));
+        }
+
+        $mimeMap = [
+            'jpg'  => 'image/jpeg', 'jpeg' => 'image/jpeg',
+            'png'  => 'image/png',  'gif'  => 'image/gif',
+            'pdf'  => 'application/pdf',
+            'doc'  => 'application/msword',
+            'docx' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        ];
+        $mime = isset($mimeMap[$ext]) ? $mimeMap[$ext] : mime_content_type($path);
+
+        if ($request->get('download')) {
+            return response()->download($path, $dokumen->file_original_name, [
+                'Content-Type' => $mime,
+            ]);
+        }
+
+        // Serve inline — hapus header X-Frame-Options agar bisa tampil di iframe
+        return response()->file($path, [
+            'Content-Type'           => $mime,
+            'Content-Disposition'    => 'inline; filename="' . $dokumen->file_original_name . '"',
+            'X-Frame-Options'        => 'SAMEORIGIN',
+            'Cache-Control'          => 'no-store',
+        ]);
+    }
+
+    // =========================================================================
+    // Info file untuk modal preview inline (JSON)
+    // =========================================================================
+
+    public function previewInfo($dokumenId)
+    {
+        $dokumen = PesertaDokumen::with('peserta', 'dokumenSyarat')->findOrFail($dokumenId);
+
+        if (!$dokumen->file_path || !Storage::exists($dokumen->file_path)) {
+            return response()->json(['error' => 'File tidak ditemukan.'], 404);
+        }
+
+        $storagePath = Storage::path($dokumen->file_path);
+
+        // Deteksi ekstensi: coba dari file_original_name dulu, fallback ke file_path
+        $extFromOriginal = $dokumen->file_original_name
+            ? strtolower(pathinfo($dokumen->file_original_name, PATHINFO_EXTENSION))
+            : '';
+        $extFromPath = strtolower(pathinfo($dokumen->file_path, PATHINFO_EXTENSION));
+        $ext = $extFromOriginal ?: $extFromPath;
+
+        // Fallback: deteksi via mime type fisik jika ekstensi tidak jelas
+        if (!$ext || $ext === 'tmp') {
+            if (function_exists('mime_content_type')) {
+                $mime = mime_content_type($storagePath);
+                $mimeToExt = [
+                    'application/pdf'  => 'pdf',
+                    'image/jpeg'       => 'jpg',
+                    'image/png'        => 'png',
+                    'image/gif'        => 'gif',
+                    'application/msword' => 'doc',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document' => 'docx',
+                ];
+                $ext = isset($mimeToExt[$mime]) ? $mimeToExt[$mime] : $ext;
+            }
+        }
+
+        $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'gif']);
+        $isPdf   = ($ext === 'pdf');
+        $isDoc   = in_array($ext, ['doc', 'docx']);
+
+        // Log untuk debugging
+        \Log::info('previewInfo', [
+            'id'              => $dokumenId,
+            'file_path'       => $dokumen->file_path,
+            'file_original'   => $dokumen->file_original_name,
+            'ext_original'    => $extFromOriginal,
+            'ext_path'        => $extFromPath,
+            'ext_final'       => $ext,
+            'is_pdf'          => $isPdf,
+            'is_image'        => $isImage,
+            'storage_exists'  => file_exists($storagePath),
+        ]);
+
+        return response()->json([
+            'id'           => $dokumen->id,
+            'nama_peserta' => $dokumen->peserta ? $dokumen->peserta->nama_lengkap : '-',
+            'nip'          => $dokumen->peserta ? $dokumen->peserta->nip : '-',
+            'nama_dokumen' => $dokumen->dokumenSyarat ? $dokumen->dokumenSyarat->nama : '-',
+            'file_name'    => $dokumen->file_original_name,
+            'ext'          => $ext,
+            'is_image'     => $isImage,
+            'is_pdf'       => $isPdf,
+            'is_doc'       => $isDoc,
+            'url'          => route('backend.diklat.dokumen_peserta.file', $dokumenId),
+            'download_url' => route('backend.diklat.dokumen_peserta.file', $dokumenId) . '?download=1',
+            'uploaded_at'  => $dokumen->uploaded_at
+                ? \Carbon\Carbon::parse($dokumen->uploaded_at)->format('d M Y H:i')
+                : '-',
+        ]);
     }
 
     // =========================================================================

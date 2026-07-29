@@ -277,6 +277,7 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::get('dokumen-syarat/upload/{syaratId}', 'Diklat\DokumenSyaratController@listUpload')->name('dokumen_syarat.list_upload');
         Route::get('dokumen-syarat/upload/{syaratId}/download', 'Diklat\DokumenSyaratController@downloadZipBySyarat')->name('dokumen_syarat.download_by_syarat');
         Route::get('dokumen-peserta/{dokumenId}/file', 'Diklat\DokumenSyaratController@previewFile')->name('dokumen_peserta.file');
+        Route::get('dokumen-peserta/{dokumenId}/info', 'Diklat\DokumenSyaratController@previewInfo')->name('dokumen_peserta.info');
         Route::post('dokumen-peserta/{dokumenId}/verifikasi', 'Diklat\DokumenSyaratController@verifikasi')->name('dokumen_peserta.verifikasi');
     });
 

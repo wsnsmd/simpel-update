@@ -288,12 +288,12 @@
                                         </button>
                                     </div>
                                     {{-- Link lihat file --}}
-                                    <a href="{{ route('backend.diklat.dokumen_peserta.file', $dok->id) }}"
-                                       target="_blank"
-                                       class="d-block mt-1 font-size-sm text-muted text-center"
-                                       style="font-size:.65rem">
+                                    <button type="button"
+                                            class="d-block mx-auto mt-1 btn btn-xs btn-outline-primary"
+                                            style="font-size:.65rem;padding:.1rem .4rem"
+                                            onclick="previewDokumen({{ $dok->id }})">
                                         <i class="fa fa-eye"></i> Lihat
-                                    </a>
+                                    </button>
                                 @else
                                     {{-- Belum upload --}}
                                     <span class="dok-status dok-missing" title="Belum diupload">
@@ -338,4 +338,7 @@
 
     @endif
 </div>
+
+@include('backend.diklat.dokumen_syarat._modal_preview')
+
 @endsection

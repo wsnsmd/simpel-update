@@ -152,12 +152,12 @@
                                     @endif
                                 </td>
                                 <td class="text-center">
-                                    <a href="{{ route('backend.diklat.dokumen_peserta.file', $d->id) }}"
-                                       target="_blank"
-                                       class="btn btn-sm btn-outline-secondary"
-                                       title="Buka file">
+                                    <button type="button"
+                                            class="btn btn-sm btn-outline-primary"
+                                            onclick="previewDokumen({{ $d->id }})"
+                                            title="Preview dokumen">
                                         <i class="fa fa-eye"></i>
-                                    </a>
+                                    </button>
                                 </td>
                                 <td>
                                     @if (!$verified)
@@ -210,4 +210,7 @@
         </div>
     </div>
 </div>
+
+@include('backend.diklat.dokumen_syarat._modal_preview')
+
 @endsection
