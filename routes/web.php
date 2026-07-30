@@ -58,6 +58,9 @@ Route::post('/peserta/logout', [
     'uses' => 'Auth\AuthentikController@logoutPeserta',
 ])->middleware('auth:peserta');
 
+Route::get('/presensi/{token}', 'Peserta\ScanRedirectController@handle')
+    ->name('presensi.scan');
+
 // Portal Peserta — halaman yang butuh login
 Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:peserta'], function () {
     Route::get('/dashboard', 'Peserta\DashboardController@index')->name('dashboard');
@@ -84,13 +87,13 @@ Route::resource('/jadwal', 'JadwalController', [
     'only' => ['index']
 ]);
 
-Route::get('/presensi/{token}', function ($token) {
-    if (!Auth::guard('peserta')->check()) {
-        session(['url.intended' => url('/presensi/' . $token)]);
-        return redirect()->route('peserta.login');
-    }
-    return app()->call('App\Http\Controllers\Peserta\PresensiPesertaController@show', ['token' => $token]);
-})->middleware('web');
+// Route::get('/presensi/{token}', function ($token) {
+//     if (!Auth::guard('peserta')->check()) {
+//         session(['url.intended' => url('/presensi/' . $token)]);
+//         return redirect()->route('peserta.login');
+//     }
+//     return app()->call('App\Http\Controllers\Peserta\PresensiPesertaController@show', ['token' => $token]);
+// })->middleware('web');
 
 Route::post('/jadwal', 'JadwalController@cari')->name('jadwal.cari');
 Route::get('/jadwal/{jadwal}/{slug}/detail', 'JadwalController@detail')->name('jadwal.detail');
