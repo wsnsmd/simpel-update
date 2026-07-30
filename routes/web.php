@@ -67,6 +67,10 @@ Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:p
     // Upload dokumen persyaratan (syaratId = id di jadwal_dokumen_syarat)
     Route::post('/peserta/{pesertaId}/dokumen/{syaratId}', 'Peserta\DashboardController@uploadDokumen')
         ->name('dokumen.upload');
+
+    // Presensi via QR
+    Route::get('/presensi/{token}', 'Peserta\PresensiPesertaController@show')->name('presensi.show');
+    Route::post('/presensi/{token}', 'Peserta\PresensiPesertaController@konfirmasi')->name('presensi.konfirmasi');
 });
 
 // Authentication Routes
@@ -79,6 +83,14 @@ Route::resource('/', 'BerandaController', [
 Route::resource('/jadwal', 'JadwalController', [
     'only' => ['index']
 ]);
+
+Route::get('/presensi/{token}', function ($token) {
+    if (!Auth::guard('peserta')->check()) {
+        session(['url.intended' => url('/presensi/' . $token)]);
+        return redirect()->route('peserta.login');
+    }
+    return app()->call('App\Http\Controllers\Peserta\PresensiPesertaController@show', ['token' => $token]);
+})->middleware('web');
 
 Route::post('/jadwal', 'JadwalController@cari')->name('jadwal.cari');
 Route::get('/jadwal/{jadwal}/{slug}/detail', 'JadwalController@detail')->name('jadwal.detail');
@@ -279,6 +291,18 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::get('dokumen-peserta/{dokumenId}/file', 'Diklat\DokumenSyaratController@previewFile')->name('dokumen_peserta.file');
         Route::get('dokumen-peserta/{dokumenId}/info', 'Diklat\DokumenSyaratController@previewInfo')->name('dokumen_peserta.info');
         Route::post('dokumen-peserta/{dokumenId}/verifikasi', 'Diklat\DokumenSyaratController@verifikasi')->name('dokumen_peserta.verifikasi');
+
+        // Presensi
+        Route::get('presensi/{jadwalId}', 'Diklat\PresensiController@index')->name('presensi.index');
+        Route::post('presensi/{jadwalId}', 'Diklat\PresensiController@store')->name('presensi.store');
+        Route::patch('presensi/sesi/{sesiId}', 'Diklat\PresensiController@update')->name('presensi.update');
+        Route::delete('presensi/sesi/{sesiId}', 'Diklat\PresensiController@destroy')->name('presensi.destroy');
+        Route::post('presensi/sesi/{sesiId}/regenerate', 'Diklat\PresensiController@regenerateToken')->name('presensi.regenerate');
+        Route::get('presensi/sesi/{sesiId}/qr', 'Diklat\PresensiController@showQr')->name('presensi.qr');
+        Route::get('presensi/sesi/{sesiId}/rekap', 'Diklat\PresensiController@rekap')->name('presensi.rekap');
+        Route::get('presensi/{jadwalId}/rekap', 'Diklat\PresensiController@rekapAll')->name('presensi.rekap_all');
+        Route::get('presensi/{jadwalId}/export', 'Diklat\PresensiController@exportExcel')->name('presensi.export_excel');
+        Route::patch('presensi/peserta/{presensiId}/status', 'Diklat\PresensiController@updateStatus')->name('presensi.update_status');
     });
 
     // Route::resource('user', 'UserController');
