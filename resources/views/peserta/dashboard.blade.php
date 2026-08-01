@@ -301,6 +301,90 @@
                 </div>
             @endif
         </div>
+
+        {{-- ── Riwayat Presensi ──────────────────────────────────────── --}}
+        @php
+            $presensiJadwal = isset($presensiPerJadwal[$r->jadwal_id])
+                ? $presensiPerJadwal[$r->jadwal_id]
+                : null;
+            $sesiDiklat = $presensiJadwal ? $presensiJadwal['sesi'] : collect();
+            $mapPresensi = ($presensiJadwal && isset($presensiJadwal['presensi'][$r->id]))
+                ? $presensiJadwal['presensi'][$r->id]
+                : array();
+            $totalSesi   = $sesiDiklat->count();
+            $hadirSesi   = 0;
+            foreach ($sesiDiklat as $ss) {
+                $st = isset($mapPresensi[$ss->id]) ? $mapPresensi[$ss->id]->status : 'alpha';
+                if (in_array($st, ['hadir','terlambat'])) $hadirSesi++;
+            }
+        @endphp
+
+        @if ($totalSesi > 0)
+        <div class="diklat-body" style="padding-top:0;border-top:1px solid #f0f4ff">
+            <div class="mb-2 d-flex align-items-center justify-content-between">
+                <small class="font-w600 text-muted text-uppercase" style="font-size:.68rem;letter-spacing:.05em">
+                    <i class="fa fa-clipboard-check mr-1"></i> Presensi
+                </small>
+                <small class="text-muted font-size-sm">
+                    {{ $hadirSesi }}/{{ $totalSesi }} sesi hadir
+                    @if ($totalSesi > 0)
+                        &middot;
+                        <span class="{{ ($hadirSesi/$totalSesi) >= 0.8 ? 'text-success' : (($hadirSesi/$totalSesi) >= 0.5 ? 'text-warning' : 'text-danger') }} font-w600">
+                            {{ round(($hadirSesi / $totalSesi) * 100) }}%
+                        </span>
+                    @endif
+                </small>
+            </div>
+
+            {{-- Progress bar kehadiran --}}
+            @if ($totalSesi > 0)
+            @php $pctHadir = round(($hadirSesi / $totalSesi) * 100); @endphp
+            <div class="progress mb-3" style="height:5px;border-radius:4px">
+                <div class="progress-bar {{ $pctHadir >= 80 ? 'bg-success' : ($pctHadir >= 50 ? 'bg-warning' : 'bg-danger') }}"
+                     style="width:{{ $pctHadir }}%"></div>
+            </div>
+            @endif
+
+            {{-- List sesi --}}
+            <div style="display:flex;flex-direction:column;gap:.3rem">
+                @foreach ($sesiDiklat as $ss)
+                @php
+                    $stSesi = isset($mapPresensi[$ss->id]) ? $mapPresensi[$ss->id]->status : 'alpha';
+                    $scanAt = isset($mapPresensi[$ss->id]) ? $mapPresensi[$ss->id]->scan_at : null;
+                    $stIcon  = ['hadir'=>'fa-check-circle','terlambat'=>'fa-clock','izin'=>'fa-info-circle','sakit'=>'fa-heartbeat','alpha'=>'fa-times-circle'];
+                    $stColor = ['hadir'=>'#065f46','terlambat'=>'#92400e','izin'=>'#1e40af','sakit'=>'#475569','alpha'=>'#991b1b'];
+                    $stBg    = ['hadir'=>'#d1fae5','terlambat'=>'#fef3c7','izin'=>'#dbeafe','sakit'=>'#f1f5f9','alpha'=>'#fee2e2'];
+                    $stLabel = ['hadir'=>'Hadir','terlambat'=>'Terlambat','izin'=>'Izin','sakit'=>'Sakit','alpha'=>'Tidak Hadir'];
+                @endphp
+                <div class="d-flex align-items-center justify-content-between"
+                     style="padding:.35rem .5rem;border-radius:8px;background:#f8faff">
+                    <div style="flex:1;min-width:0">
+                        <div style="font-size:.78rem;font-weight:500;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                            {{ $ss->nama_materi }}
+                        </div>
+                        <div style="font-size:.68rem;color:#94a3b8">
+                            {{ \Carbon\Carbon::parse($ss->tanggal)->format('d M Y') }}
+                            &middot; {{ substr($ss->jam_mulai,0,5) }}–{{ substr($ss->jam_selesai,0,5) }}
+                            &middot; {{ $ss->jp }} JP
+                        </div>
+                    </div>
+                    <div class="text-right ml-2" style="flex-shrink:0">
+                        <span style="display:inline-flex;align-items:center;gap:3px;font-size:.68rem;font-weight:600;padding:.2em .55em;border-radius:12px;background:{{ $stBg[$stSesi] ?? '#fee2e2' }};color:{{ $stColor[$stSesi] ?? '#991b1b' }}">
+                            <i class="fa {{ $stIcon[$stSesi] ?? 'fa-times-circle' }}" style="font-size:.6rem"></i>
+                            {{ $stLabel[$stSesi] ?? 'Tidak Hadir' }}
+                        </span>
+                        @if ($scanAt)
+                        <div style="font-size:.65rem;color:#94a3b8;margin-top:2px">
+                            {{ \Carbon\Carbon::parse($scanAt)->format('H:i') }}
+                        </div>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+
     </div>
 
     {{-- Modal ganti foto --}}

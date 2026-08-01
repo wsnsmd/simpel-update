@@ -203,6 +203,7 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::post('peserta/datatable/noverif/{jadwal}', 'Diklat\PesertaController@datatableNoVerif')->name('peserta.datatable.noverif');
         Route::post('peserta/datatable/confirm/{jadwal}', 'Diklat\PesertaController@datatableConfirm')->name('peserta.datatable.confirm');
         Route::post('peserta/datatable/batal/{jadwal}', 'Diklat\PesertaController@datatableBatal')->name('peserta.datatable.batal');
+        Route::post('peserta/{jadwalId}/bulk', 'Diklat\PesertaController@bulkVerifikasi')->name('peserta.bulk_verifikasi');
 
         // Checklist
         Route::post('checklist', 'Diklat\ChecklistController@index')->name('checklist.index');

@@ -484,6 +484,109 @@ class PesertaController extends Controller
         }
     }
 
+    // =========================================================================
+    // Bulk action: verifikasi / tolak / batal beberapa peserta sekaligus
+    // =========================================================================
+
+    public function bulkVerifikasi(Request $request, $jadwalId)
+    {
+        $this->checkAuth($jadwalId);
+
+        $request->validate([
+            'ids'    => 'required|array|min:1',
+            'ids.*'  => 'integer',
+            'aksi'   => 'required|in:setuju,tolak,batal',
+            'batal_ket' => 'required_if:aksi,batal|nullable|string|max:300',
+        ], [
+            'ids.required'      => 'Pilih minimal satu peserta.',
+            'batal_ket.required_if' => 'Keterangan batal wajib diisi.',
+        ]);
+
+        $ids    = $request->ids;
+        $aksi   = $request->aksi;
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
+
+        // Pastikan semua ID memang milik jadwal ini
+        $validIds = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwalId)
+            ->whereIn('id', $ids)
+            ->pluck('id')
+            ->toArray();
+
+        if (empty($validIds)) {
+            return back()->with('error', 'Tidak ada peserta valid yang dipilih.');
+        }
+
+        switch ($aksi) {
+            case 'setuju':
+                DB::table('peserta')
+                    ->whereIn('id', $validIds)
+                    ->update(['verifikasi' => 1]);
+
+                // Kirim email notifikasi (opsional, sesuai pola yang ada)
+                if ($jadwal->registrasi) {
+                    foreach ($validIds as $pid) {
+                        $p = DB::table('peserta')->where('id', $pid)->first();
+                        try {
+                            $job = new \App\Jobs\EmailVerifikasiStatusJob(
+                                $p->nama_lengkap, $p->email, $jadwal, 'Disetujui'
+                            );
+                            $this->dispatch($job);
+                        } catch (\Exception $e) {
+                            \Log::warning('Bulk verifikasi email gagal: ' . $e->getMessage());
+                        }
+                    }
+                }
+
+                $notifikasi = count($validIds) . ' peserta berhasil diverifikasi.';
+                break;
+
+            case 'tolak':
+                DB::table('peserta')
+                    ->whereIn('id', $validIds)
+                    ->update(['verifikasi' => 2]);
+
+                if ($jadwal->registrasi) {
+                    foreach ($validIds as $pid) {
+                        $p = DB::table('peserta')->where('id', $pid)->first();
+                        try {
+                            $job = new \App\Jobs\EmailVerifikasiStatusJob(
+                                $p->nama_lengkap, $p->email, $jadwal, 'Ditolak'
+                            );
+                            $this->dispatch($job);
+                        } catch (\Exception $e) {
+                            \Log::warning('Bulk tolak email gagal: ' . $e->getMessage());
+                        }
+                    }
+                }
+
+                $notifikasi = count($validIds) . ' peserta berhasil ditolak.';
+                break;
+
+            case 'batal':
+                DB::table('peserta')
+                    ->whereIn('id', $validIds)
+                    ->update([
+                        'batal'     => true,
+                        'batal_ket' => $request->batal_ket,
+                    ]);
+
+                $notifikasi = count($validIds) . ' peserta berhasil dibatalkan.';
+                break;
+
+            default:
+                return back()->with('error', 'Aksi tidak dikenali.');
+        }
+
+        return redirect()
+            ->route('backend.diklat.jadwal.detail', [
+                'id'   => $jadwalId,
+                'slug' => str_slug($jadwal->nama),
+                'page' => 'peserta',
+            ])
+            ->with('success', $notifikasi);
+    }
+
     public function konfirmasi(Request $request, $id)
     {
         $peserta = DB::table('peserta')->where('id', $id)->first();
@@ -1004,6 +1107,9 @@ class PesertaController extends Controller
 
         return datatables()->of($query)
             ->addIndexColumn()
+            ->addColumn('checkbox', function ($pn) {
+                return '<input type="checkbox" class="bulk-cb" value="' . $pn->id . '" onchange="updateBulkToolbar()">';
+            })
             ->addColumn('foto_render', function ($row) {
                 $path = is_null($row->foto) ? asset('media/avatars/avatar8.jpg') : asset(Storage::url($row->foto));
                 return '<img src="' . $path . '" class="img-avatar img-avatar-thumb img-avatar-rounded" style="height: auto;">';
@@ -1035,7 +1141,7 @@ class PesertaController extends Controller
                 }
                 return '-';
             })
-            ->rawColumns(['foto_render', 'verifikasi', 'aksi'])
+            ->rawColumns(['checkbox', 'foto_render', 'verifikasi', 'aksi'])
             ->make(true);
     }
 

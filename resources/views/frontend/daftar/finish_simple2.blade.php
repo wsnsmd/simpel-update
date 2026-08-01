@@ -8,96 +8,126 @@
     </div>
 
     <div class="block-content block-content-full">
-        <div class="text-center py-3">
-            <p class="font-size-base font-w700 mb-0">Selamat!</p>
-            <p class="font-size-sm text-muted">Pendaftaran Anda pada kegiatan <strong>{{ $jadwal->nama }}</strong> telah
-                berhasil diterima.</p>
-        </div>
 
-        <div class="alert alert-warning border-0 shadow-sm mb-4">
-            <div class="d-flex">
-                <i class="fa fa-exclamation-triangle fa-2x mr-3"></i>
+        {{-- ── Notifikasi sukses ── --}}
+        <div class="alert alert-success border-0 rounded mb-3 py-3">
+            <div class="d-flex align-items-center" style="gap:.75rem">
+                <i class="fa fa-check-circle fa-2x"></i>
                 <div>
-                    <p class="font-w700 font-size-sm mb-1">PENTING: Jangan Tutup/Refresh Halaman Ini!</p>
-                    <p class="font-size-sm mb-0">
-                        Kami tidak mengirimkan email konfirmasi guna menjaga efisiensi sistem.
-                        Silakan <strong>screenshot</strong> halaman ini atau <strong>salin link</strong> di bawah sebagai
-                        konfirmasi kehadiran anda.
+                    <p class="font-w700 mb-0">Selamat, {{ $peserta->nama_lengkap }}!</p>
+                    <p class="mb-0 font-size-sm">
+                        Pendaftaran Anda pada <strong>{{ $jadwal->nama }}</strong> telah diterima.
                     </p>
                 </div>
             </div>
         </div>
 
-        <div class="bg-body-light p-3 rounded text-center border">
-            <p class="font-w600 font-size-sm text-uppercase text-muted mb-2">Akses Konfirmasi Kehadiran</p>
-
-            <div class="mb-3">
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data={{ urlencode($url) }}"
-                    alt="QR Code Konfirmasi" class="img-thumbnail shadow-sm" style="width: 120px;">
-                <p class="font-size-sm text-muted mt-2 mb-0 italic">*Scan QR di atas untuk akses cepat</p>
-            </div>
-
-            <div class="input-group mb-3">
-                <input type="text" class="form-control form-control-sm text-center font-w600" id="linkKonfirmasi"
-                    value="{{ $url }}" readonly>
-                <div class="input-group-append">
-                    <button type="button" class="btn btn-sm btn-primary" onclick="copyToClipboard()">
-                        <i class="fa fa-copy mr-1"></i> Salin
-                    </button>
+        {{-- ── Peringatan konfirmasi ── --}}
+        <div class="alert border-warning mb-3 py-3"
+            style="background:#fffbeb;border:2px solid #f59e0b !important;border-radius:10px">
+            <div class="d-flex align-items-start" style="gap:.75rem">
+                <i class="fa fa-exclamation-triangle fa-lg mt-1" style="color:#d97706;flex-shrink:0"></i>
+                <div>
+                    <p class="font-w700 mb-1" style="color:#92400e">Langkah penting — jangan dilewati</p>
+                    <p class="mb-0 font-size-sm" style="color:#92400e">
+                        Klik tombol konfirmasi di bawah <strong>sekarang</strong>.
+                        Tanpa konfirmasi, kehadiran Anda tidak tercatat dan sertifikat tidak dapat diterbitkan.
+                    </p>
                 </div>
-            </div>
-
-            <div class="alert alert-info border-0 rounded-0 py-2 mb-3">
-                <p class="font-size-sm mb-0">
-                    <i class="fa fa-info-circle mr-1"></i>
-                    <strong>Catatan:</strong> Konfirmasi kehadiran ini hanya dapat digunakan saat <strong>sesi kehadiran
-                        telah dibuka oleh Panitia</strong> sesuai jadwal kegiatan dan sebagai salah satu syarat penerbitan
-                    sertifikat.
-                </p>
-            </div>
-
-            <div class="">
-                <a href="{{ $url }}" class="btn btn-sm btn-alt-success px-4 shadow-sm rounded-pill">
-                    <i class="fa fa-hand-pointer mr-1"></i> Konfirmasi Kehadiran
-                </a>
             </div>
         </div>
 
-        @if(!empty($jadwal->var_1))
-            <div class="text-center font-size-sm mt-4 border-top pt-3">
-                <p class="mb-2">
+        {{-- ── TOMBOL UTAMA ── --}}
+        <a href="{{ $url }}" class="btn btn-success btn-lg btn-block mb-2 py-3"
+            style="font-size:1.05rem;border-radius:10px;letter-spacing:.01em">
+            <i class="fa fa-hand-pointer mr-2"></i>
+            Konfirmasi Kehadiran Saya
+        </a>
+        <p class="text-center text-muted font-size-sm mb-4">
+            <i class="fa fa-info-circle mr-1"></i>
+            Atau scan QR code / salin link di bawah jika tidak bisa klik
+        </p>
+
+        {{-- ── QR code + link salin (alternatif) ── --}}
+        <div class="block block-rounded border mb-3">
+            <div class="block-content py-3">
+                <div class="d-flex align-items-start" style="gap:1rem">
+
+                    {{-- QR --}}
+                    <div class="text-center flex-shrink-0">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($url) }}"
+                            alt="QR Code Konfirmasi" class="img-thumbnail p-1" style="width:100px;height:100px">
+                        <p class="text-muted mb-0 mt-1" style="font-size:.7rem">Scan QR</p>
+                    </div>
+
+                    {{-- Link salin --}}
+                    <div class="flex-grow-1" style="min-width:0">
+                        <p class="font-w600 font-size-sm mb-1">Link konfirmasi kehadiran</p>
+                        <div class="input-group input-group-sm mb-2">
+                            <input type="text" class="form-control form-control-sm" id="linkKonfirmasi" value="{{ $url }}"
+                                readonly style="font-size:.72rem">
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="copyToClipboard()"
+                                    id="btnSalin">
+                                    <i class="fa fa-copy mr-1"></i> Salin
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-muted mb-0" style="font-size:.72rem">
+                            <i class="fa fa-camera mr-1"></i>
+                            Screenshot halaman ini sebagai bukti pendaftaran Anda.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Grup Telegram/WA (jika ada) ── --}}
+        @if (!empty($jadwal->var_1))
+            <div class="text-center border-top pt-3 mb-3">
+                <p class="font-size-sm text-muted mb-2">
                     Bergabunglah dengan grup koordinasi untuk informasi teknis terbaru:
                 </p>
-                <a href="{{ $jadwal->var_1 }}" class="btn btn-sm btn-info px-4 py-2" target="_blank">
-                    <i class="fab fa-telegram-plane mr-2"></i> Gabung Grup Informasi
+                <a href="{{ $jadwal->var_1 }}" class="btn btn-sm btn-info px-4 rounded-pill" target="_blank">
+                    <i class="fab fa-telegram-plane mr-1"></i> Gabung Grup Informasi
                 </a>
             </div>
         @endif
 
-        <div class="text-center mt-4 border-top pt-3">
+        <div class="text-center border-top pt-3">
             <p class="text-muted font-size-sm mb-0">Terima Kasih,</p>
-            <p class="font-w600 font-size-sm">BPSDM Provinsi Kalimantan Timur</p>
+            <p class="font-w600 font-size-sm mb-0">BPSDM Provinsi Kalimantan Timur</p>
         </div>
+
     </div>
 
     <script>
         function copyToClipboard() {
-            var copyText = document.getElementById("linkKonfirmasi");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(copyText.value);
+            var input = document.getElementById('linkKonfirmasi');
+            var btn = document.getElementById('btnSalin');
 
-            if (typeof jQuery.notify === 'function') {
-                jQuery.notify({
-                    icon: 'fa fa-check mr-1',
-                    message: 'Link berhasil disalin ke clipboard!'
-                }, {
-                    type: 'success',
-                    placement: { from: 'top', align: 'center' }
+            input.select();
+            input.setSelectionRange(0, 99999);
+
+            try {
+                navigator.clipboard.writeText(input.value).then(function () {
+                    showCopied(btn);
                 });
-            } else {
-                alert("Link berhasil disalin!");
+            } catch (e) {
+                document.execCommand('copy');
+                showCopied(btn);
             }
+        }
+
+        function showCopied(btn) {
+            btn.innerHTML = '<i class="fa fa-check mr-1"></i> Disalin!';
+            btn.classList.remove('btn-outline-secondary');
+            btn.classList.add('btn-success');
+            setTimeout(function () {
+                btn.innerHTML = '<i class="fa fa-copy mr-1"></i> Salin';
+                btn.classList.remove('btn-success');
+                btn.classList.add('btn-outline-secondary');
+            }, 2500);
         }
     </script>
 @endsection

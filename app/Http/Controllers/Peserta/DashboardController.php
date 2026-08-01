@@ -131,6 +131,47 @@ class DashboardController extends Controller
                 ->get()
                 ->groupBy('peserta_id');
 
+        // Presensi per peserta per sesi untuk jadwal di halaman ini
+        $presensiPerJadwal = array();
+        if (!empty($jadwalIds)) {
+            $sesiList = DB::table('presensi_sesi')
+                ->whereIn('diklat_jadwal_id', $jadwalIds)
+                ->orderBy('tanggal')
+                ->orderBy('jam_mulai')
+                ->get();
+
+            $sesiIds = $sesiList->pluck('id')->toArray();
+
+            if (!empty($sesiIds) && !empty($pesertaIds)) {
+                $presensiRows = DB::table('presensi_peserta')
+                    ->whereIn('presensi_sesi_id', $sesiIds)
+                    ->whereIn('peserta_id', $pesertaIds)
+                    ->select('presensi_sesi_id', 'peserta_id', 'status', 'scan_at')
+                    ->get();
+
+                // Group sesi per jadwal
+                foreach ($sesiList as $sesi) {
+                    if (!isset($presensiPerJadwal[$sesi->diklat_jadwal_id])) {
+                        $presensiPerJadwal[$sesi->diklat_jadwal_id] = array(
+                            'sesi'     => collect(),
+                            'presensi' => array(),
+                        );
+                    }
+                    $presensiPerJadwal[$sesi->diklat_jadwal_id]['sesi']->push($sesi);
+                }
+
+                // Map presensi [peserta_id][sesi_id]
+                foreach ($presensiRows as $pr) {
+                    foreach ($presensiPerJadwal as $jadwalId => &$data) {
+                        if ($data['sesi']->contains('id', $pr->presensi_sesi_id)) {
+                            $data['presensi'][$pr->peserta_id][$pr->presensi_sesi_id] = $pr;
+                        }
+                    }
+                    unset($data);
+                }
+            }
+        }
+
         // Foto untuk hero — ambil satu dari semua riwayat (tidak dipaging)
         $fotoRow = DB::table('peserta')
             ->where('nip', $nip)
@@ -156,7 +197,8 @@ class DashboardController extends Controller
             'page',
             'totalPages',
             'totalRows',
-            'perPage'
+            'perPage',
+            'presensiPerJadwal'
         ));
     }
 

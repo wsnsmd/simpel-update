@@ -124,7 +124,7 @@
             });
         });
 
-        function createDataTable(selector, url, customColumns) {
+        function createDataTable(selector, url, customColumns, checkboxColumn) {
             var commonColumns = [
                 { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false, class: 'text-center' },
                 { data: 'foto_render', name: 'foto_render', orderable: false, searchable: false },
@@ -140,17 +140,26 @@
                 { data: 'instansi', name: 'instansi' },
             );
 
-            return jQuery(selector).DataTable({
+            // Jika ada checkboxColumn, letakkan di paling depan (sebelum # dan Foto)
+            var allColumns = checkboxColumn
+                ? [checkboxColumn, ...commonColumns, ...customColumns]
+                : [...commonColumns, ...customColumns];
+
+            var dt = jQuery(selector).DataTable({
                 processing: true,
                 serverSide: true,
                 ajax: { url: url, type: "POST" },
-                columns: [...commonColumns, ...customColumns],
+                columns: allColumns,
                 pageLength: 25,
                 autoWidth: false,
                 drawCallback: function () {
                     $(selector).removeClass('blur-content');
+                    // Reset toolbar setelah redraw (paging/search)
+                    if (checkboxColumn) updateBulkToolbar();
                 }
             });
+
+            return dt;
         }
 
         // --- Inisialisasi per tabel ---
@@ -164,10 +173,11 @@
         }
 
         function initTableNoVerif() {
+            var cbCol = { data: 'checkbox', name: 'checkbox', orderable: false, searchable: false, class: 'text-center', width: '36px' };
             createDataTable('#table-peserta-noverif', "{{ route('backend.diklat.peserta.datatable.noverif', $jadwal->id) }}", [
                 { data: 'verifikasi', name: 'verifikasi', ...colCenter },
                 { data: 'aksi', name: 'aksi', ...colCenter }
-            ]);
+            ], cbCol);
         }
 
         function initTableConfirm() {
@@ -209,34 +219,113 @@
             });
         @endif
 
-            function showAlert(form) {
-                var e = Swal.mixin({
-                    buttonsStyling: !1,
-                    customClass: {
-                        confirmButton: "btn btn-success m-1",
-                        cancelButton: "btn btn-danger m-1",
-                        input: "form-control"
-                    }
+            // ── Bulk Action ───────────────────────────────────────────────
+            function updateBulkToolbar() {
+                var checked = document.querySelectorAll('#table-peserta-noverif .bulk-cb:checked');
+                var all = document.querySelectorAll('#table-peserta-noverif .bulk-cb');
+                var toolbar = document.getElementById('bulk-toolbar');
+                var counter = document.getElementById('bulk-counter');
+                var cbAll = document.getElementById('check-all-noverif');
+
+                if (checked.length > 0) {
+                    toolbar.style.display = 'flex';
+                    counter.textContent = checked.length + ' peserta dipilih';
+                } else {
+                    toolbar.style.display = 'none';
+                }
+                if (cbAll) {
+                    cbAll.indeterminate = checked.length > 0 && checked.length < all.length;
+                    cbAll.checked = all.length > 0 && checked.length === all.length;
+                }
+            }
+
+        function toggleCheckAll(source) {
+            document.querySelectorAll('#table-peserta-noverif .bulk-cb').forEach(function (cb) {
+                cb.checked = source.checked;
+            });
+            updateBulkToolbar();
+        }
+
+        function bulkAksi(aksi) {
+            var ids = [];
+            document.querySelectorAll('#table-peserta-noverif .bulk-cb:checked').forEach(function (cb) {
+                ids.push(cb.value);
+            });
+            if (ids.length === 0) { alert('Pilih minimal satu peserta.'); return; }
+
+            var labelMap = { setuju: 'memverifikasi', tolak: 'menolak' };
+            var colorMap = { setuju: '#28a745', tolak: '#e74c3c' };
+
+            Swal.fire({
+                title: 'Konfirmasi',
+                text: 'Anda akan ' + labelMap[aksi] + ' ' + ids.length + ' peserta sekaligus.',
+                type: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Ya, lanjutkan',
+                cancelButtonText: 'Batal',
+                confirmButtonColor: colorMap[aksi],
+            }).then(function (result) {
+                if (!result.value) return;
+
+                // Buat form dinamis — tidak bergantung elemen di DOM
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("backend.diklat.peserta.bulk_verifikasi", $jadwal->id) }}';
+                form.style.display = 'none';
+                document.body.appendChild(form);
+
+                // CSRF token
+                var csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = $('meta[name="csrf-token"]').attr('content');
+                form.appendChild(csrf);
+
+                // Aksi
+                var ia = document.createElement('input');
+                ia.type = 'hidden'; ia.name = 'aksi'; ia.value = aksi;
+                form.appendChild(ia);
+
+                // IDs peserta
+                ids.forEach(function (id) {
+                    var ii = document.createElement('input');
+                    ii.type = 'hidden'; ii.name = 'ids[]'; ii.value = id;
+                    form.appendChild(ii);
                 });
 
-                e.fire({
-                    title: 'Apakah anda yakin',
-                    text: 'Anda tidak akan dapat mengembalikan data anda',
-                    type: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya',
-                    cancelButtonText: 'Tidak',
-                    customClass: {
-                        confirmButton: "btn btn-danger m-1",
-                        cancelButton: "btn btn-secondary m-1"
-                    },
-                    html: !1
-                }).then((result) => {
-                    if (result.value) {
-                        form.submit();
-                    }
-                });
-            }
+                form.submit();
+            });
+        }
+        // ── End Bulk Action ───────────────────────────────────────────
+
+        function showAlert(form) {
+            var e = Swal.mixin({
+                buttonsStyling: !1,
+                customClass: {
+                    confirmButton: "btn btn-success m-1",
+                    cancelButton: "btn btn-danger m-1",
+                    input: "form-control"
+                }
+            });
+
+            e.fire({
+                title: 'Apakah anda yakin',
+                text: 'Anda tidak akan dapat mengembalikan data anda',
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Ya',
+                cancelButtonText: 'Tidak',
+                customClass: {
+                    confirmButton: "btn btn-danger m-1",
+                    cancelButton: "btn btn-secondary m-1"
+                },
+                html: !1
+            }).then((result) => {
+                if (result.value) {
+                    form.submit();
+                }
+            });
+        }
 
         function showVerifikasi(form, id) {
             var e = Swal.mixin({
@@ -545,11 +634,37 @@
                     </div>
 
                     <div class="tab-pane fade" id="tab-noverif" role="tabpanel">
+
+                        {{-- Toolbar bulk (sticky, muncul saat ada yang dicentang) --}}
+                        <div id="bulk-toolbar" style="display:none;background:#1e293b;color:#fff;
+                                                    border-radius:8px;padding:.6rem 1rem;margin:.5rem 0;
+                                                    align-items:center;justify-content:space-between;gap:.5rem;
+                                                    position:sticky;top:56px;z-index:99">
+                            <span id="bulk-counter" style="font-size:.85rem;font-weight:500"></span>
+                            <div class="d-flex" style="gap:.4rem">
+                                <button type="button" onclick="bulkAksi('setuju')" class="btn btn-sm btn-success">
+                                    <i class="fa fa-check mr-1"></i> Verifikasi
+                                </button>
+                                <button type="button" onclick="bulkAksi('tolak')" class="btn btn-sm btn-warning">
+                                    <i class="fa fa-times mr-1"></i> Tolak
+                                </button>
+                                <button type="button"
+                                    onclick="document.querySelectorAll('#table-peserta-noverif .bulk-cb').forEach(function(c){c.checked=false;}); updateBulkToolbar();"
+                                    class="btn btn-sm btn-outline-light">
+                                    Batal Pilih
+                                </button>
+                            </div>
+                        </div>
+
                         <div class="table-responsive">
                             <table class="table table-bordered table-striped table-vcenter table-hover table-sm"
                                 id="table-peserta-noverif" style="width: 100%;">
                                 <thead>
                                     <tr>
+                                        <th class="text-center" style="width: 36px;">
+                                            <input type="checkbox" id="check-all-noverif" onchange="toggleCheckAll(this)"
+                                                title="Pilih semua">
+                                        </th>
                                         <th class="text-center" style="width: 30px;">#</th>
                                         <th style="width: 60px;">Foto</th>
                                         @if($isASN)
