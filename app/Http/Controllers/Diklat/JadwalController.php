@@ -26,43 +26,52 @@ class JadwalController extends Controller
     public function index()
     {
         $level = $this->checkLevel();
+        $today = now()->toDateString();
 
-        $jadwal = [];
-
-        switch ($level) {
-            case 'admin':
-                $jadwal = DB::table('v_jadwal_detail')
-                    ->where('tahun', $this->tahun)
-                    ->orderby('tgl_awal', 'desc')
-                    ->get();
-                break;
-
-            case 'user':
-                if ($this->isViewer()) {
-                    $jadwal = DB::table('v_jadwal_detail')
-                        ->where('tahun', $this->tahun)
-                        ->orderby('tgl_awal', 'desc')
-                        ->get();
-                } else {
-                    $jadwal = DB::table('v_jadwal_detail')
-                        ->where('usergroup', $this->user->usergroup)
-                        ->where('tahun', $this->tahun)
-                        ->orderby('tgl_awal', 'desc')
-                        ->get();
-                }
-                break;
-
-            case 'kontribusi':
+        $baseQuery = function() use ($level) {
+            $q = DB::table('v_jadwal_detail')->where('tahun', $this->tahun);
+            if ($level === 'user' && !$this->isViewer()) {
+                $q->where('usergroup', $this->user->usergroup);
+            } elseif ($level === 'kontribusi') {
                 $instansi = DB::table('instansi')->where('id', $this->user->instansi_id)->first();
-                $jadwal = DB::table('v_jadwal_detail')
-                    ->where('kelas', $instansi->nama)
-                    ->where('tahun', $this->tahun)
-                    ->orderby('tgl_awal', 'desc')
-                    ->get();
-                break;
+                $q->where('kelas', $instansi->nama ?? '');
+            }
+            return $q;
+        };
+
+        $jadwal = $baseQuery()->orderby('tgl_awal', 'desc')->get();
+
+        // Hitung jumlah peserta terverifikasi per jadwal
+        $jadwalIds = $jadwal->pluck('id')->toArray();
+        $pesertaCount = array();
+        if (!empty($jadwalIds)) {
+            $counts = DB::table('peserta')
+                ->whereIn('diklat_jadwal_id', $jadwalIds)
+                ->where('batal', false)
+                ->where('verifikasi', 1)
+                ->select(DB::raw('diklat_jadwal_id, COUNT(*) as total'))
+                ->groupBy('diklat_jadwal_id')
+                ->get();
+            foreach ($counts as $c) {
+                $pesertaCount[$c->diklat_jadwal_id] = $c->total;
+            }
         }
 
-        return view('backend.diklat.jadwal.index', compact('jadwal'));
+        // Statistik ringkas
+        $stats = array(
+            'total'       => $jadwal->count(),
+            'berjalan'    => $jadwal->filter(function($j) use ($today) {
+                                return $j->tgl_awal <= $today && $j->tgl_akhir >= $today && $j->status == 1;
+                            })->count(),
+            'akan_datang' => $jadwal->filter(function($j) use ($today) {
+                                return $j->tgl_awal > $today && $j->status == 1;
+                            })->count(),
+            'selesai'     => $jadwal->filter(function($j) use ($today) {
+                                return $j->tgl_akhir < $today;
+                            })->count(),
+        );
+
+        return view('backend.diklat.jadwal.index', compact('jadwal', 'pesertaCount', 'stats'));
     }
 
     public function create()
