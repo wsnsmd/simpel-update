@@ -28,7 +28,7 @@ class JadwalController extends Controller
         $level = $this->checkLevel();
         $today = now()->toDateString();
 
-        $baseQuery = function() use ($level) {
+        $baseQuery = function () use ($level) {
             $q = DB::table('v_jadwal_detail')->where('tahun', $this->tahun);
             if ($level === 'user' && !$this->isViewer()) {
                 $q->where('usergroup', $this->user->usergroup);
@@ -59,16 +59,16 @@ class JadwalController extends Controller
 
         // Statistik ringkas
         $stats = array(
-            'total'       => $jadwal->count(),
-            'berjalan'    => $jadwal->filter(function($j) use ($today) {
-                                return $j->tgl_awal <= $today && $j->tgl_akhir >= $today && $j->status == 1;
-                            })->count(),
-            'akan_datang' => $jadwal->filter(function($j) use ($today) {
-                                return $j->tgl_awal > $today && $j->status == 1;
-                            })->count(),
-            'selesai'     => $jadwal->filter(function($j) use ($today) {
-                                return $j->tgl_akhir < $today;
-                            })->count(),
+            'total' => $jadwal->count(),
+            'berjalan' => $jadwal->filter(function ($j) use ($today) {
+                return $j->tgl_awal <= $today && $j->tgl_akhir >= $today && $j->status == 1;
+            })->count(),
+            'akan_datang' => $jadwal->filter(function ($j) use ($today) {
+                return $j->tgl_awal > $today && $j->status == 1;
+            })->count(),
+            'selesai' => $jadwal->filter(function ($j) use ($today) {
+                return $j->tgl_akhir < $today;
+            })->count(),
         );
 
         return view('backend.diklat.jadwal.index', compact('jadwal', 'pesertaCount', 'stats'));
@@ -498,9 +498,87 @@ class JadwalController extends Controller
                 return $this->survei($jadwal);
 
             default:
-                return view('backend.diklat.jadwal.detail', compact('jadwal', 'peserta'));
+                // ── Statistik untuk halaman detail ──────────────────────
+                $today = now()->toDateString();
+
+                $statPeserta = DB::table('peserta')
+                    ->where('diklat_jadwal_id', $id)
+                    ->selectRaw('
+                        COUNT(*) as total,
+                        SUM(CASE WHEN verifikasi = 1 AND batal = 0 THEN 1 ELSE 0 END) as verif,
+                        SUM(CASE WHEN verifikasi = 0 AND batal = 0 THEN 1 ELSE 0 END) as noverif,
+                        SUM(CASE WHEN batal = 1 THEN 1 ELSE 0 END) as batal
+                    ')
+                    ->first();
+
+                // Sertifikat
+                $sertifikat = DB::table('sertifikat')
+                    ->where('diklat_jadwal_id', $id)
+                    ->first();
+                $statSertifikat = 0;
+                if ($sertifikat) {
+                    $statSertifikat = DB::table('sertifikat_peserta')
+                        ->where('sertifikat_id', $sertifikat->id)
+                        ->count();
+                }
+
+                // Presensi hari ini
+                $sesiHariIni = DB::table('presensi_sesi')
+                    ->where('diklat_jadwal_id', $id)
+                    ->whereDate('tanggal', $today)
+                    ->select('id', 'nama_materi', 'jam_mulai', 'jam_selesai')
+                    ->orderBy('jam_mulai')
+                    ->get()
+                    ->map(function ($s) {
+                        $s->hadir = DB::table('presensi_peserta')
+                            ->where('presensi_sesi_id', $s->id)
+                            ->whereIn('status', ['hadir', 'terlambat'])
+                            ->count();
+                        $s->total = DB::table('presensi_peserta')
+                            ->where('presensi_sesi_id', $s->id)
+                            ->count();
+                        $now = \Carbon\Carbon::now();
+                        $mulai = \Carbon\Carbon::parse(now()->toDateString() . ' ' . $s->jam_mulai);
+                        $selesai = \Carbon\Carbon::parse(now()->toDateString() . ' ' . $s->jam_selesai);
+                        $s->is_aktif = $now->between($mulai, $selesai);
+                        return $s;
+                    });
+
+                // Total sesi presensi
+                $totalSesi = DB::table('presensi_sesi')->where('diklat_jadwal_id', $id)->count();
+
+                // Dokumen menunggu verifikasi
+                $dokMenunggu = DB::table('peserta_dokumen')
+                    ->join('peserta', 'peserta.id', '=', 'peserta_dokumen.peserta_id')
+                    ->join('jadwal_dokumen_syarat', 'jadwal_dokumen_syarat.id', '=', 'peserta_dokumen.dokumen_syarat_id')
+                    ->where('peserta.diklat_jadwal_id', $id)
+                    ->whereNull('peserta_dokumen.verified_at')
+                    ->select('jadwal_dokumen_syarat.nama', DB::raw('COUNT(*) as jumlah'))
+                    ->groupBy('jadwal_dokumen_syarat.nama')
+                    ->get();
+
+                // Pendaftaran terbaru
+                $pendaftaranTerbaru = DB::table('peserta')
+                    ->where('diklat_jadwal_id', $id)
+                    ->select('id', 'nama_lengkap', 'instansi', 'verifikasi', 'batal', 'created_at')
+                    ->orderByDesc('created_at')
+                    ->limit(5)
+                    ->get();
+
+                return view('backend.diklat.jadwal.detail', compact(
+                    'jadwal',
+                    'peserta',
+                    'statPeserta',
+                    'statSertifikat',
+                    'sesiHariIni',
+                    'totalSesi',
+                    'dokMenunggu',
+                    'pendaftaranTerbaru',
+                    'sertifikat'
+                ));
         }
     }
+
 
     public function peserta($jadwal, $peserta)
     {
