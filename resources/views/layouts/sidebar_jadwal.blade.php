@@ -75,6 +75,12 @@
                 </a>
             </li>
             <li class="nav-main-item">
+                <a class="nav-main-link" href="{{ route('backend.diklat.nilai.setup', $jadwal->id) }}">
+                    <i class="nav-main-link-icon fa fa-star-half-alt"></i>
+                    <span class="nav-main-link-name">Penilaian</span>
+                </a>
+            </li>
+            <li class="nav-main-item">
                 <a class="nav-main-link"
                     href="{{ route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'tautan']) }}">
                     <i class="nav-main-link-icon fa fa-link"></i>

@@ -76,6 +76,10 @@ Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:p
     Route::post('/presensi/{token}', 'Peserta\PresensiPesertaController@konfirmasi')->name('presensi.konfirmasi');
 });
 
+Route::get('/nilai/penguji/{token}', 'Penguji\PengujiNilaiController@index')->name('penguji.nilai.index');
+Route::get('/nilai/penguji/{token}/peserta/{pesertaId}/{fase}', 'Penguji\PengujiNilaiController@formNilai')->name('penguji.nilai.form');
+Route::post('/nilai/penguji/{token}/peserta/{pesertaId}/{fase}', 'Penguji\PengujiNilaiController@saveNilai')->name('penguji.nilai.save');
+
 // Authentication Routes
 
 // Frontend Routes
@@ -307,6 +311,41 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::get('presensi/{jadwalId}/rekap', 'Diklat\PresensiController@rekapAll')->name('presensi.rekap_all');
         Route::get('presensi/{jadwalId}/export', 'Diklat\PresensiController@exportExcel')->name('presensi.export_excel');
         Route::patch('presensi/peserta/{presensiId}/status', 'Diklat\PresensiController@updateStatus')->name('presensi.update_status');
+
+        // ── Sistem Penilaian ──────────────────────────────────────────
+        // Template
+        Route::get('nilai/template', 'Diklat\NilaiController@templateIndex')->name('nilai.template');
+        Route::post('nilai/template', 'Diklat\NilaiController@templateStore')->name('nilai.template.store');
+        Route::patch('nilai/template/{id}', 'Diklat\NilaiController@templateUpdate')->name('nilai.template.update');
+        Route::post('nilai/template/{id}/clone', 'Diklat\NilaiController@templateClone')->name('nilai.template.clone');
+        Route::delete('nilai/template/{id}', 'Diklat\NilaiController@templateDestroy')->name('nilai.template.destroy');
+
+        // Komponen
+        Route::get('nilai/template/{templateId}/komponen', 'Diklat\NilaiController@komponenIndex')->name('nilai.template.komponen');
+        Route::post('nilai/template/{templateId}/komponen/aspek', 'Diklat\NilaiController@komponenStoreAspek')->name('nilai.komponen.store.aspek');
+        Route::post('nilai/template/{templateId}/komponen/{aspekId}/sub', 'Diklat\NilaiController@komponenStoreSub')->name('nilai.komponen.store.sub');
+        Route::patch('nilai/komponen/{id}', 'Diklat\NilaiController@komponenUpdate')->name('nilai.komponen.update');
+        Route::delete('nilai/komponen/{id}', 'Diklat\NilaiController@komponenDestroy')->name('nilai.komponen.destroy');
+
+        // Setup per jadwal
+        Route::get('nilai/{jadwalId}/setup', 'Diklat\NilaiController@setupIndex')->name('nilai.setup');
+        Route::post('nilai/{jadwalId}/setup', 'Diklat\NilaiController@setupStore')->name('nilai.setup.store');
+        Route::post('nilai/{jadwalId}/lock', 'Diklat\NilaiController@setupLock')->name('nilai.lock');
+
+        // Token penguji
+        Route::post('nilai/{jadwalId}/token', 'Diklat\NilaiController@generateToken')->name('nilai.token.generate');
+        Route::patch('nilai/token/{tokenId}/revoke', 'Diklat\NilaiController@revokeToken')->name('nilai.token.revoke');
+        Route::patch('nilai/token/{tokenId}/activate', 'Diklat\NilaiController@activateToken')->name('nilai.token.activate');
+        Route::patch('nilai/token/{tokenId}/regenerate', 'Diklat\NilaiController@regenerateToken')->name('nilai.token.regenerate');
+
+        // Input & rekap nilai
+        Route::get('nilai/{jadwalId}/input', 'Diklat\NilaiController@inputNilai')->name('nilai.input');
+        Route::post('nilai/{jadwalId}/save', 'Diklat\NilaiController@saveNilai')->name('nilai.save');
+        Route::get('nilai/{jadwalId}/rekap', 'Diklat\NilaiController@rekapNilai')->name('nilai.rekap');
+        Route::get('nilai/{jadwalId}/export', 'Diklat\NilaiController@exportExcel')->name('nilai.export');
+
+        // Remedial
+        Route::post('nilai/{jadwalId}/peserta/{pesertaId}/remedial', 'Diklat\NilaiController@inputRemedial')->name('nilai.remedial');
     });
 
     // Route::resource('user', 'UserController');
