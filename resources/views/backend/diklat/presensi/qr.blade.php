@@ -1,262 +1,151 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.simple')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QR Presensi — {{ $sesi->nama_materi }}</title>
-    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    <style>
-        body {
-            background: #1a1a2e;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            margin: 0;
-            font-family: sans-serif;
-            color: #fff;
-        }
+@section('css_before')
+    {{-- Font Awesome sudah di-load dashmix, tambahkan title khusus lewat JS --}}
+@endsection
 
-        .qr-card {
-            background: #fff;
-            border-radius: 20px;
-            padding: 2.5rem;
-            text-align: center;
-            max-width: 480px;
-            width: 90%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-        }
+@section('content')
+    @php $isAktif = $sesi->isTokenValid(); @endphp
 
-        .qr-header {
-            background: #1d4ed8;
-            color: #fff;
-            border-radius: 12px;
-            padding: 1rem 1.5rem;
-            margin-bottom: 1.5rem;
-        }
+    {{-- Fullscreen centered container menggunakan hero Dashmix --}}
+    <div class="hero bg-gd-primary">
+        <div class="hero-inner w-100 py-5">
+            <div class="container">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-sm-10 col-md-7 col-lg-5">
 
-        .qr-header h2 {
-            margin: 0;
-            font-size: 1.1rem;
-            font-weight: 700;
-        }
+                        {{-- ── Kartu QR ── --}}
+                        <div class="block block-rounded block-fx-pop mb-0">
 
-        .qr-header p {
-            margin: .3rem 0 0;
-            font-size: .85rem;
-            opacity: .85;
-        }
+                            {{-- Header kartu --}}
+                            <div class="block-header bg-gd-primary p-4 rounded-top">
+                                <div class="w-100 text-center">
+                                    <h2 class="font-w700 text-white font-size-h4 mb-1">
+                                        {{ $sesi->nama_materi }}
+                                    </h2>
+                                    <p class="text-white-75 font-size-sm mb-0">
+                                        {{ $jadwal->nama }}
+                                    </p>
+                                    @if ($sesi->widyaiswara)
+                                        <p class="text-white-50 font-size-sm mb-0">
+                                            <i class="fa fa-chalkboard-teacher mr-1"></i>{{ $sesi->widyaiswara }}
+                                        </p>
+                                    @endif
+                                </div>
+                            </div>
 
-        #qr-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 0 auto 1.5rem;
-        }
+                            <div class="block-content text-center py-4">
 
-        #qr-container canvas,
-        #qr-container img {
-            border-radius: 8px;
-            display: block;
-        }
+                                {{-- QR Code container --}}
+                                <div id="qr-container" class="d-inline-block p-3 rounded bg-white mb-3"
+                                    style="box-shadow:0 2px 12px rgba(0,0,0,.1)"></div>
 
-        .qr-info {
-            color: #374151;
-        }
+                                {{-- Info waktu sesi --}}
+                                <div class="font-w700 text-primary mb-1" style="font-size:1.5rem;letter-spacing:.04em">
+                                    {{ substr($sesi->jam_mulai, 0, 5) }} – {{ substr($sesi->jam_selesai, 0, 5) }}
+                                </div>
+                                <div class="text-muted font-size-sm mb-3">
+                                    {{ \Carbon\Carbon::parse($sesi->tanggal)->format('l, d F Y') }}
+                                    <span class="mx-1">&middot;</span>
+                                    <span class="badge badge-secondary">{{ $sesi->jp }} JP</span>
+                                    <span class="mx-1">&middot;</span>
+                                    Terlambat &gt; {{ $sesi->batas_terlambat }} mnt
+                                </div>
 
-        .qr-info .waktu {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #1d4ed8;
-            letter-spacing: .05em;
-        }
+                                {{-- Status badge --}}
+                                @if ($isAktif)
+                                    <div class="mb-1">
+                                        <span class="badge badge-success px-3 py-2" style="font-size:.8rem">
+                                            <i class="fa fa-circle mr-1" style="font-size:.45rem;vertical-align:middle"></i>
+                                            QR Aktif — Scan Sekarang
+                                        </span>
+                                    </div>
+                                    <div class="text-muted font-size-sm mb-3">
+                                        Sesi berakhir dalam
+                                        <span id="timer" class="font-w700 text-primary">...</span>
+                                    </div>
+                                @else
+                                    <div class="mb-3">
+                                        <span class="badge badge-danger px-3 py-2" style="font-size:.8rem">
+                                            <i class="fa fa-times-circle mr-1"></i>QR Tidak Aktif
+                                        </span>
+                                    </div>
+                                @endif
 
-        .qr-info .label {
-            font-size: .8rem;
-            color: #6b7280;
-            text-transform: uppercase;
-            letter-spacing: .05em;
-        }
+                                {{-- Instruksi --}}
+                                <div class="block block-rounded bg-success-lighter border border-success mb-3 text-left">
+                                    <div class="block-content py-3">
+                                        <p class="font-w700 font-size-sm text-success mb-2">
+                                            <i class="fa fa-info-circle mr-1"></i>Cara presensi:
+                                        </p>
+                                        <ol class="pl-3 mb-0 text-muted font-size-sm" style="line-height:1.9">
+                                            <li>Scan QR code di atas dengan kamera HP</li>
+                                            <li>Login menggunakan akun SSO BPSDM</li>
+                                            <li>Klik tombol <strong>Konfirmasi Presensi</strong></li>
+                                        </ol>
+                                    </div>
+                                </div>
 
-        .qr-info .instruksi {
-            background: #f0fdf4;
-            border: 1px solid #86efac;
-            border-radius: 8px;
-            padding: .75rem;
-            font-size: .82rem;
-            color: #15803d;
-            margin-top: 1rem;
-        }
+                                {{-- Tombol aksi --}}
+                                <div class="d-flex justify-content-center" style="gap:.5rem">
+                                    <form action="{{ route('backend.diklat.presensi.regenerate', $sesi->id) }}"
+                                        method="POST" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm">
+                                            <i class="fa fa-sync-alt mr-1"></i>Refresh Token
+                                        </button>
+                                    </form>
+                                    <a href="{{ route('backend.diklat.presensi.index', $sesi->diklat_jadwal_id) }}"
+                                        class="btn btn-primary btn-sm">
+                                        <i class="fa fa-arrow-left mr-1"></i>Kembali
+                                    </a>
+                                </div>
 
-        .status-badge {
-            display: inline-block;
-            padding: .35rem 1rem;
-            border-radius: 20px;
-            font-size: .78rem;
-            font-weight: 600;
-            margin-top: .75rem;
-        }
+                            </div>
+                        </div>
 
-        .status-aktif {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-nonaktif {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .countdown {
-            font-size: .85rem;
-            color: #6b7280;
-            margin-top: .5rem;
-        }
-
-        #timer {
-            font-weight: 700;
-            color: #1d4ed8;
-        }
-
-        .btn-actions {
-            margin-top: 1.5rem;
-            display: flex;
-            gap: .5rem;
-            justify-content: center;
-        }
-
-        .btn-regen {
-            background: #f3f4f6;
-            color: #374151;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: .4rem 1rem;
-            font-size: .82rem;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .btn-regen:hover {
-            background: #e5e7eb;
-            color: #111827;
-            text-decoration: none;
-        }
-
-        .btn-close-qr {
-            background: #1d4ed8;
-            color: #fff;
-            border: none;
-            border-radius: 8px;
-            padding: .4rem 1rem;
-            font-size: .82rem;
-            cursor: pointer;
-            text-decoration: none;
-        }
-
-        .btn-close-qr:hover {
-            background: #1e40af;
-            color: #fff;
-            text-decoration: none;
-        }
-    </style>
-</head>
-
-<body>
-    <div class="qr-card">
-        <div class="qr-header">
-            <h2>{{ $sesi->nama_materi }}</h2>
-            <p>
-                {{ $jadwal->nama }}<br>
-                @if ($sesi->widyaiswara)
-                    <span style="opacity:.7">{{ $sesi->widyaiswara }}</span>
-                @endif
-            </p>
-        </div>
-
-        <div id="qr-container"></div>
-
-        <div class="qr-info">
-            <div class="label">Waktu Sesi</div>
-            <div class="waktu">
-                {{ substr($sesi->jam_mulai, 0, 5) }} – {{ substr($sesi->jam_selesai, 0, 5) }}
-            </div>
-            <div class="label mt-1">
-                {{ \Carbon\Carbon::parse($sesi->tanggal)->format('l, d F Y') }}
-                &nbsp;·&nbsp; {{ $sesi->jp }} JP
-                &nbsp;·&nbsp; Terlambat &gt; {{ $sesi->batas_terlambat }} menit
-            </div>
-
-            @php $isAktif = $sesi->isTokenValid(); @endphp
-            <div class="status-badge {{ $isAktif ? 'status-aktif' : 'status-nonaktif' }}">
-                <i class="fa fa-circle" style="font-size:.5rem;vertical-align:middle;margin-right:4px"></i>
-                {{ $isAktif ? 'QR Aktif — Scan Sekarang' : 'QR Tidak Aktif' }}
-            </div>
-
-            @if ($isAktif)
-                <div class="countdown">
-                    Sesi berakhir dalam <span id="timer">...</span>
+                    </div>
                 </div>
-            @endif
-
-            <div class="instruksi">
-                <strong>Cara presensi:</strong><br>
-                1. Scan QR code di atas dengan kamera HP<br>
-                2. Login menggunakan akun SSO BPSDM<br>
-                3. Klik tombol <strong>Konfirmasi Presensi</strong>
             </div>
-        </div>
-
-        <div class="btn-actions">
-            <form action="{{ route('backend.diklat.presensi.regenerate', $sesi->id) }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="btn-regen">
-                    <i class="fa fa-sync-alt mr-1"></i> Refresh Token
-                </button>
-            </form>
-            <a href="{{ route('backend.diklat.presensi.index', $sesi->diklat_jadwal_id) }}" class="btn-close-qr">
-                <i class="fa fa-arrow-left mr-1"></i> Kembali
-            </a>
         </div>
     </div>
 
-    {{-- Library QR Code --}}
+@endsection
+
+@section('js_after')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        var presensiUrl = '{{ url("/presensi/" . $sesi->token) }}';
-        var jamSelesai = '{{ $sesi->tanggal->format("Y-m-d") }} {{ substr($sesi->jam_selesai, 0, 5) }}:00';
+        document.title = 'QR Presensi — {{ addslashes($sesi->nama_materi) }}';
 
         new QRCode(document.getElementById('qr-container'), {
-            text: presensiUrl,
-            width: 240,
-            height: 240,
+            text: '{{ url("/presensi/" . $sesi->token) }}',
+            width: 220,
+            height: 220,
             colorDark: '#1a1a2e',
             colorLight: '#ffffff',
             correctLevel: QRCode.CorrectLevel.H,
         });
 
-        // Countdown timer
-        function updateTimer() {
-            var now = new Date();
-            var selesai = new Date(jamSelesai);
-            var diff = selesai - now;
-            if (diff <= 0) {
-                document.getElementById('timer') && (document.getElementById('timer').textContent = '00:00');
-                return;
-            }
-            var totalMnt = Math.floor(diff / 60000);
-            var mnt = totalMnt % 60;
-            var jam = Math.floor(totalMnt / 60);
-            var dtk = Math.floor((diff % 60000) / 1000);
-            var el = document.getElementById('timer');
-            if (el) el.textContent =
-                (jam > 0 ? jam + 'j ' : '') +
-                (mnt < 10 ? '0' : '') + mnt + ':' +
-                (dtk < 10 ? '0' : '') + dtk;
-        }
-        updateTimer();
-        setInterval(updateTimer, 1000);
-    </script>
-</body>
+        @if ($isAktif)
+            (function () {
+                var jamSelesai = new Date('{{ $sesi->tanggal->format("Y-m-d") }} {{ substr($sesi->jam_selesai, 0, 5) }}:00');
 
-</html>
+                function updateTimer() {
+                    var diff = jamSelesai - new Date();
+                    var el = document.getElementById('timer');
+                    if (!el) return;
+                    if (diff <= 0) { el.textContent = '00:00'; return; }
+                    var jam = Math.floor(diff / 3600000);
+                    var mnt = Math.floor((diff % 3600000) / 60000);
+                    var dtk = Math.floor((diff % 60000) / 1000);
+                    el.textContent =
+                        (jam > 0 ? jam + 'j ' : '') +
+                        (mnt < 10 ? '0' : '') + mnt + ':' +
+                        (dtk < 10 ? '0' : '') + dtk;
+                }
+                updateTimer();
+                setInterval(updateTimer, 1000);
+            })();
+        @endif
+    </script>
+@endsection

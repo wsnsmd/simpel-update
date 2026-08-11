@@ -97,6 +97,20 @@
             padding: .2em .6em;
             border-radius: 12px
         }
+
+        .th-sort {
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+        .th-sort:hover {
+            background: #eff6ff !important;
+            color: #1d4ed8 !important;
+        }
+        .th-sort.active {
+            background: #eff6ff !important;
+            color: #1d4ed8 !important;
+        }
     </style>
 @endsection
 
@@ -104,6 +118,36 @@
     <script src="{{ asset('js/plugins/bootstrap-notify/bootstrap-notify.min.js') }}"></script>
     <script>
     @if(session('notifikasi')) $.notify({ icon: 'fa fa-check mr-1', message: "{{ session('notifikasi') }}" }, { allow_dismiss: false, type: 'success', placement: { from: 'top', align: 'center' } }); @endif
+
+    var sortAsc = true;
+
+    function sortByRanking() {
+        var tbody  = document.getElementById('tbody-rekap');
+        var rows   = Array.prototype.slice.call(tbody.querySelectorAll('tr[data-ranking]'));
+        var icon   = document.getElementById('icon-ranking');
+        var th     = document.getElementById('th-ranking');
+
+        rows.sort(function(a, b) {
+            var ra = parseInt(a.getAttribute('data-ranking')) || 9999;
+            var rb = parseInt(b.getAttribute('data-ranking')) || 9999;
+            return sortAsc ? ra - rb : rb - ra;
+        });
+
+        // Update icon
+        icon.className = sortAsc
+            ? 'fa fa-sort-up ml-1'
+            : 'fa fa-sort-down ml-1';
+        th.classList.add('active');
+
+        // Re-append baris & update nomor urut
+        rows.forEach(function(row, idx) {
+            var noTd = row.querySelector('td.col-no');
+            if (noTd) noTd.textContent = idx + 1;
+            tbody.appendChild(row);
+        });
+
+        sortAsc = !sortAsc;
+    }
     </script>
 @endsection
 
@@ -169,16 +213,24 @@
                             @endforeach
                             <th class="text-center" style="min-width:80px">Nilai Akhir</th>
                             <th class="text-center" style="min-width:80px">Status</th>
-                            <th class="text-center" style="min-width:60px">Ranking</th>
+                            <th id="th-ranking"
+                                class="text-center th-sort"
+                                style="min-width:60px"
+                                onclick="sortByRanking()"
+                                title="Klik untuk urutkan berdasarkan Ranking">
+                                Ranking
+                                <i id="icon-ranking" class="fa fa-sort ml-1" style="font-size:.65rem;color:#94a3b8"></i>
+                            </th>
                             <th class="text-center" style="min-width:80px">Remedial</th>
                             <th class="text-center" style="min-width:80px">Catatan</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="tbody-rekap">
                         @forelse ($pesertaList as $i => $p)
                             @php $rk = isset($rekapAkhirMap[$p->id]) ? $rekapAkhirMap[$p->id] : null; @endphp
-                            <tr>
-                                <td style="position:sticky;left:0;background:#fff;z-index:1" class="text-muted text-center">
+                            @php $rkVal = $rk && $rk->ranking ? $rk->ranking : 9999; @endphp
+                            <tr data-ranking="{{ $rkVal }}">
+                                <td style="position:sticky;left:0;background:#fff;z-index:1" class="text-muted text-center col-no">
                                     {{ $i + 1 }}</td>
                                 <td style="position:sticky;left:35px;background:#fff;z-index:1;border-right:2px solid #f0f0f0">
                                     <div class="font-w600" style="font-size:.8rem">{{ $p->nama_lengkap }}</div>
@@ -323,7 +375,7 @@
                                                 <i class="fa fa-file-alt mr-1"></i> Catatan Seminar Rancangan
                                             </p>
                                             <div class="p-2 rounded"
-                                                style="background:#fffbeb;border:1px solid #fde68a;font-size:.85rem;white-space:pre-wrap">
+                                                style="background:#fffbeb;border:1px solid #fde68a;font-size:.85rem;">
                                                 {{ $rk->catatan_rancangan }}</div>
                                         </div>
                                     @endif
@@ -333,7 +385,7 @@
                                                 <i class="fa fa-check-circle mr-1"></i> Catatan Seminar Akhir
                                             </p>
                                             <div class="p-2 rounded"
-                                                style="background:#eff6ff;border:1px solid #bfdbfe;font-size:.85rem;white-space:pre-wrap">
+                                                style="background:#eff6ff;border:1px solid #bfdbfe;font-size:.85rem;">
                                                 {{ $rk->catatan_akhir }}</div>
                                         </div>
                                     @endif

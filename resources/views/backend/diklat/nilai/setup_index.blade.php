@@ -165,7 +165,7 @@
                                 Data dikunci — template tidak bisa diubah.
                             </div>
                         @else
-                            <form action="{{ route('backend.diklat.nilai.setup.store', $jadwal->id) }}" method="POST">
+                            <form action="{{ route('backend.diklat.nilai.setup.store', $jadwal->id) }}" method="POST" class="mb-3">
                                 @csrf
                                 <div class="form-group">
                                     <label class="font-w600 font-size-sm">

@@ -24,7 +24,8 @@
         .input-tbl thead th:nth-child(2) {
             position: sticky;
             z-index: 4;
-            background: #f8faff
+            background: #f8faff;
+            border: 1px solid #a0a0a0
         }
 
         .input-tbl tbody td {
@@ -39,7 +40,7 @@
             background: #fff;
             z-index: 1;
             text-align: center;
-            color: #94a3b8
+            color: #94a3b8;
         }
 
         .input-tbl tbody td:nth-child(2) {
