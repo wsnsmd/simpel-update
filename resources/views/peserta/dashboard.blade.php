@@ -12,7 +12,7 @@
                 {{-- Avatar --}}
                 @if ($fotoRow && $fotoRow->foto)
                     <img src="{{ Storage::url($fotoRow->foto) }}" class="rounded-circle flex-shrink-0" style="width:72px;height:72px;object-fit:cover;
-                                                    border:3px solid var(--primary, #3f6ad8)" alt="Foto">
+                                                            border:3px solid var(--primary, #3f6ad8)" alt="Foto">
                 @else
                     @php
                         $words = explode(' ', trim($nama));
@@ -20,7 +20,7 @@
                         $inisial .= isset($words[1]) ? strtoupper(substr($words[1], 0, 1)) : '';
                     @endphp
                     <div class="item item-circle bg-primary-lighter flex-shrink-0" style="width:72px;height:72px;min-width:72px;
-                                                    font-size:1.5rem;font-weight:700;color:inherit">
+                                                            font-size:1.5rem;font-weight:700;color:inherit">
                         <span class="text-primary">{{ $inisial }}</span>
                     </div>
                 @endif
@@ -78,6 +78,23 @@
                     </div>
                 </div>
             @endforeach
+
+            {{-- Shortcut: Upload Laporan Seminar --}}
+            <div class="col-12 mb-3">
+                <a href="{{ route('peserta.laporan.index') }}"
+                    class="block block-rounded block-link-pop mb-0 d-flex align-items-center px-3 py-3"
+                    style="gap:.75rem;text-decoration:none;border:1.5px dashed #3f6ad8;background:#f0f4ff">
+                    <div class="item item-rounded bg-primary-lighter flex-shrink-0">
+                        <i class="fa fa-link text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="font-w700 text-primary" style="font-size:.9rem">Upload Tautan Laporan Seminar</div>
+                        <div class="text-muted font-size-sm">Bagikan link Google Drive / OneDrive laporan Anda kepada
+                            penguji.</div>
+                    </div>
+                    <i class="fa fa-chevron-right text-primary flex-shrink-0"></i>
+                </a>
+            </div>
         </div>
 
         {{-- Flash --}}
@@ -308,7 +325,7 @@
                                             @if ($canEdit)
                                                 <button type="button"
                                                     class="btn btn-sm btn-block mt-2
-                                                                                                               {{ $rejected ? 'btn-outline-danger' : ($uploaded ? 'btn-outline-secondary' : 'btn-outline-primary') }}"
+                                                                                                                                   {{ $rejected ? 'btn-outline-danger' : ($uploaded ? 'btn-outline-secondary' : 'btn-outline-primary') }}"
                                                     data-toggle="modal" data-target="#modalDok{{ $r->id }}_{{ $syarat->id }}">
                                                     <i
                                                         class="fa fa-{{ $rejected ? 'redo' : ($uploaded ? 'sync-alt' : 'upload') }} mr-1"></i>
@@ -361,7 +378,8 @@
                                     $scanAt = isset($mapPresensi[$ss->id]) ? $mapPresensi[$ss->id]->scan_at : null;
                                 @endphp
                                 <div class="d-flex align-items-center justify-content-between
-                                                                                px-3 py-2 rounded bg-body-light" style="gap:.5rem">
+                                                                                                px-3 py-2 rounded bg-body-light"
+                                    style="gap:.5rem">
                                     <div style="flex:1;min-width:0">
                                         <div class="font-w600 font-size-sm text-wrap-break-word"
                                             style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">

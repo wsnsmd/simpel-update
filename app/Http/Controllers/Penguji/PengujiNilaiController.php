@@ -68,16 +68,35 @@ class PengujiNilaiController extends Controller
 
                 $statusNilai[$p->id] = [
                     'rancangan_selesai' => $cntR > 0 && $cntR >= count($komRancangan),
-                    'akhir_selesai'     => $cntA > 0 && $cntA >= count($komAkhir),
-                    'rancangan_total'   => count($komRancangan),
-                    'akhir_total'       => count($komAkhir),
+                    'akhir_selesai' => $cntA > 0 && $cntA >= count($komAkhir),
+                    'rancangan_total' => count($komRancangan),
+                    'akhir_total' => count($komAkhir),
                 ];
             }
         }
 
+        // Laporan seminar per peserta kelompok ini
+        $laporanMap = array();
+        $pesertaIds = $pesertaList->pluck('id')->toArray();
+        if (!empty($pesertaIds)) {
+            $laporanRows = DB::table('seminar_laporan')
+                ->whereIn('peserta_id', $pesertaIds)
+                ->where('diklat_jadwal_id', $jadwal->id)
+                ->get();
+            foreach ($laporanRows as $lap) {
+                $laporanMap[$lap->peserta_id][$lap->fase] = $lap;
+            }
+        }
+
         return view('penguji.nilai.index', compact(
-            'tokenRow', 'seminar', 'penguji', 'jadwal',
-            'pesertaList', 'statusNilai', 'setup'
+            'tokenRow',
+            'seminar',
+            'penguji',
+            'jadwal',
+            'pesertaList',
+            'statusNilai',
+            'setup',
+            'laporanMap'
         ));
     }
 
@@ -88,7 +107,8 @@ class PengujiNilaiController extends Controller
 
     public function formNilai($token, $pesertaId, $fase)
     {
-        if (!in_array($fase, ['rancangan', 'akhir'])) abort(404);
+        if (!in_array($fase, ['rancangan', 'akhir']))
+            abort(404);
 
         $data = $this->resolveToken($token);
         if (!$data) {
@@ -142,24 +162,24 @@ class PengujiNilaiController extends Controller
             });
 
         // Nilai yang sudah ada
-        $nilaiMap   = array();
+        $nilaiMap = array();
         $catatanMap = array();
         if ($subKomponen->count() > 0) {
             $existing = DB::table('peserta_nilai')
                 ->where('peserta_id', $pesertaId)
                 ->whereIn('komponen_id', $subKomponen->pluck('id')->toArray())->get();
             foreach ($existing as $n) {
-                $nilaiMap[$n->komponen_id]   = $n->nilai;
+                $nilaiMap[$n->komponen_id] = $n->nilai;
                 $catatanMap[$n->komponen_id] = $n->catatan;
             }
         }
 
         // Ambil catatan umum yang sudah ada
-        $kolomCatatan   = $fase === 'rancangan' ? 'catatan_rancangan' : 'catatan_akhir';
-        $rekapPeserta   = DB::table('peserta_nilai_rekap')
+        $kolomCatatan = $fase === 'rancangan' ? 'catatan_rancangan' : 'catatan_akhir';
+        $rekapPeserta = DB::table('peserta_nilai_rekap')
             ->where('diklat_jadwal_id', $jadwal->id)
             ->where('peserta_id', $pesertaId)->first();
-        $catatanUmum    = $rekapPeserta ? $rekapPeserta->{$kolomCatatan} : null;
+        $catatanUmum = $rekapPeserta ? $rekapPeserta->{$kolomCatatan} : null;
         $catatanRancanganUmum = ($fase === 'akhir' && $rekapPeserta)
             ? $rekapPeserta->catatan_rancangan : null;
 
@@ -172,7 +192,7 @@ class PengujiNilaiController extends Controller
                 ->whereNotNull('parent_id')->orderBy('urutan')->get();
 
             if ($subRancangan->count() > 0) {
-                $nilaiR   = DB::table('peserta_nilai')
+                $nilaiR = DB::table('peserta_nilai')
                     ->where('peserta_id', $pesertaId)
                     ->whereIn('komponen_id', $subRancangan->pluck('id')->toArray())
                     ->pluck('nilai', 'komponen_id');
@@ -188,7 +208,7 @@ class PengujiNilaiController extends Controller
                     ->map(function ($a) use ($subRancangan, $nilaiR, $catatanR) {
                         $a->sub = $subRancangan->where('parent_id', $a->id)
                             ->map(function ($s) use ($nilaiR, $catatanR) {
-                                $s->nilai   = isset($nilaiR[$s->id])   ? $nilaiR[$s->id]   : null;
+                                $s->nilai = isset($nilaiR[$s->id]) ? $nilaiR[$s->id] : null;
                                 $s->catatan = isset($catatanR[$s->id]) ? $catatanR[$s->id] : null;
                                 return $s;
                             })->values();
@@ -200,10 +220,19 @@ class PengujiNilaiController extends Controller
         }
 
         return view('penguji.nilai.form', compact(
-            'tokenRow', 'seminar', 'penguji', 'jadwal', 'peserta',
-            'fase', 'aspekList', 'nilaiMap', 'catatanMap',
-            'rekorRancangan', 'setup',
-            'catatanUmum', 'catatanRancanganUmum'
+            'tokenRow',
+            'seminar',
+            'penguji',
+            'jadwal',
+            'peserta',
+            'fase',
+            'aspekList',
+            'nilaiMap',
+            'catatanMap',
+            'rekorRancangan',
+            'setup',
+            'catatanUmum',
+            'catatanRancanganUmum'
         ));
     }
 
@@ -215,7 +244,8 @@ class PengujiNilaiController extends Controller
     public function saveNilai(Request $request, $token, $pesertaId, $fase)
     {
         $data = $this->resolveToken($token);
-        if (!$data) abort(403, 'Token tidak valid.');
+        if (!$data)
+            abort(403, 'Token tidak valid.');
 
         list($tokenRow, $seminar, $penguji, $jadwal) = $data;
 
@@ -226,14 +256,16 @@ class PengujiNilaiController extends Controller
         }
 
         // Validasi peserta ada di kelompok
-        if (!DB::table('seminar_anggota')
-            ->where('sid', $seminar->id)->where('peid', $pesertaId)->exists()) {
+        if (
+            !DB::table('seminar_anggota')
+                ->where('sid', $seminar->id)->where('peid', $pesertaId)->exists()
+        ) {
             abort(403);
         }
 
         $request->validate([
-            'nilai'        => 'required|array',
-            'nilai.*'      => 'nullable|numeric|min:0|max:100',
+            'nilai' => 'required|array',
+            'nilai.*' => 'nullable|numeric|min:0|max:100',
             'catatan_umum' => 'nullable|string|max:1000',
         ]);
 
@@ -242,22 +274,23 @@ class PengujiNilaiController extends Controller
             ->where('fase', $fase)->where('penilai', 'penguji')
             ->whereNotNull('parent_id')->orderBy('urutan')->get();
 
-        $now       = now();
-        $inputBy   = 'penguji:' . $seminar->id . ':' . $penguji->nama;
+        $now = now();
+        $inputBy = 'penguji:' . $seminar->id . ':' . $penguji->nama;
 
         foreach ($subKomponen as $k) {
-            if (!isset($request->nilai[$k->id]) || $request->nilai[$k->id] === '') continue;
+            if (!isset($request->nilai[$k->id]) || $request->nilai[$k->id] === '')
+                continue;
 
             DB::table('peserta_nilai')->updateOrInsert(
                 ['peserta_id' => $pesertaId, 'komponen_id' => $k->id],
                 [
                     'diklat_jadwal_id' => $jadwal->id,
-                    'nilai'     => $request->nilai[$k->id],
-                    'catatan'   => isset($request->catatan[$k->id]) ? $request->catatan[$k->id] : null,
-                    'input_by'  => $inputBy,
-                    'input_at'  => $now,
-                    'updated_at'=> $now,
-                    'created_at'=> $now,
+                    'nilai' => $request->nilai[$k->id],
+                    'catatan' => isset($request->catatan[$k->id]) ? $request->catatan[$k->id] : null,
+                    'input_by' => $inputBy,
+                    'input_at' => $now,
+                    'updated_at' => $now,
+                    'created_at' => $now,
                 ]
             );
         }
@@ -268,8 +301,8 @@ class PengujiNilaiController extends Controller
             ['diklat_jadwal_id' => $jadwal->id, 'peserta_id' => $pesertaId],
             [
                 $kolomCatatan => $request->catatan_umum,
-                'updated_at'  => $now,
-                'created_at'  => $now,
+                'updated_at' => $now,
+                'created_at' => $now,
             ]
         );
 
@@ -292,18 +325,22 @@ class PengujiNilaiController extends Controller
         $tokenRow = DB::table('nilai_penguji_token')
             ->where('token', $token)->where('is_active', true)->first();
 
-        if (!$tokenRow) return null;
+        if (!$tokenRow)
+            return null;
 
-        if ($tokenRow->token_expired_at &&
-            Carbon::parse($tokenRow->token_expired_at)->isPast()) {
+        if (
+            $tokenRow->token_expired_at &&
+            Carbon::parse($tokenRow->token_expired_at)->isPast()
+        ) {
             return null;
         }
 
-        $seminar    = DB::table('seminar')->where('id', $tokenRow->seminar_id)->first();
-        if (!$seminar) return null;
+        $seminar = DB::table('seminar')->where('id', $tokenRow->seminar_id)->first();
+        if (!$seminar)
+            return null;
 
-        $penguji    = DB::table('fasilitator')->where('id', $seminar->pid)->first();
-        $jadwal     = DB::table('v_jadwal_detail')->where('id', $seminar->jid)->first();
+        $penguji = DB::table('fasilitator')->where('id', $seminar->pid)->first();
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $seminar->jid)->first();
 
         return [$tokenRow, $seminar, $penguji, $jadwal];
     }

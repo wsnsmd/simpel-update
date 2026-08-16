@@ -162,6 +162,9 @@
                 <a href="{{ route('backend.diklat.nilai.export', $jadwal->id) }}" class="btn btn-success btn-sm">
                     <i class="fa fa-file-excel mr-1"></i> Export Excel
                 </a>
+                <a href="{{ route('backend.diklat.nilai.laporan_seminar', $jadwal->id) }}" class="btn btn-info btn-sm">
+                    <i class="fa fa-folder-open mr-1"></i> Laporan Seminar
+                </a>
                 <a href="{{ route('backend.diklat.nilai.input', $jadwal->id) }}" class="btn btn-primary btn-sm">
                     <i class="fa fa-edit mr-1"></i> Input Nilai
                 </a>

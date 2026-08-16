@@ -44,7 +44,7 @@
                 {{-- Info --}}
                 <div style="min-width:0">
                     <div class="font-w700 text-white" style="font-size:1rem;
-                             white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
+                                         white-space:nowrap;overflow:hidden;text-overflow:ellipsis">
                         {{ $penguji->nama }}
                     </div>
                     <div class="text-white-75 font-size-sm">
@@ -189,6 +189,93 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- Laporan Peserta --}}
+                            @php
+                                $lapR = $laporanMap[$p->id]['rancangan'] ?? null;
+                                $lapA = $laporanMap[$p->id]['akhir'] ?? null;
+                                $adaLaporan = $lapR || $lapA;
+                            @endphp
+                            @if ($adaLaporan)
+                                <div class="block-content py-3"
+                                    style="border-top:1px solid #e4e9f0;background:linear-gradient(135deg,#f0f4ff 0%,#f8faff 100%)">
+                                    <p class="font-size-xs font-w700 mb-2 text-uppercase text-primary" style="letter-spacing:.06em">
+                                        <i class="fa fa-folder-open mr-1"></i>Laporan Peserta
+                                    </p>
+                                    <div class="d-flex flex-wrap" style="gap:.5rem">
+
+                                        {{-- Tombol Laporan Rancangan --}}
+                                        @if ($lapR)
+                                            <a href="{{ $lapR->url }}" target="_blank" rel="noopener noreferrer"
+                                                class="btn btn-sm btn-warning d-inline-flex align-items-center flex-fill"
+                                                style="gap:.5rem;max-width:100%;text-align:left;padding:.375rem .625rem"
+                                                title="{{ $lapR->judul }}">
+                                                <i class="fa fa-clock flex-shrink-0"></i>
+                                                <span class="flex-grow-1" style="min-width:0">
+                                                    <span class="d-block font-w700"
+                                                        style="font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;opacity:.75;line-height:1">Seminar
+                                                        Rancangan</span>
+                                                    <span class="d-block"
+                                                        style="font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;margin-top:2px">{{ \Illuminate\Support\Str::limit($lapR->judul, 35) }}</span>
+                                                </span>
+                                                <i class="fa fa-external-link-alt flex-shrink-0" style="font-size:.6rem;opacity:.7"></i>
+                                            </a>
+                                        @elseif ($adaRancangan)
+                                            <span
+                                                class="btn btn-sm btn-outline-secondary disabled flex-fill d-inline-flex align-items-center"
+                                                style="cursor:default;opacity:.55;gap:.4rem;padding:.375rem .625rem">
+                                                <i class="fa fa-clock flex-shrink-0"></i>
+                                                <span style="min-width:0">
+                                                    <span class="d-block font-w700"
+                                                        style="font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;opacity:.75;line-height:1">Seminar
+                                                        Rancangan</span>
+                                                    <span class="d-block" style="font-size:.78rem;line-height:1.3;margin-top:2px">Belum
+                                                        diunggah</span>
+                                                </span>
+                                            </span>
+                                        @endif
+
+                                        {{-- Tombol Laporan Akhir --}}
+                                        @if ($lapA)
+                                            <a href="{{ $lapA->url }}" target="_blank" rel="noopener noreferrer"
+                                                class="btn btn-sm btn-primary d-inline-flex align-items-center flex-fill"
+                                                style="gap:.5rem;max-width:100%;text-align:left;padding:.375rem .625rem"
+                                                title="{{ $lapA->judul }}">
+                                                <i class="fa fa-star flex-shrink-0"></i>
+                                                <span class="flex-grow-1" style="min-width:0">
+                                                    <span class="d-block font-w700"
+                                                        style="font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;opacity:.75;line-height:1">Seminar
+                                                        Akhir</span>
+                                                    <span class="d-block"
+                                                        style="font-size:.78rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;line-height:1.3;margin-top:2px">{{ \Illuminate\Support\Str::limit($lapA->judul, 35) }}</span>
+                                                </span>
+                                                <i class="fa fa-external-link-alt flex-shrink-0" style="font-size:.6rem;opacity:.7"></i>
+                                            </a>
+                                        @elseif ($adaAkhir)
+                                            <span
+                                                class="btn btn-sm btn-outline-secondary disabled flex-fill d-inline-flex align-items-center"
+                                                style="cursor:default;opacity:.55;gap:.4rem;padding:.375rem .625rem">
+                                                <i class="fa fa-star flex-shrink-0"></i>
+                                                <span style="min-width:0">
+                                                    <span class="d-block font-w700"
+                                                        style="font-size:.65rem;letter-spacing:.05em;text-transform:uppercase;opacity:.75;line-height:1">Seminar
+                                                        Akhir</span>
+                                                    <span class="d-block" style="font-size:.78rem;line-height:1.3;margin-top:2px">Belum
+                                                        diunggah</span>
+                                                </span>
+                                            </span>
+                                        @endif
+
+                                    </div>
+                                </div>
+                            @else
+                                {{-- Peserta belum upload laporan apapun --}}
+                                <div class="block-content py-2" style="border-top:1px solid #e4e9f0;background:#fafbfc">
+                                    <span class="font-size-xs text-muted">
+                                        <i class="fa fa-folder mr-1 text-muted"></i>Belum ada laporan yang diunggah
+                                    </span>
+                                </div>
+                            @endif
 
                             {{-- Action Buttons --}}
                             <div class="block-content block-content-sm bg-body-light py-2" style="border-top:1px solid #e4e9f0">

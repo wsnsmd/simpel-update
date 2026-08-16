@@ -28,36 +28,39 @@ class NilaiController extends Controller
             ->map(function ($t) {
                 $t->jumlah_aspek = DB::table('nilai_komponen')
                     ->where('template_id', $t->id)->whereNull('parent_id')->count();
-                $t->total_bobot  = DB::table('nilai_komponen')
+                $t->total_bobot = DB::table('nilai_komponen')
                     ->where('template_id', $t->id)->whereNull('parent_id')->sum('bobot');
-                $t->dipakai      = DB::table('diklat_nilai_setup')
+                $t->dipakai = DB::table('diklat_nilai_setup')
                     ->where('template_id', $t->id)->count();
                 return $t;
             });
 
         $jenisDiklat = DB::table('diklat_jenis')->orderBy('nama')->get();
 
-        return view('backend.diklat.nilai.template_index',
-            compact('templates', 'jenisDiklat'));
+        return view(
+            'backend.diklat.nilai.template_index',
+            compact('templates', 'jenisDiklat')
+        );
     }
 
     public function templateStore(Request $request)
     {
         $request->validate([
-            'nama'                 => 'required|string|max:200',
-            'mode'                 => 'required|in:klasikal,blended,distance',
-            'passing_grade_aspek'  => 'required|numeric|min:0|max:100',
+            'nama' => 'required|string|max:200',
+            'mode' => 'required|in:klasikal,blended,distance',
+            'passing_grade_aspek' => 'required|numeric|min:0|max:100',
         ]);
 
         $id = DB::table('nilai_template')->insertGetId([
-            'nama'                => $request->nama,
-            'deskripsi'           => $request->deskripsi,
-            'tahun'               => $request->tahun,
-            'jenis_diklat_id'     => $request->jenis_diklat_id ?: null,
-            'mode'                => $request->mode,
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'tahun' => $request->tahun,
+            'jenis_diklat_id' => $request->jenis_diklat_id ?: null,
+            'mode' => $request->mode,
             'passing_grade_aspek' => $request->passing_grade_aspek,
-            'created_by'          => Auth::user()->name,
-            'created_at'          => now(), 'updated_at' => now(),
+            'created_by' => Auth::user()->name,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return redirect()
@@ -68,18 +71,18 @@ class NilaiController extends Controller
     public function templateUpdate(Request $request, $id)
     {
         $request->validate([
-            'nama'                => 'required|string|max:200',
+            'nama' => 'required|string|max:200',
             'passing_grade_aspek' => 'required|numeric|min:0|max:100',
         ]);
 
         DB::table('nilai_template')->where('id', $id)->update([
-            'nama'                => $request->nama,
-            'deskripsi'           => $request->deskripsi,
-            'tahun'               => $request->tahun,
-            'jenis_diklat_id'     => $request->jenis_diklat_id ?: null,
-            'mode'                => $request->mode,
+            'nama' => $request->nama,
+            'deskripsi' => $request->deskripsi,
+            'tahun' => $request->tahun,
+            'jenis_diklat_id' => $request->jenis_diklat_id ?: null,
+            'mode' => $request->mode,
             'passing_grade_aspek' => $request->passing_grade_aspek,
-            'updated_at'          => now(),
+            'updated_at' => now(),
         ]);
 
         return back()->with('notifikasi', 'Template berhasil diperbarui.');
@@ -88,17 +91,19 @@ class NilaiController extends Controller
     public function templateClone($id)
     {
         $tpl = DB::table('nilai_template')->where('id', $id)->first();
-        if (!$tpl) abort(404);
+        if (!$tpl)
+            abort(404);
 
         $newId = DB::table('nilai_template')->insertGetId([
-            'nama'                => $tpl->nama . ' (Salinan)',
-            'deskripsi'           => $tpl->deskripsi,
-            'tahun'               => $tpl->tahun,
-            'jenis_diklat_id'     => $tpl->jenis_diklat_id,
-            'mode'                => $tpl->mode,
+            'nama' => $tpl->nama . ' (Salinan)',
+            'deskripsi' => $tpl->deskripsi,
+            'tahun' => $tpl->tahun,
+            'jenis_diklat_id' => $tpl->jenis_diklat_id,
+            'mode' => $tpl->mode,
             'passing_grade_aspek' => $tpl->passing_grade_aspek,
-            'created_by'          => Auth::user()->name,
-            'created_at'          => now(), 'updated_at' => now(),
+            'created_by' => Auth::user()->name,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         // Clone aspek induk & sub-komponen
@@ -109,13 +114,13 @@ class NilaiController extends Controller
         foreach ($aspekList as $aspek) {
             $newAspekId = DB::table('nilai_komponen')->insertGetId([
                 'template_id' => $newId,
-                'parent_id'   => null,
-                'nama'        => $aspek->nama,
-                'bobot'       => $aspek->bobot,
-                'penilai'     => $aspek->penilai,
-                'fase'        => $aspek->fase,
-                'urutan'      => $aspek->urutan,
-                'keterangan'  => $aspek->keterangan,
+                'parent_id' => null,
+                'nama' => $aspek->nama,
+                'bobot' => $aspek->bobot,
+                'penilai' => $aspek->penilai,
+                'fase' => $aspek->fase,
+                'urutan' => $aspek->urutan,
+                'keterangan' => $aspek->keterangan,
             ]);
 
             $subList = DB::table('nilai_komponen')
@@ -125,13 +130,13 @@ class NilaiController extends Controller
             foreach ($subList as $sub) {
                 DB::table('nilai_komponen')->insert([
                     'template_id' => $newId,
-                    'parent_id'   => $newAspekId,
-                    'nama'        => $sub->nama,
-                    'bobot'       => $sub->bobot,
-                    'penilai'     => $sub->penilai,
-                    'fase'        => $sub->fase,
-                    'urutan'      => $sub->urutan,
-                    'keterangan'  => $sub->keterangan,
+                    'parent_id' => $newAspekId,
+                    'nama' => $sub->nama,
+                    'bobot' => $sub->bobot,
+                    'penilai' => $sub->penilai,
+                    'fase' => $sub->fase,
+                    'urutan' => $sub->urutan,
+                    'keterangan' => $sub->keterangan,
                 ]);
             }
         }
@@ -158,7 +163,8 @@ class NilaiController extends Controller
     public function komponenIndex($templateId)
     {
         $template = DB::table('nilai_template')->where('id', $templateId)->first();
-        if (!$template) abort(404);
+        if (!$template)
+            abort(404);
 
         $aspekList = DB::table('nilai_komponen')
             ->where('template_id', $templateId)->whereNull('parent_id')
@@ -172,17 +178,19 @@ class NilaiController extends Controller
 
         $totalBobot = $aspekList->sum('bobot');
 
-        return view('backend.diklat.nilai.komponen_index',
-            compact('template', 'aspekList', 'totalBobot'));
+        return view(
+            'backend.diklat.nilai.komponen_index',
+            compact('template', 'aspekList', 'totalBobot')
+        );
     }
 
     public function komponenStoreAspek(Request $request, $templateId)
     {
         $request->validate([
-            'nama'       => 'required|string|max:200',
-            'bobot'      => 'required|numeric|min:0.001|max:1',
-            'penilai'    => 'required|in:operator,penguji',
-            'fase'       => 'nullable|in:rancangan,akhir',
+            'nama' => 'required|string|max:200',
+            'bobot' => 'required|numeric|min:0.001|max:1',
+            'penilai' => 'required|in:operator,penguji',
+            'fase' => 'nullable|in:rancangan,akhir',
             'keterangan' => 'nullable|string|max:500',
         ]);
 
@@ -192,13 +200,13 @@ class NilaiController extends Controller
 
         DB::table('nilai_komponen')->insert([
             'template_id' => $templateId,
-            'parent_id'   => null,
-            'nama'        => $request->nama,
-            'bobot'       => $request->bobot,
-            'penilai'     => $request->penilai,
-            'fase'        => $request->fase ?: null,
-            'urutan'      => $urutan,
-            'keterangan'  => $request->keterangan,
+            'parent_id' => null,
+            'nama' => $request->nama,
+            'bobot' => $request->bobot,
+            'penilai' => $request->penilai,
+            'fase' => $request->fase ?: null,
+            'urutan' => $urutan,
+            'keterangan' => $request->keterangan,
         ]);
 
         return back()->with('notifikasi', 'Aspek berhasil ditambahkan.');
@@ -208,11 +216,12 @@ class NilaiController extends Controller
     {
         $aspek = DB::table('nilai_komponen')
             ->where('id', $aspekId)->where('template_id', $templateId)->first();
-        if (!$aspek) abort(404);
+        if (!$aspek)
+            abort(404);
 
         $request->validate([
-            'nama'       => 'required|string|max:200',
-            'bobot'      => 'required|numeric|min:0.001|max:1',
+            'nama' => 'required|string|max:200',
+            'bobot' => 'required|numeric|min:0.001|max:1',
             'keterangan' => 'nullable|string|max:500',
         ]);
 
@@ -222,14 +231,14 @@ class NilaiController extends Controller
 
         DB::table('nilai_komponen')->insert([
             'template_id' => $templateId,
-            'parent_id'   => $aspekId,
-            'nama'        => $request->nama,
-            'bobot'       => $request->bobot,
+            'parent_id' => $aspekId,
+            'nama' => $request->nama,
+            'bobot' => $request->bobot,
             // Sub-komponen inherit penilai & fase dari aspek induk
-            'penilai'     => $aspek->penilai,
-            'fase'        => $aspek->fase,
-            'urutan'      => $urutan,
-            'keterangan'  => $request->keterangan,
+            'penilai' => $aspek->penilai,
+            'fase' => $aspek->fase,
+            'urutan' => $urutan,
+            'keterangan' => $request->keterangan,
         ]);
 
         return back()->with('notifikasi', 'Sub-komponen berhasil ditambahkan.');
@@ -238,33 +247,34 @@ class NilaiController extends Controller
     public function komponenUpdate(Request $request, $id)
     {
         $k = DB::table('nilai_komponen')->where('id', $id)->first();
-        if (!$k) abort(404);
+        if (!$k)
+            abort(404);
 
         $rules = [
-            'nama'       => 'required|string|max:200',
-            'bobot'      => 'required|numeric|min:0.001|max:1',
+            'nama' => 'required|string|max:200',
+            'bobot' => 'required|numeric|min:0.001|max:1',
             'keterangan' => 'nullable|string|max:500',
         ];
         if (!$k->parent_id) {
             // Aspek induk bisa ubah penilai & fase
             $rules['penilai'] = 'required|in:operator,penguji';
-            $rules['fase']    = 'nullable|in:rancangan,akhir';
+            $rules['fase'] = 'nullable|in:rancangan,akhir';
         }
         $request->validate($rules);
 
         $data = [
-            'nama'       => $request->nama,
-            'bobot'      => $request->bobot,
+            'nama' => $request->nama,
+            'bobot' => $request->bobot,
             'keterangan' => $request->keterangan,
         ];
         if (!$k->parent_id) {
             $data['penilai'] = $request->penilai;
-            $data['fase']    = $request->fase ?: null;
+            $data['fase'] = $request->fase ?: null;
 
             // Sinkronkan sub-komponen
             DB::table('nilai_komponen')->where('parent_id', $id)->update([
                 'penilai' => $request->penilai,
-                'fase'    => $request->fase ?: null,
+                'fase' => $request->fase ?: null,
             ]);
         }
 
@@ -295,10 +305,11 @@ class NilaiController extends Controller
 
     public function setupIndex($jadwalId)
     {
-        $jadwal    = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
-        if (!$jadwal) abort(404);
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
+        if (!$jadwal)
+            abort(404);
 
-        $setup     = DB::table('diklat_nilai_setup')
+        $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
         $templates = DB::table('nilai_template')->orderByDesc('id')->get();
 
@@ -328,15 +339,20 @@ class NilaiController extends Controller
             ->get()->keyBy('seminar_id');
 
         return view('backend.diklat.nilai.setup_index', compact(
-            'jadwal', 'setup', 'templates', 'aspekList', 'seminarList', 'tokenMap'
+            'jadwal',
+            'setup',
+            'templates',
+            'aspekList',
+            'seminarList',
+            'tokenMap'
         ));
     }
 
     public function setupStore(Request $request, $jadwalId)
     {
         $request->validate([
-            'template_id'          => 'required|integer',
-            'passing_grade_aspek'  => 'required|numeric|min:0|max:100',
+            'template_id' => 'required|integer',
+            'passing_grade_aspek' => 'required|numeric|min:0|max:100',
         ]);
 
         $existing = DB::table('diklat_nilai_setup')
@@ -348,17 +364,18 @@ class NilaiController extends Controller
 
         if ($existing) {
             DB::table('diklat_nilai_setup')->where('diklat_jadwal_id', $jadwalId)->update([
-                'template_id'         => $request->template_id,
+                'template_id' => $request->template_id,
                 'passing_grade_aspek' => $request->passing_grade_aspek,
-                'updated_at'          => now(),
+                'updated_at' => now(),
             ]);
         } else {
             DB::table('diklat_nilai_setup')->insert([
-                'diklat_jadwal_id'    => $jadwalId,
-                'template_id'         => $request->template_id,
+                'diklat_jadwal_id' => $jadwalId,
+                'template_id' => $request->template_id,
                 'passing_grade_aspek' => $request->passing_grade_aspek,
-                'is_locked'           => false,
-                'created_at'          => now(), 'updated_at' => now(),
+                'is_locked' => false,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
         }
 
@@ -369,12 +386,13 @@ class NilaiController extends Controller
     {
         $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
-        if (!$setup || $setup->is_locked) abort(400);
+        if (!$setup || $setup->is_locked)
+            abort(400);
 
         DB::table('diklat_nilai_setup')->where('diklat_jadwal_id', $jadwalId)->update([
-            'is_locked'  => true,
-            'locked_at'  => now(),
-            'locked_by'  => Auth::user()->name,
+            'is_locked' => true,
+            'locked_at' => now(),
+            'locked_by' => Auth::user()->name,
             'updated_at' => now(),
         ]);
 
@@ -391,7 +409,8 @@ class NilaiController extends Controller
 
         $seminar = DB::table('seminar')
             ->where('id', $request->seminar_id)->where('jid', $jadwalId)->first();
-        if (!$seminar) abort(404);
+        if (!$seminar)
+            abort(404);
 
         if (DB::table('nilai_penguji_token')->where('seminar_id', $seminar->id)->exists()) {
             return back()->withErrors(['Token untuk kelompok ini sudah ada.']);
@@ -404,12 +423,13 @@ class NilaiController extends Controller
         } while (DB::table('nilai_penguji_token')->where('token', $token)->exists());
 
         DB::table('nilai_penguji_token')->insert([
-            'seminar_id'       => $seminar->id,
-            'token'            => $token,
+            'seminar_id' => $seminar->id,
+            'token' => $token,
             'token_expired_at' => Carbon::parse($jadwal->tgl_akhir)->endOfDay(),
-            'is_active'        => true,
-            'created_by'       => Auth::user()->name,
-            'created_at'       => now(), 'updated_at' => now(),
+            'is_active' => true,
+            'created_by' => Auth::user()->name,
+            'created_at' => now(),
+            'updated_at' => now(),
         ]);
 
         return back()->with('notifikasi', 'Token berhasil digenerate.');
@@ -432,7 +452,8 @@ class NilaiController extends Controller
     public function regenerateToken($tokenId)
     {
         $existing = DB::table('nilai_penguji_token')->where('id', $tokenId)->first();
-        if (!$existing) abort(404);
+        if (!$existing)
+            abort(404);
 
         // Ambil tgl_akhir jadwal lewat seminar.jid → diklat_jadwal
         $seminar = DB::table('seminar')->where('id', $existing->seminar_id)->first();
@@ -450,11 +471,11 @@ class NilaiController extends Controller
         } while (DB::table('nilai_penguji_token')->where('token', $token)->exists());
 
         DB::table('nilai_penguji_token')->where('id', $tokenId)->update([
-            'token'            => $token,
-            'is_active'        => true,
-            'last_login_at'    => null,
+            'token' => $token,
+            'is_active' => true,
+            'last_login_at' => null,
             'token_expired_at' => $tglAkhir,
-            'updated_at'       => now(),
+            'updated_at' => now(),
         ]);
 
         return back()->with('notifikasi', 'Token berhasil di-regenerate. Link lama tidak berlaku lagi.');
@@ -468,7 +489,8 @@ class NilaiController extends Controller
     public function inputNilai($jadwalId)
     {
         $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
-        if (!$jadwal) abort(404);
+        if (!$jadwal)
+            abort(404);
 
         $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
@@ -507,13 +529,18 @@ class NilaiController extends Controller
                 ->whereIn('peserta_id', $pesIds)
                 ->whereIn('komponen_id', $allKomIds)->get();
             foreach ($existing as $n) {
-                $nilaiMap[$n->peserta_id][$n->komponen_id]    = $n->nilai;
-                $inputByMap[$n->peserta_id][$n->komponen_id]  = $n->input_by;
+                $nilaiMap[$n->peserta_id][$n->komponen_id] = $n->nilai;
+                $inputByMap[$n->peserta_id][$n->komponen_id] = $n->input_by;
             }
         }
 
         return view('backend.diklat.nilai.input_nilai', compact(
-            'jadwal', 'setup', 'aspekList', 'pesertaList', 'nilaiMap', 'inputByMap'
+            'jadwal',
+            'setup',
+            'aspekList',
+            'pesertaList',
+            'nilaiMap',
+            'inputByMap'
         ));
     }
 
@@ -527,10 +554,10 @@ class NilaiController extends Controller
         }
 
         $request->validate([
-            'peserta_id'  => 'required|integer',
+            'peserta_id' => 'required|integer',
             'komponen_id' => 'required|integer',
-            'nilai'       => 'required|numeric|min:0|max:100',
-            'catatan'     => 'nullable|string|max:300',
+            'nilai' => 'required|numeric|min:0|max:100',
+            'catatan' => 'nullable|string|max:300',
         ]);
 
         $now = now();
@@ -538,24 +565,24 @@ class NilaiController extends Controller
             ['peserta_id' => $request->peserta_id, 'komponen_id' => $request->komponen_id],
             [
                 'diklat_jadwal_id' => $jadwalId,
-                'nilai'            => $request->nilai,
-                'catatan'          => $request->catatan,
-                'input_by'         => 'operator:' . Auth::user()->name,
-                'input_at'         => $now,
-                'updated_by'       => Auth::user()->name,
-                'updated_at'       => $now,
-                'created_at'       => $now,
+                'nilai' => $request->nilai,
+                'catatan' => $request->catatan,
+                'input_by' => 'operator:' . Auth::user()->name,
+                'input_at' => $now,
+                'updated_by' => Auth::user()->name,
+                'updated_at' => $now,
+                'created_at' => $now,
             ]
         );
 
         $this->hitungRekap($jadwalId, $request->peserta_id, $setup);
 
         // Kembalikan nilai aspek untuk update UI
-        $komponen  = DB::table('nilai_komponen')->where('id', $request->komponen_id)->first();
+        $komponen = DB::table('nilai_komponen')->where('id', $request->komponen_id)->first();
         $nilaiAspek = $this->hitungNilaiAspek($jadwalId, $request->peserta_id, $komponen->parent_id);
 
         return response()->json([
-            'success'     => true,
+            'success' => true,
             'nilai_aspek' => $nilaiAspek,
         ]);
     }
@@ -567,7 +594,8 @@ class NilaiController extends Controller
     public function rekapNilai($jadwalId)
     {
         $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
-        if (!$jadwal) abort(404);
+        if (!$jadwal)
+            abort(404);
 
         $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
@@ -609,8 +637,12 @@ class NilaiController extends Controller
         }
 
         return view('backend.diklat.nilai.rekap_nilai', compact(
-            'jadwal', 'setup', 'pesertaList', 'aspekList',
-            'rekapAspekMap', 'rekapAkhirMap'
+            'jadwal',
+            'setup',
+            'pesertaList',
+            'aspekList',
+            'rekapAspekMap',
+            'rekapAkhirMap'
         ));
     }
 
@@ -618,7 +650,8 @@ class NilaiController extends Controller
     {
         $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
-        if (!$setup || !$setup->is_locked) abort(400);
+        if (!$setup || !$setup->is_locked)
+            abort(400);
 
         $rekap = DB::table('peserta_nilai_rekap')
             ->where('diklat_jadwal_id', $jadwalId)
@@ -634,20 +667,20 @@ class NilaiController extends Controller
             'nilai_remedial.max' => 'Nilai remedial maksimal 85.00 sesuai peraturan.',
         ]);
 
-        $nilaiRemedial  = $request->nilai_remedial;
-        $kualRemedial   = $this->getKualifikasi($nilaiRemedial);
+        $nilaiRemedial = $request->nilai_remedial;
+        $kualRemedial = $this->getKualifikasi($nilaiRemedial);
         $statusRemedial = $nilaiRemedial > $setup->passing_grade_aspek ? 'lulus' : 'tidak_lulus';
 
         DB::table('peserta_nilai_rekap')
             ->where('diklat_jadwal_id', $jadwalId)->where('peserta_id', $pesertaId)
             ->update([
-                'is_remedial'         => true,
-                'nilai_remedial'      => $nilaiRemedial,
-                'kualifikasi_remedial'=> $kualRemedial,
-                'status_remedial'     => $statusRemedial,
-                'remedial_at'         => now(),
-                'remedial_by'         => Auth::user()->name,
-                'updated_at'          => now(),
+                'is_remedial' => true,
+                'nilai_remedial' => $nilaiRemedial,
+                'kualifikasi_remedial' => $kualRemedial,
+                'status_remedial' => $statusRemedial,
+                'remedial_at' => now(),
+                'remedial_by' => Auth::user()->name,
+                'updated_at' => now(),
             ]);
 
         return back()->with('notifikasi', 'Nilai remedial berhasil disimpan.');
@@ -656,11 +689,13 @@ class NilaiController extends Controller
     public function exportExcel($jadwalId)
     {
         $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
-        if (!$jadwal) abort(404);
+        if (!$jadwal)
+            abort(404);
 
         $setup = DB::table('diklat_nilai_setup')
             ->where('diklat_jadwal_id', $jadwalId)->first();
-        if (!$setup) abort(404);
+        if (!$setup)
+            abort(404);
 
         $aspekList = DB::table('nilai_komponen')
             ->where('template_id', $setup->template_id)
@@ -691,16 +726,16 @@ class NilaiController extends Controller
         }
 
         $Coordinate = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::class;
-        $Fill       = \PhpOffice\PhpSpreadsheet\Style\Fill::class;
-        $Alignment  = \PhpOffice\PhpSpreadsheet\Style\Alignment::class;
-        $Border     = \PhpOffice\PhpSpreadsheet\Style\Border::class;
+        $Fill = \PhpOffice\PhpSpreadsheet\Style\Fill::class;
+        $Alignment = \PhpOffice\PhpSpreadsheet\Style\Alignment::class;
+        $Border = \PhpOffice\PhpSpreadsheet\Style\Border::class;
 
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-        $sheet       = $spreadsheet->getActiveSheet();
+        $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('Rekap Nilai');
 
         // Hitung total kolom & kolom terakhir
-        $totalCols  = 5 + $aspekList->count() + 4;
+        $totalCols = 5 + $aspekList->count() + 4;
         $lastColStr = $Coordinate::stringFromColumnIndex($totalCols);
 
         // ── Baris 1-3: Judul ─────────────────────────────────────────
@@ -717,9 +752,11 @@ class NilaiController extends Controller
             ->setHorizontal($Alignment::HORIZONTAL_CENTER);
 
         $sheet->mergeCells('A3:' . $lastColStr . '3');
-        $sheet->setCellValue('A3',
+        $sheet->setCellValue(
+            'A3',
             'Passing Grade per Aspek: > ' . $setup->passing_grade_aspek .
-            ' | Dicetak: ' . now()->format('d M Y H:i'));
+            ' | Dicetak: ' . now()->format('d M Y H:i')
+        );
         $sheet->getStyle('A3')->getFont()->setSize(9)->setItalic(true)
             ->getColor()->setARGB('FF666666');
         $sheet->getStyle('A3')->getAlignment()
@@ -749,8 +786,10 @@ class NilaiController extends Controller
         // Kolom aspek
         foreach ($aspekList as $aspek) {
             $colStr = $Coordinate::stringFromColumnIndex($col);
-            $sheet->setCellValue($colStr . $row,
-                $aspek->nama . "\n(" . round($aspek->bobot * 100) . '%)');
+            $sheet->setCellValue(
+                $colStr . $row,
+                $aspek->nama . "\n(" . round($aspek->bobot * 100) . '%)'
+            );
             $sheet->getStyle($colStr . $row)->getFont()->setBold(true)
                 ->getColor()->setARGB('FFFFFFFF');
             $sheet->getStyle($colStr . $row)->getFill()
@@ -782,23 +821,23 @@ class NilaiController extends Controller
 
         // ── Baris 5+: Data peserta ────────────────────────────────────
         $kualColor = [
-            'Sangat Memuaskan'           => 'FF22C55E',
-            'Memuaskan'                  => 'FF3B82F6',
-            'Baik'                       => 'FF84CC16',
-            'Kurang Baik'                => 'FFEF4444',
+            'Sangat Memuaskan' => 'FF22C55E',
+            'Memuaskan' => 'FF3B82F6',
+            'Baik' => 'FF84CC16',
+            'Kurang Baik' => 'FFEF4444',
             'Tidak Memenuhi Kualifikasi' => 'FF991B1B',
         ];
         $statusMap = [
-            'lulus'       => 'Lulus',
-            'ditunda'     => 'Ditunda Kelulusan',
+            'lulus' => 'Lulus',
+            'ditunda' => 'Ditunda Kelulusan',
             'tidak_lulus' => 'Tidak Lulus',
-            'belum'       => 'Belum Lengkap',
+            'belum' => 'Belum Lengkap',
         ];
         $statusColor = [
-            'lulus'       => 'FF22C55E',
-            'ditunda'     => 'FFEF4444',
+            'lulus' => 'FF22C55E',
+            'ditunda' => 'FFEF4444',
             'tidak_lulus' => 'FF991B1B',
-            'belum'       => 'FF94A3B8',
+            'belum' => 'FF94A3B8',
         ];
 
         foreach ($pesertaList as $i => $p) {
@@ -812,8 +851,11 @@ class NilaiController extends Controller
             $col++;
 
             // NIP
-            $sheet->setCellValueExplicit('B' . $row, $p->nip ?: '-',
-                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING);
+            $sheet->setCellValueExplicit(
+                'B' . $row,
+                $p->nip ?: '-',
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+            );
             $col++;
 
             // Nama, Instansi, Jabatan
@@ -825,7 +867,7 @@ class NilaiController extends Controller
             // Nilai per aspek
             foreach ($aspekList as $aspek) {
                 $colStr = $Coordinate::stringFromColumnIndex($col);
-                $ra     = isset($rekapAspek[$p->id][$aspek->id])
+                $ra = isset($rekapAspek[$p->id][$aspek->id])
                     ? $rekapAspek[$p->id][$aspek->id] : null;
 
                 if ($ra && $ra->nilai_mentah !== null) {
@@ -863,7 +905,7 @@ class NilaiController extends Controller
             $col++;
 
             // Status kelulusan
-            $colStr      = $Coordinate::stringFromColumnIndex($col);
+            $colStr = $Coordinate::stringFromColumnIndex($col);
             $statusLabel = $rk ? ($statusMap[$rk->status_kelulusan] ?? '-') : '-';
             $sheet->setCellValue($colStr . $row, $statusLabel);
             if ($rk && isset($statusColor[$rk->status_kelulusan])) {
@@ -901,9 +943,11 @@ class NilaiController extends Controller
         // ── Baris keterangan ─────────────────────────────────────────
         $row += 2;
         $sheet->mergeCells('A' . $row . ':' . $lastColStr . $row);
-        $sheet->setCellValue('A' . $row,
+        $sheet->setCellValue(
+            'A' . $row,
             'Keterangan: Sangat Memuaskan (>90) | Memuaskan (>80) | ' .
-            'Baik (>70) | Kurang Baik (>60) | Tidak Memenuhi Kualifikasi (<=60)');
+            'Baik (>70) | Kurang Baik (>60) | Tidak Memenuhi Kualifikasi (<=60)'
+        );
         $sheet->getStyle('A' . $row)->getFont()->setSize(8)->setItalic(true)
             ->getColor()->setARGB('FF666666');
 
@@ -927,13 +971,168 @@ class NilaiController extends Controller
 
         // ── Output XLSX ───────────────────────────────────────────────
         $filename = 'rekap_nilai_' . str_slug($jadwal->nama) . '_' . date('Ymd') . '.xlsx';
-        $writer   = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
         $writer->save('php://output');
         exit;
+    }
+
+
+    // =========================================================================
+    // LAPORAN SEMINAR — Admin/Operator
+    // =========================================================================
+
+    public function laporanSeminar($jadwalId)
+    {
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
+        if (!$jadwal)
+            abort(404);
+
+        $pesertaList = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwalId)
+            ->where('batal', false)->where('verifikasi', true)
+            ->select('id', 'nip', 'nama_lengkap', 'instansi')
+            ->orderBy('nama_lengkap')->get();
+
+        $pesIds = $pesertaList->pluck('id')->toArray();
+
+        // Kelompok seminar per peserta
+        $kelompokMap = array();
+        if (!empty($pesIds)) {
+            $rows = DB::table('seminar_anggota as sa')
+                ->join('seminar as s', 's.id', '=', 'sa.sid')
+                ->where('s.jid', $jadwalId)
+                ->whereIn('sa.peid', $pesIds)
+                ->select('sa.peid', 's.kelompok')
+                ->get();
+            foreach ($rows as $r) {
+                $kelompokMap[$r->peid] = $r->kelompok;
+            }
+        }
+
+        // Laporan per peserta
+        $laporanMap = array();
+        if (!empty($pesIds)) {
+            $rows = DB::table('seminar_laporan')
+                ->whereIn('peserta_id', $pesIds)
+                ->where('diklat_jadwal_id', $jadwalId)
+                ->get();
+            foreach ($rows as $r) {
+                $laporanMap[$r->peserta_id][$r->fase] = $r;
+            }
+        }
+
+        // Statistik
+        $totalUploadR = 0;
+        $totalUploadA = 0;
+        foreach ($pesertaList as $p) {
+            if (!empty($laporanMap[$p->id]['rancangan']))
+                $totalUploadR++;
+            if (!empty($laporanMap[$p->id]['akhir']))
+                $totalUploadA++;
+        }
+
+        return view('backend.diklat.nilai.laporan_seminar', compact(
+            'jadwal',
+            'pesertaList',
+            'laporanMap',
+            'kelompokMap',
+            'totalUploadR',
+            'totalUploadA'
+        ));
+    }
+
+    public function exportLaporanSeminar($jadwalId)
+    {
+        $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwalId)->first();
+        if (!$jadwal)
+            abort(404);
+
+        $pesertaList = DB::table('peserta')
+            ->where('diklat_jadwal_id', $jadwalId)
+            ->where('batal', false)->where('verifikasi', true)
+            ->select('id', 'nip', 'nama_lengkap', 'instansi')
+            ->orderBy('nama_lengkap')->get();
+
+        $pesIds = $pesertaList->pluck('id')->toArray();
+
+        $kelompokMap = array();
+        if (!empty($pesIds)) {
+            $rows = DB::table('seminar_anggota as sa')
+                ->join('seminar as s', 's.id', '=', 'sa.sid')
+                ->where('s.jid', $jadwalId)
+                ->whereIn('sa.peid', $pesIds)
+                ->select('sa.peid', 's.kelompok')
+                ->get();
+            foreach ($rows as $r) {
+                $kelompokMap[$r->peid] = $r->kelompok;
+            }
+        }
+
+        $laporanMap = array();
+        if (!empty($pesIds)) {
+            $rows = DB::table('seminar_laporan')
+                ->whereIn('peserta_id', $pesIds)
+                ->where('diklat_jadwal_id', $jadwalId)
+                ->get();
+            foreach ($rows as $r) {
+                $laporanMap[$r->peserta_id][$r->fase] = $r;
+            }
+        }
+
+        // Buat CSV
+        $filename = 'laporan-seminar-' . \Illuminate\Support\Str::slug($jadwal->nama) . '-' . date('Ymd') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            'Cache-Control' => 'max-age=0',
+        ];
+
+        $callback = function () use ($pesertaList, $laporanMap, $kelompokMap) {
+            $handle = fopen('php://output', 'w');
+            // BOM untuk Excel agar UTF-8 terbaca
+            fputs($handle, "\xEF\xBB\xBF");
+
+            fputcsv($handle, [
+                'No',
+                'NIP',
+                'Nama Lengkap',
+                'Instansi',
+                'Kelompok',
+                'Judul Laporan Rancangan',
+                'Tautan Laporan Rancangan',
+                'Tgl Upload Rancangan',
+                'Judul Laporan Akhir',
+                'Tautan Laporan Akhir',
+                'Tgl Upload Akhir',
+            ]);
+
+            foreach ($pesertaList as $i => $p) {
+                $lapR = $laporanMap[$p->id]['rancangan'] ?? null;
+                $lapA = $laporanMap[$p->id]['akhir'] ?? null;
+                fputcsv($handle, [
+                    $i + 1,
+                    $p->nip,
+                    $p->nama_lengkap,
+                    $p->instansi,
+                    $kelompokMap[$p->id] ?? '-',
+                    $lapR ? $lapR->judul : '-',
+                    $lapR ? $lapR->url : '-',
+                    $lapR ? \Carbon\Carbon::parse($lapR->updated_at)->format('d/m/Y H:i') : '-',
+                    $lapA ? $lapA->judul : '-',
+                    $lapA ? $lapA->url : '-',
+                    $lapA ? \Carbon\Carbon::parse($lapA->updated_at)->format('d/m/Y H:i') : '-',
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 
 
@@ -951,10 +1150,12 @@ class NilaiController extends Controller
             ->where('diklat_jadwal_id', $jadwalId)
             ->pluck('nilai', 'komponen_id');
 
-        $aspekList = $allKomponen->filter(function ($k) { return is_null($k->parent_id); });
+        $aspekList = $allKomponen->filter(function ($k) {
+            return is_null($k->parent_id);
+        });
 
-        $nilaiAkhir     = 0;
-        $adaKurangBaik  = false;
+        $nilaiAkhir = 0;
+        $adaKurangBaik = false;
         $adaTidakMemenuhi = false;
         $now = now();
 
@@ -964,7 +1165,7 @@ class NilaiController extends Controller
             if ($subList->count() > 0) {
                 // Hitung rata-rata sub-komponen berbobot dalam aspek ini
                 $totalBobotSub = $subList->sum('bobot');
-                $nilaiMentah   = 0;
+                $nilaiMentah = 0;
                 foreach ($subList as $sub) {
                     $ns = isset($nilaiPeserta[$sub->id]) ? floatval($nilaiPeserta[$sub->id]) : 0;
                     // Bobot relatif dalam aspek: bobot_sub / total_bobot_sub
@@ -977,31 +1178,33 @@ class NilaiController extends Controller
                     ? floatval($nilaiPeserta[$aspek->id]) : 0;
             }
 
-            $nilaiMentah    = round($nilaiMentah, 2);
-            $kualifikasi    = $this->getKualifikasi($nilaiMentah);
-            $isLulusAspek   = $nilaiMentah > $setup->passing_grade_aspek;
-            $nilaiAkhir    += $nilaiMentah * $aspek->bobot;
+            $nilaiMentah = round($nilaiMentah, 2);
+            $kualifikasi = $this->getKualifikasi($nilaiMentah);
+            $isLulusAspek = $nilaiMentah > $setup->passing_grade_aspek;
+            $nilaiAkhir += $nilaiMentah * $aspek->bobot;
 
-            if ($nilaiMentah <= 60) $adaTidakMemenuhi = true;
-            elseif ($nilaiMentah <= 70) $adaKurangBaik = true;
+            if ($nilaiMentah <= 60)
+                $adaTidakMemenuhi = true;
+            elseif ($nilaiMentah <= 70)
+                $adaKurangBaik = true;
 
             DB::table('peserta_nilai_aspek')->updateOrInsert(
                 ['peserta_id' => $pesertaId, 'komponen_id' => $aspek->id],
                 [
                     'diklat_jadwal_id' => $jadwalId,
-                    'nilai_mentah'     => $nilaiMentah,
-                    'nilai_aspek'      => round($nilaiMentah * $aspek->bobot, 4),
-                    'kualifikasi'      => $kualifikasi,
-                    'is_lulus_aspek'   => $isLulusAspek,
-                    'calculated_at'    => $now,
-                    'updated_at'       => $now,
-                    'created_at'       => $now,
+                    'nilai_mentah' => $nilaiMentah,
+                    'nilai_aspek' => round($nilaiMentah * $aspek->bobot, 4),
+                    'kualifikasi' => $kualifikasi,
+                    'is_lulus_aspek' => $isLulusAspek,
+                    'calculated_at' => $now,
+                    'updated_at' => $now,
+                    'created_at' => $now,
                 ]
             );
         }
 
         $nilaiAkhir = round($nilaiAkhir, 2);
-        $kualAkhir  = $this->getKualifikasi($nilaiAkhir);
+        $kualAkhir = $this->getKualifikasi($nilaiAkhir);
 
         // Status kelulusan sesuai peraturan LAN
         if ($adaTidakMemenuhi) {
@@ -1015,12 +1218,12 @@ class NilaiController extends Controller
         DB::table('peserta_nilai_rekap')->updateOrInsert(
             ['diklat_jadwal_id' => $jadwalId, 'peserta_id' => $pesertaId],
             [
-                'nilai_akhir'      => $nilaiAkhir,
-                'kualifikasi'      => $kualAkhir,
+                'nilai_akhir' => $nilaiAkhir,
+                'kualifikasi' => $kualAkhir,
                 'status_kelulusan' => $status,
-                'calculated_at'    => $now,
-                'updated_at'       => $now,
-                'created_at'       => $now,
+                'calculated_at' => $now,
+                'updated_at' => $now,
+                'created_at' => $now,
             ]
         );
 
@@ -1045,10 +1248,14 @@ class NilaiController extends Controller
 
     private function getKualifikasi($nilai)
     {
-        if ($nilai > 90)       return 'Sangat Memuaskan';
-        if ($nilai > 80)       return 'Memuaskan';
-        if ($nilai > 70)       return 'Baik';
-        if ($nilai > 60)       return 'Kurang Baik';
+        if ($nilai > 90)
+            return 'Sangat Memuaskan';
+        if ($nilai > 80)
+            return 'Memuaskan';
+        if ($nilai > 70)
+            return 'Baik';
+        if ($nilai > 60)
+            return 'Kurang Baik';
         return 'Tidak Memenuhi Kualifikasi';
     }
 }

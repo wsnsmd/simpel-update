@@ -74,6 +74,11 @@ Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:p
     // Presensi via QR
     Route::get('/presensi/{token}', 'Peserta\PresensiPesertaController@show')->name('presensi.show');
     Route::post('/presensi/{token}', 'Peserta\PresensiPesertaController@konfirmasi')->name('presensi.konfirmasi');
+
+    // Upload tautan laporan seminar
+    Route::get('/laporan-seminar', 'Peserta\LaporanSeminarController@index')->name('laporan.index');
+    Route::post('/laporan-seminar/{jadwalId}/{fase}', 'Peserta\LaporanSeminarController@upsert')->name('laporan.upsert');
+    Route::delete('/laporan-seminar/{jadwalId}/{fase}', 'Peserta\LaporanSeminarController@destroy')->name('laporan.destroy');
 });
 
 Route::get('/nilai/penguji/{token}', 'Penguji\PengujiNilaiController@index')->name('penguji.nilai.index');
@@ -343,6 +348,8 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
         Route::post('nilai/{jadwalId}/save', 'Diklat\NilaiController@saveNilai')->name('nilai.save');
         Route::get('nilai/{jadwalId}/rekap', 'Diklat\NilaiController@rekapNilai')->name('nilai.rekap');
         Route::get('nilai/{jadwalId}/export', 'Diklat\NilaiController@exportExcel')->name('nilai.export');
+        Route::get('nilai/{jadwalId}/laporan-seminar', 'Diklat\NilaiController@laporanSeminar')->name('nilai.laporan_seminar');
+        Route::get('nilai/{jadwalId}/laporan-seminar/export', 'Diklat\NilaiController@exportLaporanSeminar')->name('nilai.laporan_seminar.export');
 
         // Remedial
         Route::post('nilai/{jadwalId}/peserta/{pesertaId}/remedial', 'Diklat\NilaiController@inputRemedial')->name('nilai.remedial');
