@@ -22,6 +22,7 @@
             font-family: 'bookman';
             src: url({{ storage_path('fonts/bookos.ttf') }}) format('truetype');
         }
+
         @font-face {
             font-family: 'bookman';
             src: url({{ storage_path('fonts/bookosb.ttf') }}) format('truetype');
@@ -45,7 +46,8 @@
             border-collapse: collapse;
         }
 
-        table.header th, td {
+        table.header th,
+        td {
             font-family: 'Bookman';
         }
 
@@ -89,11 +91,29 @@
         }
 
         @if(!is_null($sertifikat->spesimen))
-        #tt2 {
-            position: fixed;
-            bottom: {{ $sertPeserta->spesimen_bawah  }}cm;
-            left: {{ $sertPeserta->spesimen_kiri }}cm;
-        }
+            #tt2 {
+                position: fixed;
+                bottom:
+                    {{ $sertPeserta->spesimen_bawah  }}
+                    cm;
+                left:
+                    {{ $sertPeserta->spesimen_kiri }}
+                    cm;
+            }
+
+        @endif
+
+        @if(!is_null($sertifikat->spesimen2))
+            #tt4 {
+                position: fixed;
+                bottom:
+                    {{ $sertPeserta->spesimen2_bawah  }}
+                    cm;
+                left:
+                    {{ $sertPeserta->spesimen2_kiri }}
+                    cm;
+            }
+
         @endif
     </style>
 </head>
@@ -102,8 +122,9 @@
     <table width="100%" cellspacing="0" cellpadding="0" class="header" style="padding-top: 0.5cm;">
         <tbody>
             <tr>
-                <td width="15%" style="text-align: center"><img src="{{ imageToBase64(public_path('/media/images/pemprov.png')) }}"
-                        height="120" width="120"></td>
+                <td width="15%" style="text-align: center"><img
+                        src="{{ imageToBase64(public_path('/media/images/pemprov.png')) }}" height="120" width="120">
+                </td>
             </tr>
         </tbody>
     </table>
@@ -111,22 +132,27 @@
         <tbody>
             <tr>
                 <td style="text-align: center">
-                    <span style="font-weight: bold; font-size: 12pt; font-family: bookman; line-height: 1.0;">BADAN PENGEMBANGAN SUMBER DAYA MANUSIA PROVINSI KALIMANTAN TIMUR</span><br>
-                    <span style="font-weight: bold; font-size: 20pt; font-family: bookman; line-height: 1.5;">S E R T I F I K A T</span><br>
-                    <span style="font-size: 12pt; font-family: bookman; line-height: 1.0;">Nomor : {!! $sertPeserta->nomor !!}</span></td>
+                    <span style="font-weight: bold; font-size: 12pt; font-family: bookman; line-height: 1.0;">BADAN
+                        PENGEMBANGAN SUMBER DAYA MANUSIA PROVINSI KALIMANTAN TIMUR</span><br>
+                    <span style="font-weight: bold; font-size: 20pt; font-family: bookman; line-height: 1.5;">S E R T I
+                        F I K A T</span><br>
+                    <span style="font-size: 12pt; font-family: bookman; line-height: 1.0;">Nomor :
+                        {!! $sertPeserta->nomor !!}</span>
+                </td>
             </tr>
         </tbody>
     </table>
 
     <div id="container">
         <div style="text-align: center; margin-left: 0px; margin-right: 0px; margin-top: 20px">
-			<p style="text-align: center;;">Diberikan kepada</p>
-			<table width="100%" cellspacing="0" cellpadding="0" class="info" style="margin: 20px 0; font-weight: bold; font-size: 11pt;">
+            <p style="text-align: center;;">Diberikan kepada</p>
+            <table width="100%" cellspacing="0" cellpadding="0" class="info"
+                style="margin: 20px 0; font-weight: bold; font-size: 11pt;">
                 <tbody>
                     <tr>
                         <td style="vertical-align: top">
-                            <table width="100%" cellspacing="0" cellpadding="3" border="0"
-                                style="padding: 0;" class="mdiklat">
+                            <table width="100%" cellspacing="0" cellpadding="3" border="0" style="padding: 0;"
+                                class="mdiklat">
                                 <tbody>
                                     <tr>
                                         <td width="22%">Nama</td>
@@ -140,14 +166,15 @@
                                             @if(is_null($sertPeserta->nip))
                                                 -
                                             @else
-                                            {!! formatNIP($sertPeserta->nip) !!}
+                                                {!! formatNIP($sertPeserta->nip) !!}
                                             @endif
                                         </td>
                                     </tr>
                                     <tr>
                                         <td style="vertical-align: top">Instansi</td>
                                         <td style="vertical-align: top">:</td>
-                                        <td style="vertical-align: top; text-transform: uppercase">{!! $sertPeserta->instansi !!}</td>
+                                        <td style="vertical-align: top; text-transform: uppercase">
+                                            {!! $sertPeserta->instansi !!}</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -156,9 +183,16 @@
                 </tbody>
             </table>
             @if($jum_hari->d == 0)
-            <p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!} yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber Daya Manusia Provinsi Kalimantan Timur pada tanggal {!! formatTanggal($jadwal->tgl_awal) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
+                <p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!}
+                    yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber
+                    Daya Manusia Provinsi Kalimantan Timur pada tanggal {!! formatTanggal($jadwal->tgl_awal) !!} bertempat
+                    di {!! $jadwal->lokasi !!} yang meliputi {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
             @else
-			<p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!} yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber Daya Manusia Provinsi Kalimantan Timur dari tanggal {!! formatTanggal($jadwal->tgl_awal) !!} sampai dengan {!! formatTanggal($jadwal->tgl_akhir) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
+                <p style="line-height: 1.5;">Atas partisipasinya dalam {!! $jadwal->nama !!} Tahun {!! $jadwal->tahun !!}
+                    yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber
+                    Daya Manusia Provinsi Kalimantan Timur dari tanggal {!! formatTanggal($jadwal->tgl_awal) !!} sampai
+                    dengan {!! formatTanggal($jadwal->tgl_akhir) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi
+                    {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
             @endif
         </div>
         <div id="tt1">
@@ -167,7 +201,8 @@
                     <td>{!! $sertifikat->tempat !!}, {!! formatTanggal($sertifikat->tanggal) !!}</td>
                 </tr>
                 <tr>
-                    <td style="padding-bottom: 100px">{!! $sertifikat->jabatan !!} Badan Pengembangan Sumber Daya Manusia</td>
+                    <td style="padding-bottom: 100px">{!! $sertifikat->jabatan !!} Badan Pengembangan Sumber Daya
+                        Manusia</td>
                 </tr>
                 <tr>
                     <td>{!! $sertifikat->nama !!}</td>
@@ -181,9 +216,9 @@
             </table>
         </div>
         @if(!is_null($sertifikat->spesimen))
-        <div id="tt2">
-            <img src="{{ storage_path('app/' . $sertifikat->spesimen) }}" height="200" />
-        </div>
+            <div id="tt2">
+                <img src="{{ storage_path('app/' . $sertifikat->spesimen) }}" height="200" />
+            </div>
         @endif
     </div>
     <div class="page_break"></div>
@@ -192,7 +227,8 @@
             <tbody>
                 <tr>
                     <td style="text-align: center">
-                        <span style="font-weight: bold; font-size: 11pt; font-family: bookman; line-height: 1.0;">AGENDA KEGIATAN</span><br>
+                        <span style="font-weight: bold; font-size: 11pt; font-family: bookman; line-height: 1.0;">AGENDA
+                            KEGIATAN</span><br>
                     </td>
                 </tr>
             </tbody>
@@ -200,21 +236,25 @@
         <table width="90%" cellspacing="0" cellpadding="2" class="header" style="margin: 30px auto; border: 2px solid;">
             <thead>
                 <tr>
-                    <th width="5%" style="border-right: 2px solid; border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center"><span style="font-weight: bold;">No.</span></th>
-                    <th style="border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center"><span style="font-weight: bold;">Materi</span></th>
+                    <th width="5%"
+                        style="border-right: 2px solid; border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center">
+                        <span style="font-weight: bold;">No.</span></th>
+                    <th
+                        style="border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center">
+                        <span style="font-weight: bold;">Materi</span></th>
                 </tr>
             </thead>
             <tbody>
-            @foreach($kurikulum as $k)
-                <tr>
-                    <td style="border-right: 2px solid; text-align: center">
-                        <span style="font-weight: bold; line-height: 1.0;">{{ $loop->iteration }}.</span>
-                    </td>
-                    <td style="padding-left: 10px; padding-right: 10px">
-                        {{ $k->nama }}
-                    </td>
-                </tr>
-            @endforeach
+                @foreach($kurikulum as $k)
+                    <tr>
+                        <td style="border-right: 2px solid; text-align: center">
+                            <span style="font-weight: bold; line-height: 1.0;">{{ $loop->iteration }}.</span>
+                        </td>
+                        <td style="padding-left: 10px; padding-right: 10px">
+                            {{ $k->nama }}
+                        </td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
         <div id="tt3">
@@ -225,15 +265,9 @@
                 <tr>
                     <td style="">{!! $sertifikat->jabatan2 !!}</td>
                 </tr>
-                @if(!is_null($sertifikat->spesimen2))
                 <tr>
-                    <td  style="padding-left: -75px"><img style="" src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="150" /></td>
+                    <td style="padding-bottom: 100pxp">&nbsp;</td>
                 </tr>
-                @else
-                <tr>
-                    <td  style="padding-bottom: 100pxp">&nbsp;</td>
-                </tr>
-                @endif
                 <tr>
                     <td style="">{!! $sertifikat->nama2 !!}</td>
                 </tr>
@@ -245,6 +279,11 @@
                 </tr>
             </table>
         </div>
+        @if(!is_null($sertifikat->spesimen))
+            <div id="tt4">
+                <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="200" />
+            </div>
+        @endif
     </div>
 </body>
 
