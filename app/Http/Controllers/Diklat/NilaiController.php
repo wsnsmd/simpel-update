@@ -969,6 +969,307 @@ class NilaiController extends Controller
         // Freeze header
         $sheet->freezePane('F5');
 
+        // ═══════════════════════════════════════════════════════════════
+        // SHEET 2 — RINCIAN NILAI PER SUB-KOMPONEN
+        // ═══════════════════════════════════════════════════════════════
+
+        // Ambil semua aspek + sub-komponen (sama seperti inputNilai)
+        $aspekDetail = DB::table('nilai_komponen')
+            ->where('template_id', $setup->template_id)->whereNull('parent_id')
+            ->orderBy('urutan')->get()
+            ->map(function ($a) use ($setup) {
+                $a->sub = DB::table('nilai_komponen')
+                    ->where('template_id', $setup->template_id)
+                    ->where('parent_id', $a->id)->orderBy('urutan')->get();
+                return $a;
+            });
+
+        // Semua sub-komponen flat (untuk kolom header)
+        $allSub = collect();
+        foreach ($aspekDetail as $aspek) {
+            foreach ($aspek->sub as $sub) {
+                $sub->aspek_nama = $aspek->nama;
+                $sub->aspek_bobot = $aspek->bobot;
+                $allSub->push($sub);
+            }
+        }
+
+        // Nilai mentah per peserta per sub-komponen
+        $nilaiMap = array();
+        $inputByMap = array();
+        if (!empty($pesIds)) {
+            $allKomIds = $allSub->pluck('id')->toArray();
+            if (!empty($allKomIds)) {
+                foreach (DB::table('peserta_nilai')
+                    ->whereIn('peserta_id', $pesIds)
+                    ->whereIn('komponen_id', $allKomIds)->get() as $n) {
+                    $nilaiMap[$n->peserta_id][$n->komponen_id] = $n->nilai;
+                    $inputByMap[$n->peserta_id][$n->komponen_id] = $n->input_by;
+                }
+            }
+        }
+
+        $sheet2 = $spreadsheet->createSheet();
+        $sheet2->setTitle('Rincian Nilai');
+
+        // Hitung total kolom sheet2
+        $totalColsS2 = 4 + $allSub->count() + 2; // No,NIP,Nama,Instansi + sub + NilaiAkhir+Status
+        $lastColS2 = $Coordinate::stringFromColumnIndex($totalColsS2);
+
+        // ── Judul ─────────────────────────────────────────────────────
+        $sheet2->mergeCells('A1:' . $lastColS2 . '1');
+        $sheet2->setCellValue('A1', 'RINCIAN NILAI PER SUB-KOMPONEN');
+        $sheet2->getStyle('A1')->getFont()->setBold(true)->setSize(13);
+        $sheet2->getStyle('A1')->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+
+        $sheet2->mergeCells('A2:' . $lastColS2 . '2');
+        $sheet2->setCellValue('A2', $jadwal->nama);
+        $sheet2->getStyle('A2')->getFont()->setBold(true)->setSize(11);
+        $sheet2->getStyle('A2')->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+
+        $sheet2->mergeCells('A3:' . $lastColS2 . '3');
+        $sheet2->setCellValue('A3', 'Dicetak: ' . now()->format('d M Y H:i'));
+        $sheet2->getStyle('A3')->getFont()->setSize(9)->setItalic(true)
+            ->getColor()->setARGB('FF666666');
+        $sheet2->getStyle('A3')->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER);
+
+        // ── Baris 4: Header kelompok aspek (merge per aspek) ──────────
+        $row2 = 4;
+        $col2 = 5; // mulai setelah No, NIP, Nama, Instansi
+        foreach ($aspekDetail as $aspek) {
+            $subCount = $aspek->sub->count();
+            if ($subCount === 0)
+                continue;
+            $startColStr = $Coordinate::stringFromColumnIndex($col2);
+            $endColStr = $Coordinate::stringFromColumnIndex($col2 + $subCount - 1);
+            if ($subCount > 1) {
+                $sheet2->mergeCells($startColStr . $row2 . ':' . $endColStr . $row2);
+            }
+            $sheet2->setCellValue(
+                $startColStr . $row2,
+                $aspek->nama . ' (' . round($aspek->bobot * 100) . '%)'
+            );
+            $sheet2->getStyle($startColStr . $row2 . ':' . $endColStr . $row2)
+                ->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
+            $sheet2->getStyle($startColStr . $row2 . ':' . $endColStr . $row2)
+                ->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF1E3A5F');
+            $sheet2->getStyle($startColStr . $row2 . ':' . $endColStr . $row2)
+                ->getAlignment()->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER)->setWrapText(true);
+            $col2 += $subCount;
+        }
+
+        // Kolom Nilai Akhir & Status (baris 4, merge 2 baris nanti)
+        $colNilaiAkhir = $col2;
+        $colStatus = $col2 + 1;
+
+        // ── Baris 5: Header kolom tetap + sub-komponen ────────────────
+        $row2 = 5;
+        $col2 = 1;
+
+        // Merge baris 4-5 untuk kolom tetap
+        foreach ([4 => 'No', 5 => 'NIP', 6 => 'Nama Lengkap', 7 => 'Instansi'] as $c => $lbl) {
+            $cs = $Coordinate::stringFromColumnIndex($c - 3);
+            $sheet2->mergeCells($cs . '4:' . $cs . '5');
+            $sheet2->setCellValue($cs . '4', $lbl);
+            $sheet2->getStyle($cs . '4')->getFont()->setBold(true)
+                ->getColor()->setARGB('FFFFFFFF');
+            $sheet2->getStyle($cs . '4')->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF1E3A5F');
+            $sheet2->getStyle($cs . '4')->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER)->setWrapText(true);
+        }
+
+        // Sub-komponen header (baris 5)
+        $col2 = 5;
+        foreach ($allSub as $sub) {
+            $cs = $Coordinate::stringFromColumnIndex($col2);
+            $penilaiLabel = $sub->penilai === 'penguji' ? ' [P]' : ' [O]';
+            $faseLabel = $sub->fase === 'rancangan' ? ' ®' : ' ©';
+            $sheet2->setCellValue(
+                $cs . '5',
+                $sub->nama . $penilaiLabel . $faseLabel .
+                "\n(bobot " . round($sub->bobot * 100) . '%)'
+            );
+            $sheet2->getStyle($cs . '5')->getFont()->setBold(true)
+                ->getColor()->setARGB('FFFFFFFF');
+            $sheet2->getStyle($cs . '5')->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF2E4F7A');
+            $sheet2->getStyle($cs . '5')->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER)->setWrapText(true);
+            $col2++;
+        }
+
+        // Header Nilai Akhir & Status (merge baris 4-5)
+        foreach ([
+            $Coordinate::stringFromColumnIndex($colNilaiAkhir) => 'Nilai Akhir',
+            $Coordinate::stringFromColumnIndex($colStatus) => 'Status',
+        ] as $cs => $lbl) {
+            $sheet2->mergeCells($cs . '4:' . $cs . '5');
+            $sheet2->setCellValue($cs . '4', $lbl);
+            $sheet2->getStyle($cs . '4')->getFont()->setBold(true)
+                ->getColor()->setARGB('FFFFFFFF');
+            $sheet2->getStyle($cs . '4')->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FF1E3A5F');
+            $sheet2->getStyle($cs . '4')->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER)->setWrapText(true);
+        }
+
+        $sheet2->getRowDimension(4)->setRowHeight(30);
+        $sheet2->getRowDimension(5)->setRowHeight(50);
+
+        // ── Baris 6+: Data peserta ────────────────────────────────────
+        $penilaiColors = [
+            'penguji' => ['rancangan' => 'FFFFF3CD', 'akhir' => 'FFFDE8C8'],
+            'operator' => ['rancangan' => 'FFE8F4FD', 'akhir' => 'FFE2F0D9'],
+        ];
+
+        foreach ($pesertaList as $i => $p) {
+            $row2++;
+            $col2 = 1;
+            $bgRow = ($i % 2 === 0) ? 'FFFFFFFF' : 'FFF8FAFF';
+
+            // No
+            $sheet2->setCellValue('A' . $row2, $i + 1);
+            $sheet2->getStyle('A' . $row2)->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER);
+            $sheet2->getStyle('A' . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($bgRow);
+
+            // NIP
+            $sheet2->setCellValueExplicit(
+                'B' . $row2,
+                $p->nip ?: '-',
+                \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE_STRING
+            );
+            $sheet2->getStyle('B' . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($bgRow);
+
+            // Nama
+            $sheet2->setCellValue('C' . $row2, $p->nama_lengkap);
+            $sheet2->getStyle('C' . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($bgRow);
+
+            // Instansi
+            $sheet2->setCellValue('D' . $row2, $p->instansi ?: '-');
+            $sheet2->getStyle('D' . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($bgRow);
+
+            // Nilai per sub-komponen
+            $col2 = 5;
+            foreach ($allSub as $sub) {
+                $cs = $Coordinate::stringFromColumnIndex($col2);
+                $nilai = isset($nilaiMap[$p->id][$sub->id])
+                    ? $nilaiMap[$p->id][$sub->id] : null;
+                $inputBy = isset($inputByMap[$p->id][$sub->id])
+                    ? $inputByMap[$p->id][$sub->id] : null;
+
+                // Warna latar berdasarkan penilai & fase
+                $penilai = $sub->penilai ?? 'operator';
+                $fase = $sub->fase ?? 'rancangan';
+                $bgCell = $penilaiColors[$penilai][$fase] ?? 'FFFFFFFF';
+
+                if ($nilai !== null) {
+                    $sheet2->setCellValue($cs . $row2, round($nilai, 2));
+                    // Warna nilai: merah jika < 70, hijau jika >= 70
+                    $fontColor = floatval($nilai) < 70 ? 'FFDC2626' : 'FF166534';
+                    $sheet2->getStyle($cs . $row2)->getFont()->setBold(true)
+                        ->getColor()->setARGB($fontColor);
+                    // Tooltip: siapa yang input
+                    if ($inputBy) {
+                        $sheet2->getComment($cs . $row2)
+                            ->getText()->createTextRun('Input oleh: ' . $inputBy);
+                        $sheet2->getComment($cs . $row2)
+                            ->setWidth('150pt')->setHeight('40pt');
+                    }
+                } else {
+                    $sheet2->setCellValue($cs . $row2, '');
+                    $sheet2->getStyle($cs . $row2)->getFill()
+                        ->setFillType($Fill::FILL_SOLID)
+                        ->getStartColor()->setARGB('FFFDF2F2');
+                    $col2++;
+                    continue;
+                }
+
+                $sheet2->getStyle($cs . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($bgCell);
+                $sheet2->getStyle($cs . $row2)->getAlignment()
+                    ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                    ->setVertical($Alignment::VERTICAL_CENTER);
+                $col2++;
+            }
+
+            // Nilai akhir
+            $rk = isset($rekapAkhir[$p->id]) ? $rekapAkhir[$p->id] : null;
+            $cs = $Coordinate::stringFromColumnIndex($colNilaiAkhir);
+            $sheet2->setCellValue($cs . $row2, $rk ? round($rk->nilai_akhir, 2) : '-');
+            $sheet2->getStyle($cs . $row2)->getFont()->setBold(true);
+            $sheet2->getStyle($cs . $row2)->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER);
+            $sheet2->getStyle($cs . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB($bgRow);
+
+            // Status
+            $cs = $Coordinate::stringFromColumnIndex($colStatus);
+            $statusLabel = $rk ? ($statusMap[$rk->status_kelulusan] ?? '-') : '-';
+            $sheet2->setCellValue($cs . $row2, $statusLabel);
+            if ($rk && isset($statusColor[$rk->status_kelulusan])) {
+                $sheet2->getStyle($cs . $row2)->getFont()->setBold(true)
+                    ->getColor()->setARGB('FFFFFFFF');
+                $sheet2->getStyle($cs . $row2)->getFill()->setFillType($Fill::FILL_SOLID)
+                    ->getStartColor()->setARGB($statusColor[$rk->status_kelulusan]);
+            }
+            $sheet2->getStyle($cs . $row2)->getAlignment()
+                ->setHorizontal($Alignment::HORIZONTAL_CENTER)
+                ->setVertical($Alignment::VERTICAL_CENTER);
+
+            // Border seluruh baris
+            $sheet2->getStyle('A' . $row2 . ':' . $lastColS2 . $row2)
+                ->getBorders()->getAllBorders()
+                ->setBorderStyle($Border::BORDER_THIN)
+                ->getColor()->setARGB('FFDDDDDD');
+        }
+
+        // ── Keterangan warna ──────────────────────────────────────────
+        $row2 += 2;
+        $sheet2->mergeCells('A' . $row2 . ':' . $lastColS2 . $row2);
+        $sheet2->setCellValue(
+            'A' . $row2,
+            'Keterangan warna sel: ' .
+            '[O] = dinilai Operator  |  [P] = dinilai Penguji  |  ' .
+            '® = Seminar Rancangan  |  © = Seminar Akhir  |  ' .
+            'Nilai merah = di bawah 70  |  Sel kosong merah muda = belum diisi'
+        );
+        $sheet2->getStyle('A' . $row2)->getFont()->setSize(8)->setItalic(true)
+            ->getColor()->setARGB('FF666666');
+
+        // ── Lebar kolom sheet2 ────────────────────────────────────────
+        $sheet2->getColumnDimension('A')->setWidth(5);
+        $sheet2->getColumnDimension('B')->setWidth(22);
+        $sheet2->getColumnDimension('C')->setWidth(30);
+        $sheet2->getColumnDimension('D')->setWidth(28);
+        for ($c = 5; $c <= 4 + $allSub->count(); $c++) {
+            $sheet2->getColumnDimension($Coordinate::stringFromColumnIndex($c))->setWidth(13);
+        }
+        $sheet2->getColumnDimension(
+            $Coordinate::stringFromColumnIndex($colNilaiAkhir)
+        )->setWidth(12);
+        $sheet2->getColumnDimension(
+            $Coordinate::stringFromColumnIndex($colStatus)
+        )->setWidth(18);
+
+        // Freeze header 2 baris + 4 kolom tetap
+        $sheet2->freezePane('E6');
+
+        // Aktifkan sheet 1 saat file dibuka
+        $spreadsheet->setActiveSheetIndex(0);
+
         // ── Output XLSX ───────────────────────────────────────────────
         $filename = 'rekap_nilai_' . str_slug($jadwal->nama) . '_' . date('Ymd') . '.xlsx';
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);

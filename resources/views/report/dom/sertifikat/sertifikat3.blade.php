@@ -174,7 +174,8 @@
                                         <td style="vertical-align: top">Instansi</td>
                                         <td style="vertical-align: top">:</td>
                                         <td style="vertical-align: top; text-transform: uppercase">
-                                            {!! $sertPeserta->instansi !!}</td>
+                                            {!! $sertPeserta->instansi !!}
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -192,7 +193,8 @@
                     yang diselenggarakan oleh {!! $sertifikat->fasilitasi !!} bekerja sama dengan Badan Pengembangan Sumber
                     Daya Manusia Provinsi Kalimantan Timur dari tanggal {!! formatTanggal($jadwal->tgl_awal) !!} sampai
                     dengan {!! formatTanggal($jadwal->tgl_akhir) !!} bertempat di {!! $jadwal->lokasi !!} yang meliputi
-                    {!! $jadwal->total_jp !!} JP (Jam Pelajaran).</p>
+                    {!! $jadwal->total_jp !!} JP (Jam Pelajaran).
+                </p>
             @endif
         </div>
         <div id="tt1">
@@ -238,10 +240,12 @@
                 <tr>
                     <th width="5%"
                         style="border-right: 2px solid; border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center">
-                        <span style="font-weight: bold;">No.</span></th>
+                        <span style="font-weight: bold;">No.</span>
+                    </th>
                     <th
                         style="border-bottom: 2px solid; padding-top: 15px; padding-bottom: 15px; vertical-align: center; text-align: center">
-                        <span style="font-weight: bold;">Materi</span></th>
+                        <span style="font-weight: bold;">Materi</span>
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -266,7 +270,7 @@
                     <td style="">{!! $sertifikat->jabatan2 !!}</td>
                 </tr>
                 <tr>
-                    <td style="padding-bottom: 100pxp">&nbsp;</td>
+                    <td style="padding-bottom: 100px">&nbsp;</td>
                 </tr>
                 <tr>
                     <td style="">{!! $sertifikat->nama2 !!}</td>
@@ -279,7 +283,7 @@
                 </tr>
             </table>
         </div>
-        @if(!is_null($sertifikat->spesimen))
+        @if(!is_null($sertifikat->spesimen2))
             <div id="tt4">
                 <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="200" />
             </div>
