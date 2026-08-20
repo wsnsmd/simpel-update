@@ -710,7 +710,21 @@ class NilaiController extends Controller
 
         $pesIds = $pesertaList->pluck('id')->toArray();
 
-        $rekapAspek = array();
+        // Kelompok, coach, penguji per peserta
+        $seminarMap = array();
+        if (!empty($pesIds)) {
+            $seminarRows = DB::table('seminar_anggota as sa')
+                ->join('seminar as s', 's.id', '=', 'sa.sid')
+                ->join('fasilitator as f1', 'f1.id', '=', 's.cid')
+                ->join('fasilitator as f2', 'f2.id', '=', 's.pid')
+                ->where('s.jid', $jadwalId)
+                ->whereIn('sa.peid', $pesIds)
+                ->select('sa.peid', 's.kelompok', 'f1.nama as coach', 'f2.nama as penguji')
+                ->get();
+            foreach ($seminarRows as $sr) {
+                $seminarMap[$sr->peid] = $sr;
+            }
+        }
         $rekapAkhir = array();
         if (!empty($pesIds)) {
             foreach (DB::table('peserta_nilai_aspek')
@@ -735,7 +749,8 @@ class NilaiController extends Controller
         $sheet->setTitle('Rekap Nilai');
 
         // Hitung total kolom & kolom terakhir
-        $totalCols = 5 + $aspekList->count() + 4;
+        // No, NIP, Nama, Instansi, Jabatan + aspek + Nilai Akhir, Kualifikasi, Status, Ranking, Kelompok, Coach, Penguji
+        $totalCols = 5 + $aspekList->count() + 4 + 3;
         $lastColStr = $Coordinate::stringFromColumnIndex($totalCols);
 
         // ── Baris 1-3: Judul ─────────────────────────────────────────
@@ -802,8 +817,8 @@ class NilaiController extends Controller
             $col++;
         }
 
-        // Kolom akhir
-        foreach (['Nilai Akhir', 'Kualifikasi', 'Status Kelulusan', 'Ranking'] as $h) {
+        // Kolom akhir: Nilai Akhir, Kualifikasi, Status, Ranking, Kelompok, Coach, Penguji
+        foreach (['Nilai Akhir', 'Kualifikasi', 'Status Kelulusan', 'Ranking', 'Kelompok', 'Coach', 'Penguji'] as $h) {
             $colStr = $Coordinate::stringFromColumnIndex($col);
             $sheet->setCellValue($colStr . $row, $h);
             $sheet->getStyle($colStr . $row)->getFont()->setBold(true)
@@ -859,6 +874,7 @@ class NilaiController extends Controller
             $col++;
 
             // Nama, Instansi, Jabatan
+            $sm = isset($seminarMap[$p->id]) ? $seminarMap[$p->id] : null;
             $sheet->setCellValue('C' . $row, $p->nama_lengkap);
             $sheet->setCellValue('D' . $row, $p->instansi ?: '-');
             $sheet->setCellValue('E' . $row, $p->jabatan ?: '-');
@@ -925,6 +941,17 @@ class NilaiController extends Controller
             $sheet->getStyle($colStr . $row)->getFont()->setBold(true);
             $sheet->getStyle($colStr . $row)->getAlignment()
                 ->setHorizontal($Alignment::HORIZONTAL_CENTER);
+            $col++;
+
+            // Kelompok, Coach, Penguji
+            $sheet->setCellValue($Coordinate::stringFromColumnIndex($col) . $row, $sm ? $sm->kelompok : '-');
+            $sheet->setCellValue($Coordinate::stringFromColumnIndex($col + 1) . $row, $sm ? $sm->coach : '-');
+            $sheet->setCellValue($Coordinate::stringFromColumnIndex($col + 2) . $row, $sm ? $sm->penguji : '-');
+            $csStart = $Coordinate::stringFromColumnIndex($col);
+            $csEnd = $Coordinate::stringFromColumnIndex($col + 2);
+            $sheet->getStyle($csStart . $row . ':' . $csEnd . $row)->getFill()
+                ->setFillType($Fill::FILL_SOLID)
+                ->getStartColor()->setARGB('FFF0F4FF');
 
             // Border seluruh baris
             $rangeStr = 'A' . $row . ':' . $lastColStr . $row;
@@ -961,10 +988,13 @@ class NilaiController extends Controller
             $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($c))->setWidth(14);
         }
         $lastA = 5 + $aspekList->count();
-        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 1))->setWidth(12);
-        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 2))->setWidth(22);
-        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 3))->setWidth(20);
-        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 4))->setWidth(10);
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 1))->setWidth(12);  // Nilai Akhir
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 2))->setWidth(22);  // Kualifikasi
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 3))->setWidth(20);  // Status
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 4))->setWidth(10);  // Ranking
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 5))->setWidth(18);  // Kelompok
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 6))->setWidth(22);  // Coach
+        $sheet->getColumnDimension($Coordinate::stringFromColumnIndex($lastA + 7))->setWidth(22);  // Penguji
 
         // Freeze header
         $sheet->freezePane('F5');
