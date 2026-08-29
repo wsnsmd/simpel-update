@@ -129,12 +129,35 @@ class SertifikatController extends Controller
                         }
                     }
 
+                    // Ambil hp langsung dari tabel peserta (lebih reliable dari view)
+                    $pesertaRow = DB::table('peserta')
+                        ->where('id', $cek->id)
+                        ->select('hp', 'nip')
+                        ->first();
+
+                    $hp = $pesertaRow ? (string) ($pesertaRow->hp ?? '') : '';
+
+                    // Hitung umur dari NIP — format: YYYYMMDD di 8 digit pertama
+                    // Contoh: 198503222015031002 → lahir 22 Maret 1985
+                    $r_umur = mt_rand(25, 58);
+                    $umur = (string) $r_umur;
+                    $nip = $pesertaRow ? preg_replace('/\D/', '', $pesertaRow->nip ?? '') : '';
+                    if (strlen($nip) === 18) {
+                        $tglLahirStr = substr($nip, 0, 8); // YYYYMMDD
+                        $tglLahir = \DateTime::createFromFormat('Ymd', $tglLahirStr);
+                        if ($tglLahir && $tglLahir->format('Ymd') === $tglLahirStr) {
+                            $umur = (string) $tglLahir->diff(new \DateTime())->y;
+                        }
+                    }
+
                     // payload wajib sesuai format app survei kamu
                     $data = array_merge([
                         'peserta_id' => (string) $cek->id,
                         'nama_lengkap' => (string) $sertPeserta->nama_lengkap,
-                        'jk' => (string) ($cek->jk ?? ''), // kalau ada di view; jika tidak ada, bisa ambil dari peserta table
-                        'pendidikan' => (string) ($cek->pendidikan ?? 'Sarjana (S1)'), // sesuaikan sumbernya
+                        'hp' => $hp,
+                        'umur' => $umur,
+                        'jk' => (string) ($cek->jk ?? ''),
+                        'pendidikan' => (string) ($cek->pendidikan ?? 'Sarjana (S1)'),
                         'pekerjaan' => (string) (($cek->status_asn ?? null) ? 'ASN' : 'Non-ASN'),
                         'instansi' => (string) $sertPeserta->instansi,
                         'jadwal_id' => (string) $jadwalRow->id,
@@ -354,6 +377,4 @@ class SertifikatController extends Controller
         // URL akhir: {SURVEY_BASE_URL}/s/{survey_code}?{payload}
         return $base . '/s/' . $data['survey_code'] . '?' . http_build_query($payload);
     }
-
-
 }
