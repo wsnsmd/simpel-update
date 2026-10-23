@@ -9,8 +9,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use App\Models\ApiToken;
 use GuzzleHttp\Client;
-
-use DB;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UploadSimpegJob implements ShouldQueue
 {
@@ -56,6 +56,10 @@ class UploadSimpegJob implements ShouldQueue
         ]);
 
         $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
+        if (!$tokenData || empty($tokenData->token)) {
+            \Log::error('UploadSimpegJob: Token SIMASN tidak ditemukan di database.');
+            throw new \Exception('Token API SIMASN tidak ditemukan atau kosong.');
+        }
         $headers = [
             'Authorization' => 'Bearer ' . $tokenData->token
         ];
@@ -115,9 +119,9 @@ class UploadSimpegJob implements ShouldQueue
                 [
                     'name' => 'sertifikat',
                     'contents' => $content,
-                    'filename' => '/sertifikat-' . $microtimeString . '.pdf',
+                    'filename' => 'sertifikat-' . $microtimeString . '.pdf',
                     'headers' => [
-                        'Content-Type' => '<Content-type header>'
+                        'Content-Type' => 'application/pdf'
                     ]
                 ],
             ]
@@ -127,9 +131,10 @@ class UploadSimpegJob implements ShouldQueue
 
         $body = json_decode($res->getBody());
 
-        if ($body->success) {
+        if ($body && isset($body->success) && $body->success) {
             $at = date('Y-m-d H:i:s');
-            DB::table('sertifikat_peserta')->where('id', $this->peserta->spid)->update([
+            $spid = $this->peserta->spid ?? $this->peserta->id;
+            DB::table('sertifikat_peserta')->where('id', $spid)->update([
                 'simpeg_at' => $at,
                 'simpeg_failed_at' => null,
                 'updated_at' => $at,
@@ -144,14 +149,16 @@ class UploadSimpegJob implements ShouldQueue
 
     public function failed(\Throwable $e)
     {
+        $spid = $this->peserta->spid ?? $this->peserta->id;
         DB::table('sertifikat_peserta')
-            ->where('id', $this->peserta->id)
+            ->where('id', $spid)
             ->update([
                 'simpeg_failed_at' => now(),
             ]);
 
         \Log::error('UploadSimpegJob FAILED', [
-            'peserta' => $this->peserta->id,
+            'peserta' => $this->peserta->id ?? null,
+            'spid' => $spid,
             'error' => $e->getMessage(),
         ]);
     }
