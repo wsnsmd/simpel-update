@@ -11,10 +11,10 @@
     "require": {
         "php": "^8.2",
         "barryvdh/laravel-dompdf": "^3.1",
-        "laravel/framework": "^12.0",
+        "laravel/framework": "^13.0",
         "laravel/helpers": "^1.8",
         "laravel/socialite": "^5.0",
-        "laravel/tinker": "^2.10.1",
+        "laravel/tinker": "^3.0",
         "laravel/ui": "^4.6",
         "league/oauth2-client": "^2.9",
         "maatwebsite/excel": "^4.0",
@@ -22,7 +22,7 @@
         "qcod/laravel-app-settings": "^1.7",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "socialiteproviders/manager": "^4.0",
-        "yajra/laravel-datatables-oracle": "^12.7"
+        "yajra/laravel-datatables-oracle": "^13.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

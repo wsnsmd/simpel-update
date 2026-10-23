@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Laravel-12.x-red.svg" alt="Laravel 12">
+  <img src="https://img.shields.io/badge/Laravel-13.x-red.svg" alt="Laravel 13">
   <img src="https://img.shields.io/badge/PHP-8.4-blue.svg" alt="PHP 8.4">
   <img src="https://img.shields.io/badge/Database-MariaDB_10.11-teal.svg" alt="MariaDB">
-  <img src="https://img.shields.io/badge/Branch-2026--lv12-brightgreen.svg" alt="Branch">
+  <img src="https://img.shields.io/badge/Branch-2026--lv13-brightgreen.svg" alt="Branch">
 </p>
 
 ---
