@@ -71,8 +71,8 @@ Branch **`2026-lv12`** ini merupakan hasil penulisan ulang arsitektur (*modern f
 
 ### 1. Clone Repositori
 ```bash
-git clone -b 2026-lv12 https://github.com/wsnsmd/simpel-update.git simpel-v12
-cd simpel-v12
+git clone -b 2026-lv13 https://github.com/wsnsmd/simpel-update.git simpel-lv13
+cd simpel-lv13
 ```
 
 ### 2. Konfigurasi Lingkungan (.env)
