@@ -91,19 +91,18 @@
         }
 
         @if(!is_null($sertifikat->spesimen))
-            #tt2 {
-                position: fixed;
-                bottom: {{ $sertPeserta->spesimen_bawah ?? 8.5 }}cm;
-                left: {{ $sertPeserta->spesimen_kiri ?? 12 }}cm;
-            }
+        #tt2 {
+            position: fixed;
+            bottom: {{ $sertPeserta->spesimen_bawah ?? 6.0 }}cm;
+            left: {{ $sertPeserta->spesimen_kiri ?? 12.0 }}cm;
+        }
         @endif
-
         @if(!is_null($sertifikat->spesimen2))
-            #tt4 {
-                position: fixed;
-                bottom: {{ $sertPeserta->spesimen2_bawah ?? 8.5 }}cm;
-                left: {{ $sertPeserta->spesimen2_kiri ?? 12 }}cm;
-            }
+        #tt4 {
+            position: fixed;
+            bottom: {{ $sertPeserta->spesimen2_bawah ?? 9.0 }}cm;
+            left: {{ $sertPeserta->spesimen2_kiri ?? 12.0 }}cm;
+        }
         @endif
     </style>
 </head>
@@ -122,12 +121,9 @@
         <tbody>
             <tr>
                 <td style="text-align: center">
-                    <span style="font-weight: bold; font-size: 12pt; font-family: bookman; line-height: 1.0;">BADAN
-                        PENGEMBANGAN SUMBER DAYA MANUSIA PROVINSI KALIMANTAN TIMUR</span><br>
-                    <span style="font-weight: bold; font-size: 20pt; font-family: bookman; line-height: 1.5;">S E R T I
-                        F I K A T</span><br>
-                    <span style="font-size: 12pt; font-family: bookman; line-height: 1.0;">Nomor :
-                        {!! $sertPeserta->nomor !!}</span>
+                    <span style="font-weight: bold; font-size: 12pt; font-family: bookman; line-height: 1.0;">BADAN PENGEMBANGAN SUMBER DAYA MANUSIA PROVINSI KALIMANTAN TIMUR</span><br>
+                    <span style="font-weight: bold; font-size: 20pt; font-family: bookman; line-height: 1.5;">S E R T I F I K A T</span><br>
+                    <span style="font-size: 12pt; font-family: bookman; line-height: 1.0;">Nomor : {!! $sertPeserta->nomor !!}</span>
                 </td>
             </tr>
         </tbody>
@@ -208,9 +204,9 @@
             </table>
         </div>
         @if(!is_null($sertifikat->spesimen))
-            <div id="tt2">
-                <img src="{{ storage_path('app/' . $sertifikat->spesimen) }}" height="200" />
-            </div>
+        <div id="tt2">
+            <img src="{{ storage_path('app/' . $sertifikat->spesimen) }}" height="200" />
+        </div>
         @endif
     </div>
     <div class="page_break"></div>
@@ -274,9 +270,9 @@
             </table>
         </div>
         @if(!is_null($sertifikat->spesimen2))
-            <div id="tt4">
-                <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="200" />
-            </div>
+        <div id="tt4">
+            <img src="{{ storage_path('app/' . $sertifikat->spesimen2) }}" height="200" />
+        </div>
         @endif
     </div>
 </body>
