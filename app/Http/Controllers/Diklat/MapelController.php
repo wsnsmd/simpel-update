@@ -613,7 +613,7 @@ class MapelController extends Controller
 
             $notifikasi = 'Data tanda tangan berhasil disimpan!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'mata-pelatihan'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'mata-pelatihan'])
                         ->with([
                             'success' => $notifikasi,
                         ]);
@@ -622,7 +622,7 @@ class MapelController extends Controller
         {
             dd($e);
             $notifikasi = 'Data tanda tangan gagal disimpan!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'mata-pelatihan'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'mata-pelatihan'])
                         ->with([
                             'error' => $notifikasi,
                         ]);

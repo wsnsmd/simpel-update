@@ -128,7 +128,7 @@ class SertifikatController extends Controller
 
         $jadwal = DB::table('v_jadwal_detail')->where('id', $input['jadwal_id'])->first();
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -181,7 +181,7 @@ class SertifikatController extends Controller
 
         if (is_null($pid)) {
             $notifikasi = 'Tidak ada data peserta yang dipilih!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                 ->with([
                     'success' => $notifikasi,
                 ]);
@@ -236,7 +236,7 @@ class SertifikatController extends Controller
 
         $notifikasi = 'Data sertifikat peserta berhasil dibuat!';
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -359,7 +359,7 @@ class SertifikatController extends Controller
 
         $jadwal = DB::table('v_jadwal_detail')->where('id', $input['jadwal_id'])->first();
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -402,7 +402,7 @@ class SertifikatController extends Controller
 
         $notifikasi = 'Template email berhasil disimpan!';
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -424,7 +424,7 @@ class SertifikatController extends Controller
                 ->first();
             if ($sertifikat->is_upload && is_null($peserta->upload)) {
                 $notifikasi = 'Email sertifikat gagal dikirim, pastikan data sudah benar!';
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
                         'error' => $notifikasi,
                         'page' => 'peserta'
@@ -444,7 +444,7 @@ class SertifikatController extends Controller
 
             $notifikasi = 'Email sertifikat berhasil dikirim!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                 ->with([
                     'success' => $notifikasi,
                 ]);
@@ -482,13 +482,13 @@ class SertifikatController extends Controller
 
                 $notifikasi = 'Email sertifikat berhasil dikirim!';
 
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
                         'success' => $notifikasi,
                     ]);
             } catch (\Exception $e) {
                 $notifikasi = 'Email sertifikat gagal dikirim!';
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
                         'error' => $notifikasi,
                         'page' => 'peserta'
@@ -532,7 +532,7 @@ class SertifikatController extends Controller
 
                 $notifikasi = 'Email sertifikat berhasil dikirim!';
 
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                     ->with([
                         'success' => $notifikasi,
                     ]);
@@ -544,7 +544,7 @@ class SertifikatController extends Controller
         }
 
         $notifikasi = 'Email sertifikat gagal dikirim!';
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'error' => $notifikasi,
                 'page' => 'peserta'
@@ -591,7 +591,7 @@ class SertifikatController extends Controller
 
         $jadwal = DB::table('v_jadwal_detail')->where('id', $input['jadwal_id'])->first();
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -647,14 +647,14 @@ class SertifikatController extends Controller
 
             $notifikasi = 'Data SIMASN berhasil dikirim!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                 ->with([
                     'success' => $notifikasi,
                 ]);
         } catch (\Exception $e) {
             dd($e);
             $notifikasi = 'Data SIMASN gagal dikirim!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                 ->with([
                     'error' => $notifikasi,
                     'page' => 'peserta'
@@ -676,7 +676,7 @@ class SertifikatController extends Controller
         } catch (\Exception $e) {
             DB::rollback();
             $notifikasi = 'Hapus sertifikat gagal!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
                 ->with([
                     'error' => $notifikasi,
                 ]);
@@ -686,7 +686,7 @@ class SertifikatController extends Controller
 
         $notifikasi = 'Hapus sertifikat berhasil!';
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -1037,7 +1037,7 @@ class SertifikatController extends Controller
 
         $jadwal = DB::table('v_jadwal_detail')->where('id', $sertifikat->diklat_jadwal_id)->first();
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);
@@ -1090,7 +1090,7 @@ class SertifikatController extends Controller
 
         $notifikasi = 'Data SIMASN berhasil disimpan!';
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
             ->with([
                 'success' => $notifikasi,
             ]);

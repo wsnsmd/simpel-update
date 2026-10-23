@@ -145,7 +145,7 @@ class PesertaController extends Controller
             $notifikasi = 'Data peserta berhasil ditambahkan!';
 
             if (isset($request->add))
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                     ->with([
                         'success' => $notifikasi,
                         'page' => 'peserta'
@@ -220,7 +220,7 @@ class PesertaController extends Controller
             $notifikasi = 'Data peserta berhasil ditambahkan!';
 
             if (isset($request->add))
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                     ->with([
                         'success' => $notifikasi,
                         'page' => 'peserta'
@@ -354,7 +354,7 @@ class PesertaController extends Controller
 
             $notifikasi = 'Data peserta berhasil diubah!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
@@ -403,7 +403,7 @@ class PesertaController extends Controller
 
             $notifikasi = 'Data peserta berhasil diubah!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
@@ -424,7 +424,7 @@ class PesertaController extends Controller
 
         if ($delete) {
             $notifikasi = 'Data peserta berhasil dihapus!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
@@ -432,7 +432,7 @@ class PesertaController extends Controller
         }
 
         $notifikasi = 'Data peserta gagal dihapus!';
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
             ->with([
                 'error' => $notifikasi,
                 'page' => 'peserta'
@@ -472,14 +472,14 @@ class PesertaController extends Controller
                 $this->dispatch($job);
             }
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
                 ]);
         } catch (\Exception $e) {
             $notifikasi = 'Data peserta gagal diverifikasi!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'error' => $notifikasi,
                     'page' => 'peserta'
@@ -614,14 +614,14 @@ class PesertaController extends Controller
                     break;
             }
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
                 ]);
         } catch (\Exception $e) {
             $notifikasi = 'Konfirmasi manual peserta gagal!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'error' => $notifikasi,
                     'page' => 'peserta'
@@ -644,14 +644,14 @@ class PesertaController extends Controller
 
             $notifikasi = 'Data batal peserta telah tersimpan!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
                 ]);
         } catch (\Exception $e) {
             $notifikasi = 'Data batal peserta gagal disimpan!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'error' => $notifikasi,
                     'page' => 'peserta'
@@ -990,7 +990,7 @@ class PesertaController extends Controller
 
             $notifikasi = 'Import peserta berhasil!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'success' => $notifikasi,
                     'page' => 'peserta'
@@ -1000,7 +1000,7 @@ class PesertaController extends Controller
 
             $notifikasi = 'Import peserta gagal!';
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
                 ->with([
                     'error' => $notifikasi,
                     'page' => 'peserta'
@@ -1023,7 +1023,7 @@ class PesertaController extends Controller
         if ($request->status)
             $notifikasi = 'Konfirmasi kehadiran berhasil dibuka!';
 
-        return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
+        return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'peserta'])
             ->with([
                 'success' => $notifikasi,
                 'page' => 'peserta'

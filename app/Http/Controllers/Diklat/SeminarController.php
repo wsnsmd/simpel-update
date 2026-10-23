@@ -73,7 +73,7 @@ class SeminarController extends Controller
             {
                 $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwal)->first();
 
-                return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'seminar'])
+                return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'seminar'])
                         ->with([
                             'success' => $notifikasi,
                             'page' => 'seminar'
@@ -129,7 +129,7 @@ class SeminarController extends Controller
             
             $jadwal = DB::table('v_jadwal_detail')->where('id', $jadwal)->first();
 
-            return redirect()->route('backend.diklat.jadwal.detail', ['id' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'seminar'])
+            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'seminar'])
                     ->with([
                         'success' => $notifikasi,
                         'page' => 'seminar'
