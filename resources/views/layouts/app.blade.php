@@ -18,7 +18,7 @@
 
     <!-- Styles -->
     <link rel="stylesheet" id="css-theme" href="{{ asset('css/simpel.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/themes/xmodern.css') }}"> 
+    <link rel="stylesheet" href="{{ asset('css/themes/xmodern.min.css') }}"> 
 </head>
 <body>
     <div id="app">

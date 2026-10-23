@@ -25,7 +25,7 @@
     @yield('css_before')
     <link rel="stylesheet" id="css-main" href="https://fonts.googleapis.com/css?family=Inter:300,400,400i,600,700">
     <link rel="stylesheet" id="css-theme" href="{{ asset('css/simpel.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/themes/' . setting()->get('app_tema') . '.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/themes/' . setting()->get('app_tema') . '.min.css') }}">
     <link rel="stylesheet" id="css-custom" href="{{ asset('css/custom.css') }}">
 
     @yield('css_after')
