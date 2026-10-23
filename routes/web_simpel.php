@@ -1,0 +1,418 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use GuzzleHttp\Client;
+use App\Models\ApiToken;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+$admin_path = config('app.admin_path');
+
+// Authentication Routes
+Route::get($admin_path . '/login', 'Auth\AuthentikController@loginRedirect')->name('login');
+// Route::post($admin_path . '/login', 'Auth\LoginController@login')->middleware('throttle:5,1');;
+// Route::post($admin_path . '/logout', 'Auth\LoginController@logout')->name('logout');
+Route::get($admin_path . '/reload-captcha', 'Auth\LoginController@reloadCaptcha')->name('reload.captcha');
+
+// Route::get('/auth/keycloak/redirect', 'Auth\KeycloakAuthController@redirect')->name('keycloak.redirect');
+// Route::get('/auth/keycloak/callback', 'Auth\KeycloakAuthController@callback')->name('keycloak.callback');
+// Logout (opsional SSO)
+// Route::post('/logout-sso', 'Auth\KeycloakAuthController@logout')->name('logout.sso');
+
+Route::get('/auth/authentik/redirect', [
+    'as' => 'authentik.redirect',
+    'uses' => 'Auth\AuthentikController@redirect',
+]);
+
+Route::get('/auth/authentik/callback', [
+    'as' => 'authentik.callback',
+    'uses' => 'Auth\AuthentikController@callback',
+]);
+
+Route::get('/profile/sso', 'Auth\AuthentikController@profileSSO')->name('authentik.profile');
+
+Route::get('/logout', [
+    'as' => 'authentik.logout',
+    'uses' => 'Auth\AuthentikController@logout'
+]);
+
+// ============================================================
+// Portal Peserta — login page (guest:peserta) & logout
+// ============================================================
+Route::get('/peserta/login', [
+    'as' => 'peserta.login',
+    'uses' => 'Auth\PesertaLoginController@showLoginForm',
+]);
+
+Route::post('/peserta/logout', [
+    'as' => 'peserta.logout',
+    'uses' => 'Auth\AuthentikController@logoutPeserta',
+])->middleware('auth:peserta');
+
+Route::get('/presensi/{token}', 'Peserta\ScanRedirectController@handle')
+    ->name('presensi.scan');
+
+// Portal Peserta — halaman yang butuh login
+Route::group(['prefix' => 'peserta', 'as' => 'peserta.', 'middleware' => 'auth:peserta'], function () {
+    Route::get('/dashboard', 'Peserta\DashboardController@index')->name('dashboard');
+    Route::get('/sertifikat/{pesertaId}/download', 'Peserta\DashboardController@downloadSertifikat')->name('sertifikat.download');
+    Route::post('/peserta/{pesertaId}/foto', 'Peserta\DashboardController@uploadFoto')->name('foto.upload');
+
+    // Upload dokumen persyaratan (syaratId = id di jadwal_dokumen_syarat)
+    Route::post('/peserta/{pesertaId}/dokumen/{syaratId}', 'Peserta\DashboardController@uploadDokumen')
+        ->name('dokumen.upload');
+
+    // Presensi via QR
+    Route::get('/presensi/{token}', 'Peserta\PresensiPesertaController@show')->name('presensi.show');
+    Route::post('/presensi/{token}', 'Peserta\PresensiPesertaController@konfirmasi')->name('presensi.konfirmasi');
+
+    // Upload tautan laporan seminar
+    Route::get('/laporan-seminar', 'Peserta\LaporanSeminarController@index')->name('laporan.index');
+    Route::post('/laporan-seminar/{jadwalId}/{fase}', 'Peserta\LaporanSeminarController@upsert')->name('laporan.upsert');
+    Route::delete('/laporan-seminar/{jadwalId}/{fase}', 'Peserta\LaporanSeminarController@destroy')->name('laporan.destroy');
+});
+
+Route::get('/nilai/penguji/{token}', 'Penguji\PengujiNilaiController@index')->name('penguji.nilai.index');
+Route::get('/nilai/penguji/{token}/peserta/{pesertaId}/{fase}', 'Penguji\PengujiNilaiController@formNilai')->name('penguji.nilai.form');
+Route::post('/nilai/penguji/{token}/peserta/{pesertaId}/{fase}', 'Penguji\PengujiNilaiController@saveNilai')->name('penguji.nilai.save');
+
+// Authentication Routes
+
+// Frontend Routes
+Route::resource('/', 'BerandaController', [
+    'only' => ['index']
+]);
+
+Route::resource('/jadwal', 'JadwalController', [
+    'only' => ['index']
+]);
+
+// Route::get('/presensi/{token}', function ($token) {
+//     if (!Auth::guard('peserta')->check()) {
+//         session(['url.intended' => url('/presensi/' . $token)]);
+//         return redirect()->route('peserta.login');
+//     }
+//     return app()->call('App\Http\Controllers\Peserta\PresensiPesertaController@show', ['token' => $token]);
+// })->middleware('web');
+
+Route::post('/jadwal', 'JadwalController@cari')->name('jadwal.cari');
+Route::get('/jadwal/{jadwal}/{slug}/detail', 'JadwalController@detail')->name('jadwal.detail');
+Route::get('/tautan/{jadwal}/{hash}/', 'JadwalController@tautan')->name('jadwal.tautan');
+Route::post('/jadwal/peserta/datatable/{jadwal}', 'JadwalController@datatablePeserta')->name('jadwal.peserta.datatable');
+Route::get('/jadwal/widyaiswara', 'JadwalController@wi')->name('jadwal.wi');
+Route::post('/jadwal/widyaiswara', 'JadwalController@postWi')->name('jadwal.wi.post');
+Route::post('/daftar', 'JadwalController@daftar')->name('jadwal.daftar');
+Route::match(['get', 'post'], '/daftar/step1', function(\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        return app('App\Http\Controllers\JadwalController')->poststep1($request);
+    }
+    return app('App\Http\Controllers\JadwalController')->step1($request);
+})->name('jadwal.daftar.step1');
+
+Route::match(['get', 'post'], '/daftar/step2', function(\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        return app('App\Http\Controllers\JadwalController')->poststep2($request);
+    }
+    return app('App\Http\Controllers\JadwalController')->step2($request);
+})->name('jadwal.daftar.step2');
+Route::post('/daftar/step2simple', 'JadwalController@poststep2simple')->name('jadwal.daftar.step2.simple');
+
+Route::match(['get', 'post'], '/daftar/step3', function(\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        return app('App\Http\Controllers\JadwalController')->poststep3($request);
+    }
+    return app('App\Http\Controllers\JadwalController')->step3($request);
+})->name('jadwal.daftar.step3');
+Route::get('/daftar/konfirmasi/{id}', 'JadwalController@konfirmasi')->name('jadwal.konfirmasi');
+Route::get('/daftar/cek-status', 'JadwalController@cekIndex')->name('jadwal.cek_status');
+Route::post('/daftar/cek-status', 'JadwalController@cekStatus')->name('jadwal.cek_status.post');
+
+Route::resource('/alumni', 'AlumniController', [
+    'only' => ['index']
+]);
+
+Route::post('/alumni', 'AlumniController@cari')->name('alumni.cari');
+
+Route::get('/send/email', 'HomeController@mail');
+
+Route::get('/sertifikat/{peserta}/{jadwal}/{sertifikat}/{email}', 'SertifikatController@show')->name('sertifikat.show');
+Route::match(['get', 'post'], '/sertifikat/cek', function(\Illuminate\Http\Request $request) {
+    if ($request->isMethod('post')) {
+        return app('App\Http\Controllers\SertifikatController')->postCek($request);
+    }
+    return app('App\Http\Controllers\SertifikatController')->cek($request);
+})->name('sertifikat.cek');
+
+// Route::get('/test-finish', 'JadwalController@testFinish');
+
+Route::view('/informasi', 'frontend.informasi')->name('informasi');
+// Frontend Routes
+
+// Backend Routes
+Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' => 'auth'], function () {
+    Route::match(['get', 'post'], '/dashboard', 'HomeController@dashboard')->name('dashboard');
+
+    Route::group(['prefix' => 'master', 'as' => 'master.'], function () {
+        Route::resource('agama', 'Master\AgamaController');
+        Route::resource('instansi', 'Master\InstansiController');
+        Route::post('instansi/sort', 'Master\InstansiController@sort')->name('instansi.sort');
+        Route::resource('lokasi', 'Master\LokasiController');
+        Route::resource('opd', 'Master\OpdController');
+        Route::resource('pangkat', 'Master\PangkatController');
+        Route::resource('tahun', 'Master\TahunController');
+    });
+
+    Route::group(['prefix' => 'diklat', 'as' => 'diklat.'], function () {
+        // Fasilitator
+        Route::resource('fasilitator', 'Diklat\FasilitatorController');
+
+        // Jenis
+        Route::resource('jenis', 'Diklat\JenisController');
+
+        // Kurikulum
+        Route::resource('kurikulum', 'Diklat\KurikulumController');
+        Route::get('kurikulum/{kurikulum}/detail/{slug}', 'Diklat\KurikulumController@detail')->name('kurikulum.detail');
+        Route::get('kurikulum/get/{jenisdiklat}', 'Diklat\KurikulumController@getKurikulum')->name('kurikulum.get');
+
+        // Mata Pelatihan
+        Route::post('matapelatihan/{kurikulum}', 'Diklat\MapelController@store')->name('mapel.store');
+        Route::delete('matapelatihan/{matapelatihan}', 'Diklat\MapelController@destroy')->name('mapel.destroy');
+        Route::patch('matapelatihan/{matapelatihan}', 'Diklat\MapelController@update')->name('mapel.update');
+        Route::get('matapelatihan/{matapelatihan}', 'Diklat\MapelController@show')->name('mapel.show');
+        Route::get('matapelatihan/{jadwal}/{slug}/{matapelatihan}/jadwal', 'Diklat\MapelController@jadwal')->name('mapel.jadwal');
+        Route::post('matapelatihan/jadwal/{jadwal}/{mapel}', 'Diklat\MapelController@jadwalStore')->name('mapel.jadwal.store');
+        Route::delete('matapelatihan/jadwal/{jadwal}/{mapel}/{id}/hapus', 'Diklat\MapelController@jadwalDestroy')->name('mapel.jadwal.destroy');
+        Route::get('matapelatihan/jadwal/{id}/edit', 'Diklat\MapelController@jadwalEdit')->name('mapel.jadwal.edit');
+        Route::patch('matapelatihan/jadwal/{id}/update', 'Diklat\MapelController@jadwalUpdate')->name('mapel.jadwal.update');
+        Route::post('matapelatihan/jadwal/{jadwal}/{mapel}/widyaiswara', 'Diklat\MapelController@wiStore')->name('mapel.wi.store');
+        Route::delete('matapelatihan/jadwal/{jadwal}/{mapel}/widyaiswara/{id}/hapus', 'Diklat\MapelController@wiDestroy')->name('mapel.wi.destroy');
+        Route::get('matapelatihan/jadwal/widyaiswara/{id}/edit', 'Diklat\MapelController@wiEdit')->name('mapel.wi.edit');
+        Route::patch('matapelatihan/jadwal/widyaiswara/{id}/update', 'Diklat\MapelController@wiUpdate')->name('mapel.wi.update');
+        Route::get('matapelatihan/jadwal/widyaiswara/{id}/cetak', 'Diklat\MapelController@wiCetak')->name('mapel.wi.cetak');
+        Route::post('matapelatihan/jadwal/{id}/wi/rekap', 'Diklat\MapelController@wiRekap')->name('mapel.wi.rekap');
+        Route::get('matapelatihan/jadwal/{jadwal}/tandatangan/edit', 'Diklat\MapelController@TandaTanganEdit')->name('mapel.tt.edit');
+        Route::post('matapelatihan/jadwal/{jadwal}/tandatangan/update', 'Diklat\MapelController@TandaTanganUpdate')->name('mapel.tt.update');
+
+        // Jadwal
+        Route::resource('jadwal', 'Diklat\JadwalController');
+        Route::post('jadwal/index/filter/{id}', 'Diklat\JadwalController@filterindex')->name('jadwal.index.filter');
+        Route::get('jadwal/{jadwal}/detail/{slug}', 'Diklat\JadwalController@detail')->name('jadwal.detail');
+        Route::post('jadwal/peserta', 'Diklat\JadwalController@peserta')->name('jadwal.peserta');
+
+        // Peserta
+        Route::get('peserta/{jadwal}/{slug}/create', 'Diklat\PesertaController@create')->name('peserta.create');
+        Route::post('peserta/{jadwal}', 'Diklat\PesertaController@store')->name('peserta.store');
+        Route::get('peserta/{jadwal}/{slug}/{peserta}/edit', 'Diklat\PesertaController@edit')->name('peserta.edit');
+        Route::patch('peserta/{peserta}', 'Diklat\PesertaController@update')->name('peserta.update');
+        Route::delete('peserta/{peserta}', 'Diklat\PesertaController@destroy')->name('peserta.destroy');
+        Route::post('peserta/{peserta}/verifikasi', 'Diklat\PesertaController@verifikasi')->name('peserta.verifikasi');
+        Route::post('peserta/{peserta}/konfirmasi', 'Diklat\PesertaController@konfirmasi')->name('peserta.konfirmasi');
+        Route::post('peserta/{peserta}/batal', 'Diklat\PesertaController@batal')->name('peserta.batal');
+        Route::post('peserta/export/data', 'Diklat\PesertaController@export')->name('peserta.export');
+        Route::post('peserta/{jadwal}/import', 'Diklat\PesertaController@import')->name('peserta.import');
+        Route::post('peserta/{jadwal}/import/preview', 'Diklat\PesertaController@importPreview')->name('peserta.import.preview');
+        Route::post('peserta/{jadwal}/import/simpan', 'Diklat\PesertaController@importSimpan')->name('peserta.import.simpan');
+        Route::get('peserta/{jadwal}/{slug}/back', 'Diklat\PesertaController@backToJadwal')->name('peserta.back');
+        Route::post('peserta/{jadwal}/simple', 'Diklat\PesertaController@storeSimple')->name('peserta.store.simple');
+        Route::patch('peserta/{peserta}/simple', 'Diklat\PesertaController@updateSimple')->name('peserta.update.simple');
+        Route::post('peserta/konfirmasi/jadwal', 'Diklat\PesertaController@konfirmasiJadwal')->name('peserta.konfirmasi.jadwal');
+        Route::get('peserta/{jadwal}/{slug}/{peserta}/view', 'Diklat\PesertaController@show')->name('peserta.view');
+        Route::post('peserta/datatable/verif/{jadwal}', 'Diklat\PesertaController@datatableVerif')->name('peserta.datatable.verif');
+        Route::post('peserta/datatable/noverif/{jadwal}', 'Diklat\PesertaController@datatableNoVerif')->name('peserta.datatable.noverif');
+        Route::post('peserta/datatable/confirm/{jadwal}', 'Diklat\PesertaController@datatableConfirm')->name('peserta.datatable.confirm');
+        Route::post('peserta/datatable/batal/{jadwal}', 'Diklat\PesertaController@datatableBatal')->name('peserta.datatable.batal');
+        Route::post('peserta/{jadwalId}/bulk', 'Diklat\PesertaController@bulkVerifikasi')->name('peserta.bulk_verifikasi');
+
+        // Checklist
+        Route::post('checklist', 'Diklat\ChecklistController@index')->name('checklist.index');
+        Route::post('checklist/load', 'Diklat\ChecklistController@loadChecklist')->name('checklist.load');
+        Route::post('checklist/store', 'Diklat\ChecklistController@store')->name('checklist.store');
+        Route::get('checklist/{checklist}', 'Diklat\ChecklistController@show')->name('checklist.show');
+        Route::patch('checklist/{checklist}', 'Diklat\ChecklistController@update')->name('checklist.update');
+        Route::delete('checklist/{checklist}', 'Diklat\ChecklistController@destroy')->name('checklist.destroy');
+        Route::post('checklist/upload', 'Diklat\ChecklistController@upload')->name('checklist.upload');
+        Route::post('checklist/import', 'Diklat\ChecklistController@import')->name('checklist.import');
+
+        // Sertifikat
+        Route::post('sertifikat/store', 'Diklat\SertifikatController@store')->name('sertifikat.store');
+        Route::post('sertifikat/{jadwal}/peserta', 'Diklat\SertifikatController@buatPeserta')->name('sertifikat.buat.peserta');
+        Route::post('sertifikat/{jadwal}/peserta/simpan', 'Diklat\SertifikatController@buatPesertaSimpan')->name('sertifikat.buat.peserta.simpan');
+        Route::post('sertifikat/{id}/cetak', 'Diklat\SertifikatController@cetak')->name('sertifikat.cetak');
+        Route::get('sertifikat/{id}/spesimen/posisi', 'Diklat\SertifikatController@getSpesimenPos')->name('sertifikat.spesimen.posisi');
+        Route::post('sertifikat/{id}/spesimen/posisi', 'Diklat\SertifikatController@postSpesimenPos')->name('sertifikat.spesimen.posisi.update');
+        Route::get('sertifikat/{jadwal}/email', 'Diklat\SertifikatController@emailTemplate')->name('sertifikat.email.template');
+        Route::post('sertifikat/{jadwal}/email/simpan', 'Diklat\SertifikatController@emailTemplateSimpan')->name('sertifikat.email.template.simpan');
+        Route::post('sertifikat/{jadwal}/kirim/email', 'Diklat\SertifikatController@kirimEmail')->name('sertifikat.kirim.email');
+        Route::post('sertifikat/{spid}/kirimulang/email', 'Diklat\SertifikatController@kirimUlangEmail')->name('sertifikat.kirimulang.email');
+        Route::post('sertifikat/kirim/simpeg', 'Diklat\SertifikatController@kirimSimpeg')->name('sertifikat.kirim.simpeg');
+        Route::post('sertifikat/{id}/upload', 'Diklat\SertifikatController@postUpload')->name('sertifikat.upload');
+        Route::delete('sertifikat/{id}', 'Diklat\SertifikatController@destroy')->name('sertifikat.destroy');
+        Route::get('sertifikat/simasn/kategori/{id}', 'Diklat\SertifikatController@simasnKategori')->name('sertifikat.simasn.kategori');
+        Route::get('sertifikat/simasn/sub-kategori', 'Diklat\SertifikatController@simasnSubKategori')->name('sertifikat.simasn.subkategori');
+        Route::post('sertifikat/peserta/template', 'Diklat\SertifikatController@templatePeserta')->name('sertifikat.template.peserta');
+        Route::post('sertifikat/peserta/import', 'Diklat\SertifikatController@importPeserta')->name('sertifikat.import.peserta');
+        Route::get('sertifikat/{id}/{jadwal}/edit', 'Diklat\SertifikatController@edit')->name('sertifikat.edit');
+        Route::patch('sertifikat/{id}', 'Diklat\SertifikatController@update')->name('sertifikat.update');
+        Route::post('sertifikat/{jadwal}/simasn/simpan', 'Diklat\SertifikatController@SimasnSimpan')->name('sertifikat.simasn.simpan');
+        Route::post('sertifikat/datatable/{jadwal}', 'Diklat\SertifikatController@datatableSertifikat')->name('sertifikat.datatable');
+
+        // Seminar
+        Route::get('seminar/{jadwal}/{slug}/kelompok/create', 'Diklat\SeminarController@createKelompok')->name('seminar.kelompok.create');
+        Route::post('seminar/{jadwal}/kelompok/create', 'Diklat\SeminarController@storeKelompok')->name('seminar.kelompok.store');
+        Route::get('seminar/{jadwal}/{slug}/kelompok/{id}/edit', 'Diklat\SeminarController@editKelompok')->name('seminar.kelompok.edit');
+        Route::patch('seminar/{jadwal}/kelompok/{id}', 'Diklat\SeminarController@updateKelompok')->name('seminar.kelompok.update');
+        Route::delete('seminar/kelompok/{id}', 'Diklat\SeminarController@destroyKelompok')->name('seminar.kelompok.destroy');
+        Route::get('seminar/kelompok/{seminar}/anggota', 'Diklat\SeminarController@indexAnggota')->name('seminar.anggota.index');
+        Route::post('seminar/kelompok/{seminar}/anggota/create', 'Diklat\SeminarController@storeAnggota')->name('seminar.anggota.store');
+        Route::get('seminar/kelompok/anggota/{id}/edit', 'Diklat\SeminarController@editAnggota')->name('seminar.anggota.edit');
+        Route::patch('seminar/kelompok/anggota/{id}', 'Diklat\SeminarController@updateAnggota')->name('seminar.anggota.update');
+        Route::delete('seminar/kelompok/anggota/{id}', 'Diklat\SeminarController@destroyAnggota')->name('seminar.anggota.destroy');
+
+        Route::post('seminar/kelompok/{id}/cetakform', 'Diklat\SeminarController@printForm')->name('seminar.print.form');
+
+        Route::get('seminar/jadwal/{jadwal}/peserta/ajax', 'Diklat\SeminarController@ajaxPeserta')->name('seminar.ajax.peserta');
+
+        // Surat Tugas
+        Route::post('surat-tugas', 'Diklat\SurtuController@index')->name('surtu.index');
+        Route::post('surat-tugas/load', 'Diklat\SurtuController@loadSurtu')->name('surtu.load');
+        Route::post('surat-tugas/store', 'Diklat\SurtuController@store')->name('surtu.store');
+        Route::get('surat-tugas/{jadwal}/{slug}/{id}/detail', 'Diklat\SurtuController@detail')->name('surtu.detail');
+        Route::post('surat-tugas/load/pegawai', 'Diklat\SurtuController@loadPegawai')->name('surtu.load.pegawai');
+        Route::post('surat-tugas/pegawai/add', 'Diklat\SurtuController@addPegawai')->name('surtu.pegawai.add');
+        Route::patch('surat-tugas/{id}', 'Diklat\SurtuController@update')->name('surtu.update');
+        Route::delete('surat-tugas/{id}', 'Diklat\SurtuController@destroy')->name('surtu.destroy');
+        Route::delete('surat-tugas/pegawai/{id}', 'Diklat\SurtuController@delPegawai')->name('surtu.pegawai.del');
+        Route::post('surat-tugas/cetak/{id}', 'Diklat\SurtuController@cetak')->name('surtu.cetak');
+
+        // Tautan
+        Route::post('tautan/load', 'Diklat\TautanController@load')->name('tautan.load');
+        Route::post('tautan/store', 'Diklat\TautanController@store')->name('tautan.store');
+        Route::get('tautan/{id}', 'Diklat\TautanController@show')->name('tautan.show');
+        Route::patch('tautan/{id}', 'Diklat\TautanController@update')->name('tautan.update');
+        Route::delete('tautan/{id}', 'Diklat\TautanController@destroy')->name('tautan.destroy');
+
+        // Survei
+        Route::post('survei/load', 'Diklat\SurveyController@load')->name('survei.load');
+        Route::post('survei/store', 'Diklat\SurveyController@store')->name('survei.store');
+        Route::get('survei/{id}', 'Diklat\SurveyController@show')->name('survei.show');
+        Route::patch('survei/{id}', 'Diklat\SurveyController@update')->name('survei.update');
+        Route::delete('survei/{id}', 'Diklat\SurveyController@destroy')->name('survei.destroy');
+
+        // Syarat dokumen per jadwal
+        Route::get('dokumen-syarat/{jadwalId}', 'Diklat\DokumenSyaratController@index')->name('dokumen_syarat.index');
+        Route::get('dokumen-syarat/{jadwalId}/rekap', 'Diklat\DokumenSyaratController@rekap')->name('dokumen_syarat.rekap');
+        Route::get('dokumen-syarat/{jadwalId}/download', 'Diklat\DokumenSyaratController@downloadZipAll')->name('dokumen_syarat.download_all');
+        Route::get('dokumen-syarat/{jadwalId}/download/{pesertaId}', 'Diklat\DokumenSyaratController@downloadZipByPeserta')->name('dokumen_syarat.download_by_peserta');
+        Route::post('dokumen-syarat/{jadwalId}', 'Diklat\DokumenSyaratController@store')->name('dokumen_syarat.store');
+        Route::patch('dokumen-syarat/item/{id}', 'Diklat\DokumenSyaratController@update')->name('dokumen_syarat.update');
+        Route::delete('dokumen-syarat/item/{id}', 'Diklat\DokumenSyaratController@destroy')->name('dokumen_syarat.destroy');
+
+        // Upload peserta & preview file
+        Route::get('dokumen-syarat/upload/{syaratId}', 'Diklat\DokumenSyaratController@listUpload')->name('dokumen_syarat.list_upload');
+        Route::get('dokumen-syarat/upload/{syaratId}/download', 'Diklat\DokumenSyaratController@downloadZipBySyarat')->name('dokumen_syarat.download_by_syarat');
+        Route::get('dokumen-peserta/{dokumenId}/file', 'Diklat\DokumenSyaratController@previewFile')->name('dokumen_peserta.file');
+        Route::get('dokumen-peserta/{dokumenId}/info', 'Diklat\DokumenSyaratController@previewInfo')->name('dokumen_peserta.info');
+        Route::post('dokumen-peserta/{dokumenId}/verifikasi', 'Diklat\DokumenSyaratController@verifikasi')->name('dokumen_peserta.verifikasi');
+
+        // Presensi
+        Route::get('presensi/{jadwalId}', 'Diklat\PresensiController@index')->name('presensi.index');
+        Route::post('presensi/{jadwalId}', 'Diklat\PresensiController@store')->name('presensi.store');
+        Route::patch('presensi/sesi/{sesiId}', 'Diklat\PresensiController@update')->name('presensi.update');
+        Route::delete('presensi/sesi/{sesiId}', 'Diklat\PresensiController@destroy')->name('presensi.destroy');
+        Route::post('presensi/sesi/{sesiId}/regenerate', 'Diklat\PresensiController@regenerateToken')->name('presensi.regenerate');
+        Route::get('presensi/sesi/{sesiId}/qr', 'Diklat\PresensiController@showQr')->name('presensi.qr');
+        Route::get('presensi/sesi/{sesiId}/rekap', 'Diklat\PresensiController@rekap')->name('presensi.rekap');
+        Route::get('presensi/{jadwalId}/rekap', 'Diklat\PresensiController@rekapAll')->name('presensi.rekap_all');
+        Route::get('presensi/{jadwalId}/export', 'Diklat\PresensiController@exportExcel')->name('presensi.export_excel');
+        Route::patch('presensi/peserta/{presensiId}/status', 'Diklat\PresensiController@updateStatus')->name('presensi.update_status');
+
+        // ── Sistem Penilaian ──────────────────────────────────────────
+        // Template
+        Route::get('nilai/template', 'Diklat\NilaiController@templateIndex')->name('nilai.template');
+        Route::post('nilai/template', 'Diklat\NilaiController@templateStore')->name('nilai.template.store');
+        Route::patch('nilai/template/{id}', 'Diklat\NilaiController@templateUpdate')->name('nilai.template.update');
+        Route::post('nilai/template/{id}/clone', 'Diklat\NilaiController@templateClone')->name('nilai.template.clone');
+        Route::delete('nilai/template/{id}', 'Diklat\NilaiController@templateDestroy')->name('nilai.template.destroy');
+
+        // Komponen
+        Route::get('nilai/template/{templateId}/komponen', 'Diklat\NilaiController@komponenIndex')->name('nilai.template.komponen');
+        Route::post('nilai/template/{templateId}/komponen/aspek', 'Diklat\NilaiController@komponenStoreAspek')->name('nilai.komponen.store.aspek');
+        Route::post('nilai/template/{templateId}/komponen/{aspekId}/sub', 'Diklat\NilaiController@komponenStoreSub')->name('nilai.komponen.store.sub');
+        Route::patch('nilai/komponen/{id}', 'Diklat\NilaiController@komponenUpdate')->name('nilai.komponen.update');
+        Route::delete('nilai/komponen/{id}', 'Diklat\NilaiController@komponenDestroy')->name('nilai.komponen.destroy');
+
+        // Setup per jadwal
+        Route::get('nilai/{jadwalId}/setup', 'Diklat\NilaiController@setupIndex')->name('nilai.setup');
+        Route::post('nilai/{jadwalId}/setup', 'Diklat\NilaiController@setupStore')->name('nilai.setup.store');
+        Route::post('nilai/{jadwalId}/lock', 'Diklat\NilaiController@setupLock')->name('nilai.lock');
+
+        // Token penguji
+        Route::post('nilai/{jadwalId}/token', 'Diklat\NilaiController@generateToken')->name('nilai.token.generate');
+        Route::patch('nilai/token/{tokenId}/revoke', 'Diklat\NilaiController@revokeToken')->name('nilai.token.revoke');
+        Route::patch('nilai/token/{tokenId}/activate', 'Diklat\NilaiController@activateToken')->name('nilai.token.activate');
+        Route::patch('nilai/token/{tokenId}/regenerate', 'Diklat\NilaiController@regenerateToken')->name('nilai.token.regenerate');
+
+        // Input & rekap nilai
+        Route::get('nilai/{jadwalId}/input', 'Diklat\NilaiController@inputNilai')->name('nilai.input');
+        Route::post('nilai/{jadwalId}/save', 'Diklat\NilaiController@saveNilai')->name('nilai.save');
+        Route::get('nilai/{jadwalId}/rekap', 'Diklat\NilaiController@rekapNilai')->name('nilai.rekap');
+        Route::get('nilai/{jadwalId}/export', 'Diklat\NilaiController@exportExcel')->name('nilai.export');
+        Route::get('nilai/{jadwalId}/laporan-seminar', 'Diklat\NilaiController@laporanSeminar')->name('nilai.laporan_seminar');
+        Route::get('nilai/{jadwalId}/laporan-seminar/export', 'Diklat\NilaiController@exportLaporanSeminar')->name('nilai.laporan_seminar.export');
+
+        // Remedial
+        Route::post('nilai/{jadwalId}/peserta/{pesertaId}/remedial', 'Diklat\NilaiController@inputRemedial')->name('nilai.remedial');
+    });
+
+    // Route::resource('user', 'UserController');
+    Route::get('user/profil', 'UserController@profil')->name('user.profil.show');
+    Route::post('user/profil', 'UserController@profilupdate')->name('user.profil.update');
+
+    // Route::resource('pengguna', 'UserController');
+    Route::get('pengguna', 'UserController@index')->name('pengguna.index')->middleware('can:isAdmin');
+    Route::post('pengguna', 'UserController@store')->name('pengguna.store')->middleware('can:isAdmin');
+    Route::get('pengguna/create', 'UserController@create')->name('pengguna.create')->middleware('can:isAdmin');
+    Route::get('pengguna/{users}/edit', 'UserController@edit')->name('pengguna.edit')->middleware('can:isAdmin');
+    Route::patch('pengguna/{users}', 'UserController@update')->name('pengguna.update')->middleware('can:isAdmin');
+    Route::delete('pengguna/{users}', 'UserController@destroy')->name('pengguna.destroy')->middleware('can:isAdmin');
+    Route::get('aktifitas', 'UserController@aktifitas')->name('aktifitas')->middleware('can:isAdmin');
+
+    // Cetak
+    Route::post('cetak', 'CetakController@index')->name('cetak.index');
+    Route::post('cetak/aksi/{id}', 'CetakController@cetak')->name('cetak.cetak');
+    Route::post('cetak/modal/{id}', 'CetakController@modal')->name('cetak.modal');
+
+    // Route::resource('api-token', 'ApiTokenController');
+    Route::get('api-token', 'ApiTokenController@index')->name('apitoken.index')->middleware('can:isAdmin');
+    Route::post('api-token', 'ApiTokenController@store')->name('apitoken.store')->middleware('can:isAdmin');
+    Route::get('api-token/create', 'ApiTokenController@create')->name('apitoken.create')->middleware('can:isAdmin');
+    Route::get('api-token/{id}/edit', 'ApiTokenController@edit')->name('apitoken.edit')->middleware('can:isAdmin');
+    Route::patch('api-token/{id}', 'ApiTokenController@update')->name('apitoken.update')->middleware('can:isAdmin');
+    Route::delete('api-token/{id}', 'ApiTokenController@destroy')->name('apitoken.destroy')->middleware('can:isAdmin');
+
+    // Pengaturan Aplikasi
+    Route::get('pengaturan', '\QCod\AppSettings\Controllers\AppSettingController@index')->name('pengaturan.index')->middleware('can:isAdmin');
+    Route::post('pengaturan', '\QCod\AppSettings\Controllers\AppSettingController@store')->name('pengaturan.store')->middleware('can:isAdmin');
+});
+// Backend Routes
+
+// Ajax Routes
+Route::group(['prefix' => 'ajax', 'as' => 'ajax.', 'middleware' => 'auth'], function () {
+    Route::post('caripegawai', 'AjaxController@cariPegawai')->name('caripegawai');
+    Route::post('carifasilitator', 'AjaxController@cariFasilitator')->name('carifasilitator');
+    Route::get('widyaiswara', 'AjaxController@widyaiswara')->name('widyaiswara');
+    Route::get('pegawai', 'AjaxController@pegawai')->name('pegawai');
+    Route::post('carimapel', 'AjaxController@cariMapel')->name('carimapel');
+    Route::get('kalendar', 'AjaxController@kalendar')->name('kalendar');
+    Route::post('set-tahun', 'AjaxController@setTahun')->name('set-tahun');
+});
+// Ajax Routes

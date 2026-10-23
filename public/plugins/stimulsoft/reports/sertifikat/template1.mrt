@@ -1,0 +1,924 @@
+{
+  "ReportVersion": "2020.1.1.0",
+  "ReportGuid": "096487a653f54029ace3265c6d19a90a",
+  "ReportName": "Report",
+  "ReportAlias": "Report",
+  "ReportCreated": "/Date(432000000+0800)/",
+  "ReportChanged": "/Date(1582441646564+0800)/",
+  "EngineVersion": "EngineV2",
+  "CalculationMode": "Interpretation",
+  "ReportUnit": "Millimeters",
+  "PreviewSettings": 268435455,
+  "Culture": "id-ID",
+  "Script": "using System;\r\nusing System.Drawing;\r\nusing System.Windows.Forms;\r\nusing System.Data;\r\nusing Stimulsoft.Controls;\r\nusing Stimulsoft.Base.Drawing;\r\nusing Stimulsoft.Report;\r\nusing Stimulsoft.Report.Dialogs;\r\nusing Stimulsoft.Report.Components;\r\n\r\nnamespace Reports\r\n{\r\n    public class Report : Stimulsoft.Report.StiReport\r\n    {\r\n        public Report()        {\r\n            this.InitializeComponent();\r\n        }\r\n\r\n        #region StiReport Designer generated code - do not modify\r\n\t\t#endregion StiReport Designer generated code - do not modify\r\n    }\r\n}\r\n",
+  "ReferencedAssemblies": {
+    "0": "System.Dll",
+    "1": "System.Drawing.Dll",
+    "2": "System.Windows.Forms.Dll",
+    "3": "System.Data.Dll",
+    "4": "System.Xml.Dll",
+    "5": "Stimulsoft.Controls.Dll",
+    "6": "Stimulsoft.Base.Dll",
+    "7": "Stimulsoft.Report.Dll"
+  },
+  "Dictionary": {
+    "DataSources": {
+      "0": {
+        "Ident": "StiDataTableSource",
+        "Name": "jadwal",
+        "Alias": "jadwal",
+        "Key": "abbd562647614f1c8b35b5bdc5d37654",
+        "Columns": {
+          "0": {
+            "Name": "nama",
+            "Index": -1,
+            "NameInSource": "nama",
+            "Alias": "nama",
+            "Type": "System.String"
+          },
+          "1": {
+            "Name": "tipe",
+            "Index": -1,
+            "NameInSource": "tipe",
+            "Alias": "tipe",
+            "Type": "System.String"
+          },
+          "2": {
+            "Name": "tgl_awal",
+            "Index": -1,
+            "NameInSource": "tgl_awal",
+            "Alias": "tgl_awal",
+            "Type": "System.DateTime"
+          },
+          "3": {
+            "Name": "tgl_akhir",
+            "Index": -1,
+            "NameInSource": "tgl_akhir",
+            "Alias": "tgl_akhir",
+            "Type": "System.DateTime"
+          },
+          "4": {
+            "Name": "kelas",
+            "Index": -1,
+            "NameInSource": "kelas",
+            "Alias": "kelas",
+            "Type": "System.String"
+          },
+          "5": {
+            "Name": "total_jp",
+            "Index": -1,
+            "NameInSource": "total_jp",
+            "Alias": "total_jp",
+            "Type": "System.Decimal"
+          },
+          "6": {
+            "Name": "lokasi",
+            "Index": -1,
+            "NameInSource": "lokasi",
+            "Alias": "lokasi",
+            "Type": "System.String"
+          },
+          "7": {
+            "Name": "lokasi_kota",
+            "Index": -1,
+            "NameInSource": "lokasi_kota",
+            "Alias": "lokasi_kota",
+            "Type": "System.String"
+          }
+        },
+        "NameInSource": "sertifikat.jadwal"
+      },
+      "1": {
+        "Ident": "StiDataTableSource",
+        "Name": "peserta",
+        "Alias": "peserta",
+        "Key": "17eb7cdfbaac457f9b2ff37a9f5039dd",
+        "Columns": {
+          "0": {
+            "Name": "nip",
+            "Index": -1,
+            "NameInSource": "nip",
+            "Alias": "nip",
+            "Type": "System.String"
+          },
+          "1": {
+            "Name": "nama_lengkap",
+            "Index": -1,
+            "NameInSource": "nama_lengkap",
+            "Alias": "nama_lengkap",
+            "Type": "System.String"
+          },
+          "2": {
+            "Name": "tmp_lahir",
+            "Index": -1,
+            "NameInSource": "tmp_lahir",
+            "Alias": "tmp_lahir",
+            "Type": "System.String"
+          },
+          "3": {
+            "Name": "tgl_lahir",
+            "Index": -1,
+            "NameInSource": "tgl_lahir",
+            "Alias": "tgl_lahir",
+            "Type": "System.DateTime"
+          },
+          "4": {
+            "Name": "jabatan",
+            "Index": -1,
+            "NameInSource": "jabatan",
+            "Alias": "jabatan",
+            "Type": "System.String"
+          },
+          "5": {
+            "Name": "foto",
+            "Index": -1,
+            "NameInSource": "foto",
+            "Alias": "foto",
+            "Type": "System.String"
+          },
+          "6": {
+            "Name": "instansi",
+            "Index": -1,
+            "NameInSource": "instansi",
+            "Alias": "instansi",
+            "Type": "System.String"
+          },
+          "7": {
+            "Name": "satker_nama",
+            "Index": -1,
+            "NameInSource": "satker_nama",
+            "Alias": "satker_nama",
+            "Type": "System.String"
+          },
+          "8": {
+            "Name": "diklat_jadwal_id",
+            "Index": -1,
+            "NameInSource": "diklat_jadwal_id",
+            "Alias": "diklat_jadwal_id",
+            "Type": "System.Decimal"
+          },
+          "9": {
+            "Name": "pangkat",
+            "Index": -1,
+            "NameInSource": "pangkat",
+            "Alias": "pangkat",
+            "Type": "System.String"
+          },
+          "10": {
+            "Name": "golongan",
+            "Index": -1,
+            "NameInSource": "golongan",
+            "Alias": "golongan",
+            "Type": "System.String"
+          },
+          "11": {
+            "Name": "nomor",
+            "Index": -1,
+            "NameInSource": "nomor",
+            "Alias": "nomor",
+            "Type": "System.String"
+          },
+          "12": {
+            "Name": "sertifikat_id",
+            "Index": -1,
+            "NameInSource": "sertifikat_id",
+            "Alias": "sertifikat_id",
+            "Type": "System.Decimal"
+          }
+        },
+        "NameInSource": "sertifikat.peserta"
+      },
+      "2": {
+        "Ident": "StiDataTableSource",
+        "Name": "sertifikat",
+        "Alias": "sertifikat",
+        "Key": "0d9cf057490d410b8afa8e943e1894bf",
+        "Columns": {
+          "0": {
+            "Name": "tempat",
+            "Index": -1,
+            "NameInSource": "tempat",
+            "Alias": "tempat",
+            "Type": "System.String"
+          },
+          "1": {
+            "Name": "tanggal",
+            "Index": -1,
+            "NameInSource": "tanggal",
+            "Alias": "tanggal",
+            "Type": "System.DateTime"
+          },
+          "2": {
+            "Name": "jabatan",
+            "Index": -1,
+            "NameInSource": "jabatan",
+            "Alias": "jabatan",
+            "Type": "System.String"
+          },
+          "3": {
+            "Name": "nama",
+            "Index": -1,
+            "NameInSource": "nama",
+            "Alias": "nama",
+            "Type": "System.String"
+          },
+          "4": {
+            "Name": "pangkat",
+            "Index": -1,
+            "NameInSource": "pangkat",
+            "Alias": "pangkat",
+            "Type": "System.String"
+          },
+          "5": {
+            "Name": "nip",
+            "Index": -1,
+            "NameInSource": "nip",
+            "Alias": "nip",
+            "Type": "System.String"
+          },
+          "6": {
+            "Name": "diklat_jadwal_id",
+            "Index": -1,
+            "NameInSource": "diklat_jadwal_id",
+            "Alias": "diklat_jadwal_id",
+            "Type": "System.Decimal"
+          }
+        },
+        "NameInSource": "sertifikat.sertifikat"
+      }
+    },
+    "Databases": {
+      "0": {
+        "Ident": "StiJsonDatabase",
+        "Name": "sertifikat",
+        "Alias": "sertifikat"
+      }
+    }
+  },
+  "Pages": {
+    "0": {
+      "Ident": "StiPage",
+      "Name": "Page1",
+      "Guid": "728fceca789f4c0caa193626cac7b26f",
+      "Interaction": {
+        "Ident": "StiInteraction"
+      },
+      "Border": ";;2;;;;;solid:Black",
+      "Brush": "solid:",
+      "Components": {
+        "0": {
+          "Ident": "StiText",
+          "Name": "Text1",
+          "Guid": "92ebdef17652abb9ba4fa8eb85b8299b",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "16,30,240,7",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "OnlyText": true,
+          "Text": {
+            "Value": "SURAT TANDA TAMAT PENDIDIKAN DAN PELATIHAN"
+          },
+          "AutoWidth": true,
+          "HorAlignment": "Center",
+          "VertAlignment": "Center",
+          "Font": ";18;Bold;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "Type": "Expression"
+        },
+        "1": {
+          "Ident": "StiText",
+          "Name": "Text2",
+          "Guid": "eb4e896058e6c39e14415f129ea591b7",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "16,51,240,9",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "BERDASARKAN PERATURAN PEMERINTAH REPUBLIK INDONESIA NOMOR 11 TAHUN 2017 TENTANG MANAJEMEN PEGAWAI NEGERI SIPIL DAN KETENTUAN - KETENTUAN PELAKSANAANNYA MENYATAKAN BAHWA :"
+          },
+          "HorAlignment": "Width",
+          "Font": ";10;;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "LineSpacing": 1.1499999761581421,
+          "Type": "Expression"
+        },
+        "2": {
+          "Ident": "StiText",
+          "Name": "Text3",
+          "Guid": "315b4c86a4de41f38ad6fd757a660e63",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "16,110,240,19",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{ToUpperCase(jadwal.tipe)} {ToUpperCase(jadwal.nama)} DI LINGKUNGAN PEMERINTAH {ToUpperCase(jadwal.kelas)} YANG DISELENGGARAKAN OLEH BADAN PENGEMBANGAN SUMBER DAYA MANUSIA PROVINSI KALIMANTAN TIMUR MULAI TANGGAL {ToUpperCase(Format(\"{0:dd MMMM}\", jadwal.tgl_awal))} SD {ToUpperCase(Format(\"{0:dd MMMM yyyy}\", jadwal.tgl_akhir))} DI {ToUpperCase(jadwal.lokasi_kota)}."
+          },
+          "HorAlignment": "Width",
+          "Font": ";10;;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "LineSpacing": 1.1499999761581421,
+          "Type": "Expression"
+        },
+        "3": {
+          "Ident": "StiText",
+          "Name": "Text4",
+          "Guid": "b849d6ce19724e0c0ebc309d214b8330",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "156,129,100,6",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{ToUpperCase(sertifikat.tempat)}, {ToUpperCase(Format(\"{0:dd MMMM yyyy}\", sertifikat.tanggal))}"
+          },
+          "HorAlignment": "Center",
+          "VertAlignment": "Center",
+          "Font": ";10;;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "Type": "Expression"
+        },
+        "4": {
+          "Ident": "StiText",
+          "Name": "Text5",
+          "Guid": "1d52d1de03a6b61bed4a25d1af97aa1e",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "156,137.02,100,14.98",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{ToUpperCase(sertifikat.jabatan)}\r\nBADAN PENGEMBANGAN SUMBER DAYA MANUSIA\r\nPROVINSI KALIMANTAN TIMUR"
+          },
+          "HorAlignment": "Center",
+          "Font": ";10;Bold;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "LineSpacing": 1.1499999761581421,
+          "Type": "Expression"
+        },
+        "5": {
+          "Ident": "StiImage",
+          "Name": "Image1",
+          "Guid": "6847c109feb7daeded9c47486f5fb9f1",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "24,61,30,40",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "HorAlignment": "Center",
+          "VertAlignment": "Center",
+          "Border": "All;;;;;;;solid:Black",
+          "Brush": "solid:",
+          "Stretch": true,
+          "ImageURL": {
+            "Value": "{peserta.foto}"
+          }
+        },
+        "6": {
+          "Ident": "StiText",
+          "Name": "Text24",
+          "Guid": "38ae5e44f48b43a7ac54a9bfbeb82e84",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "76,39,31,8",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "NOMOR"
+          },
+          "HorAlignment": "Center",
+          "VertAlignment": "Center",
+          "Font": ";12;Bold;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "Type": "Expression"
+        },
+        "7": {
+          "Ident": "StiText",
+          "Name": "Text25",
+          "Guid": "a5f96c9d69134d84a93567b99adf79a8",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "16,102,240,6",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "TELAH MENGIKUTI"
+          },
+          "HorAlignment": "Center",
+          "VertAlignment": "Center",
+          "Font": ";12;Bold;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "Type": "Expression"
+        },
+        "8": {
+          "Ident": "StiTextInCells",
+          "Name": "TextInCells1",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "107,39,77,8",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{peserta.nomor}"
+          },
+          "Font": ";12;Bold;",
+          "Border": "All;;;;;;;solid:0,0,0",
+          "Brush": "solid:White",
+          "TextBrush": "solid:Black",
+          "Type": "DataColumn",
+          "ContinuousText": false
+        },
+        "9": {
+          "Ident": "StiText",
+          "Name": "Text26",
+          "Guid": "3630b8d93dfa47dca4f14d4931405a8a",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "156,165,100,3.98",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{ToUpperCase(sertifikat.nama)}\r\n"
+          },
+          "HorAlignment": "Center",
+          "Font": ";10;Bold, Underline;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "Type": "Expression"
+        },
+        "10": {
+          "Ident": "StiText",
+          "Name": "Text27",
+          "Guid": "d85709cda4744642a36aebf8bd66ba92",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "156,169,100,3.98",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "{ToProperCase(sertifikat.pangkat)}"
+          },
+          "HorAlignment": "Center",
+          "Font": ";10;;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "Type": "Expression"
+        },
+        "11": {
+          "Ident": "StiText",
+          "Name": "Text28",
+          "Guid": "7832679b61fa40bb934d7f3a916c9d46",
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "156,173,100,3.98",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Text": {
+            "Value": "NIP. {Left(sertifikat.nip,8)} {Mid(sertifikat.nip,8,6)} {Mid(sertifikat.nip,14,1)} {Right(sertifikat.nip,3)}"
+          },
+          "HorAlignment": "Center",
+          "Font": ";10;;",
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "TextBrush": "solid:Black",
+          "TextOptions": {
+            "WordWrap": true
+          },
+          "Type": "Expression"
+        },
+        "12": {
+          "Ident": "StiPanel",
+          "Name": "Panel1",
+          "CanGrow": true,
+          "MinSize": "0,0",
+          "MaxSize": "0,0",
+          "ClientRectangle": "64,61,192,40",
+          "Interaction": {
+            "Ident": "StiInteraction"
+          },
+          "Border": ";;;;;;;solid:Black",
+          "Brush": "solid:",
+          "Components": {
+            "0": {
+              "Ident": "StiText",
+              "Name": "Text6",
+              "Guid": "afb6f1840fe8ef26efbdb39958d85ada",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,1,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "NAMA"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "1": {
+              "Ident": "StiText",
+              "Name": "Text7",
+              "Guid": "87c83888d263448b8be5271eef2a994d",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,7,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "TEMPAT/TANGGAL LAHIR"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "2": {
+              "Ident": "StiText",
+              "Name": "Text8",
+              "Guid": "0b48f51386714cefab87371fca2dd3f1",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,13,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "NIP"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "3": {
+              "Ident": "StiText",
+              "Name": "Text9",
+              "Guid": "c37e5ec32cb74bf1940a77d677c3cf95",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,19,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "PANGKAT / GOLONGAN"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "4": {
+              "Ident": "StiText",
+              "Name": "Text10",
+              "Guid": "fafabf4c97474d429829e3ef51b6f51e",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,25,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "JABATAN"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "5": {
+              "Ident": "StiText",
+              "Name": "Text11",
+              "Guid": "f3c1b873ddf94c8493c954e0edd92c93",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "2,31,48,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "INSTANSI"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "6": {
+              "Ident": "StiText",
+              "Name": "Text12",
+              "Guid": "74a1be9186d14c1eaee99b8a76382cfd",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,1,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "7": {
+              "Ident": "StiText",
+              "Name": "Text13",
+              "Guid": "e41875b47ded44fd89e99cb02b3127db",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,7,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "8": {
+              "Ident": "StiText",
+              "Name": "Text14",
+              "Guid": "fb8903687958401ca42d51c9d049c985",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,13,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "9": {
+              "Ident": "StiText",
+              "Name": "Text15",
+              "Guid": "8d761b9e011e46aea53daf57a00b79f4",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,19,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "10": {
+              "Ident": "StiText",
+              "Name": "Text16",
+              "Guid": "1fccaede6fa648ff8f5f847e7179c43a",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,25,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "11": {
+              "Ident": "StiText",
+              "Name": "Text17",
+              "Guid": "68c2a9d3a64349f39ea0029302132e2e",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "50,31,6,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": ":"
+              },
+              "HorAlignment": "Center",
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "12": {
+              "Ident": "StiText",
+              "Name": "Text18",
+              "Guid": "6b5bf818203f4630834a0f6ece37d062",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,1,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{peserta.nama_lengkap}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "DataColumn"
+            },
+            "13": {
+              "Ident": "StiText",
+              "Name": "Text19",
+              "Guid": "2ed5c135c6cb41b5a8122faab4a35d96",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,7,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{peserta.tmp_lahir}, {Format(\"{0:dd MMMM yyyy}\", peserta.tgl_lahir)}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "14": {
+              "Ident": "StiText",
+              "Name": "Text20",
+              "Guid": "8860daec62584f92ae035515c9294679",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,13,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{Left(peserta.nip,8)} {Mid(peserta.nip,8,6)} {Mid(peserta.nip,14,1)} {Right(peserta.nip,3)}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "15": {
+              "Ident": "StiText",
+              "Name": "Text21",
+              "Guid": "189bb6b4b01a4f12bd678b89ce43d2fd",
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,19,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{peserta.pangkat} / {peserta.golongan}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "Type": "Expression"
+            },
+            "16": {
+              "Ident": "StiText",
+              "Name": "Text22",
+              "Guid": "5911b1222ef9481cb75aee72e147c4da",
+              "CanGrow": true,
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,25,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{peserta.jabatan}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "TextOptions": {
+                "WordWrap": true
+              },
+              "Type": "Expression"
+            },
+            "17": {
+              "Ident": "StiText",
+              "Name": "Text23",
+              "Guid": "ad1be0fae7d24f48925a9e5e6c683a4c",
+              "CanGrow": true,
+              "MinSize": "0,0",
+              "MaxSize": "0,0",
+              "ClientRectangle": "56,31,136,6",
+              "Interaction": {
+                "Ident": "StiInteraction"
+              },
+              "Text": {
+                "Value": "{peserta.satker_nama}"
+              },
+              "Font": ";10;;",
+              "Border": ";;;;;;;solid:Black",
+              "Brush": "solid:",
+              "TextBrush": "solid:Black",
+              "TextOptions": {
+                "WordWrap": true
+              },
+              "Type": "Expression"
+            }
+          }
+        }
+      },
+      "PaperSize": "A4",
+      "Orientation": "Landscape",
+      "PageWidth": 297.0,
+      "PageHeight": 215.0,
+      "Watermark": {
+        "TextBrush": "solid:50,0,0,0"
+      },
+      "Margins": {
+        "Left": 10.0,
+        "Right": 10.0,
+        "Top": 20.0,
+        "Bottom": 10.0
+      }
+    }
+  }
+}
