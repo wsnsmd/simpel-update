@@ -125,11 +125,9 @@
             <!-- END Main Container -->
         </div>
 
-        <!-- Dashmix Core JS -->
-        <script src="{{ asset('js/dashmix.app.js') }}"></script>
-
-        <!-- Laravel Scaffolding JS -->
-        <script src="{{ asset('js/laravel.app.js') }}"></script>
+        <!-- SIMPel Core & App JS -->
+        <script src="{{ asset('js/simpel-vendor.min.js') }}"></script>
+        <script src="{{ asset('js/simpel.min.js') }}"></script>
 
         <!-- Page JS Plugins -->
         <script src="{{ asset('js/plugins/bootstrap-notify/bootstrap-notify.min.js') }}"></script>

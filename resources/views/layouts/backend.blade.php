@@ -173,8 +173,9 @@
     </div>
     <!-- END Page Container -->
 
-    <script src="{{ asset('js/dashmix.app.js') }}"></script>
-    <script src="{{ asset('js/laravel.app.js') }}"></script>
+    <!-- SIMPel Core & App JS -->
+    <script src="{{ asset('js/simpel-vendor.min.js') }}"></script>
+    <script src="{{ asset('js/simpel.min.js') }}"></script>
 
     <script>
         $(document).on('click', '.tahun-option', function (e) {

@@ -44,11 +44,9 @@
     </div>
     <!-- END Page Container -->
 
-    <!-- Dashmix Core JS -->
-    <script src="{{ asset('js/dashmix.app.js') }}"></script>
-
-    <!-- Laravel Original JS -->
-    <script src="{{ asset('js/laravel.app.js') }}"></script>
+    <!-- SIMPel Core & App JS -->
+    <script src="{{ asset('js/simpel-vendor.min.js') }}"></script>
+    <script src="{{ asset('js/simpel.min.js') }}"></script>
 
     @yield('js_after')
 </body>
