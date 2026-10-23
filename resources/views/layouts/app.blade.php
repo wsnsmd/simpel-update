@@ -17,7 +17,7 @@
     <link rel="stylesheet" id="css-main" href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,400i,600,700">
 
     <!-- Styles -->
-    <link rel="stylesheet" id="css-theme" href="{{ asset('css/dashmix.css') }}">
+    <link rel="stylesheet" id="css-theme" href="{{ asset('css/simpel.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/themes/xmodern.css') }}"> 
 </head>
 <body>
