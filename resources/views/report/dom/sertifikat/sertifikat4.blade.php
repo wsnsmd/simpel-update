@@ -86,13 +86,16 @@
         @if(!is_null($sertifikat->spesimen))
         #tt2 {
             position: fixed;
-            bottom: {{ $sertPeserta->spesimen_bawah  }}cm;
-            left: {{ $sertPeserta->spesimen_kiri }}cm;
+            bottom: {{ $sertPeserta->spesimen_bawah ?? 8.5 }}cm;
+            left: {{ $sertPeserta->spesimen_kiri ?? 12.0 }}cm;
         }
+        @endif
+
+        @if(!is_null($sertifikat->spesimen2))
         #tt4 {
             position: fixed;
-            bottom: 9.5cm;
-            left: 14cm;
+            bottom: {{ $sertPeserta->spesimen2_bawah ?? 9.5 }}cm;
+            left: {{ $sertPeserta->spesimen2_kiri ?? 14.0 }}cm;
         }
         @endif
     </style>

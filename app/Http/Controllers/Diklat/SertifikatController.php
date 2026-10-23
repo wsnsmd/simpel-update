@@ -319,11 +319,13 @@ class SertifikatController extends Controller
             'jadwal_id' => 'required',
             'kiri' => 'required|numeric|between:0.0,20.0',
             'bawah' => 'required|numeric|between:0.0,20.0',
-            'kiri2' => 'numeric|between:0.0,20.0',
-            'bawah2' => 'numeric|between:0.0,20.0',
+            'kiri2' => 'nullable|numeric|between:0.0,20.0',
+            'bawah2' => 'nullable|numeric|between:0.0,20.0',
         ]);
 
         $input = $request->all();
+        $input['kiri2'] = !empty($input['kiri2']) ? $input['kiri2'] : null;
+        $input['bawah2'] = !empty($input['bawah2']) ? $input['bawah2'] : null;
 
         DB::beginTransaction();
 

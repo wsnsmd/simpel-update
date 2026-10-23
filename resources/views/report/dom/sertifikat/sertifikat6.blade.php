@@ -93,16 +93,11 @@
         }
 
         @if(!is_null($sertifikat->spesimen))
-            #tt2 {
-                position: fixed;
-                bottom:
-                    {{ $sertPeserta->spesimen_bawah  }}
-                    cm;
-                left:
-                    {{ $sertPeserta->spesimen_kiri }}
-                    cm;
-            }
-
+        #tt2 {
+            position: fixed;
+            bottom: {{ $sertPeserta->spesimen_bawah ?? 8.5 }}cm;
+            left: {{ $sertPeserta->spesimen_kiri ?? 12.0 }}cm;
+        }
         @endif
 
         @if($sertifikat->barcode)

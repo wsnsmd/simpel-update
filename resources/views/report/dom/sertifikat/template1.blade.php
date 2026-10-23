@@ -75,8 +75,8 @@
         @if(!is_null($sertifikat->spesimen))
         #tt2 {
             position: fixed;
-            bottom: {{ $sertPeserta->spesimen_bawah  }}cm;
-            left: {{ $sertPeserta->spesimen_kiri }}cm;
+            bottom: {{ $sertPeserta->spesimen_bawah ?? 6.5 }}cm;
+            left: {{ $sertPeserta->spesimen_kiri ?? 15.5 }}cm;
         }
         @endif
     </style>
