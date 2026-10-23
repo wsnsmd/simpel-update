@@ -28,11 +28,11 @@ Aplikasi ini mencakup:
 - Penilaian, seminar laporan aksi perubahan (PKA/PKP/Latsar), dan evaluasi penyelenggaraan.
 - Penerbitan, penandatanganan elektronik, serta verifikasi keaslian e-Sertifikat via QR Code.
 
-Branch **`2026-lv12`** ini merupakan hasil penulisan ulang arsitektur (*modern framework rewrite*) dari basis legacy Laravel 5.8 (PHP 7.3) ke **Laravel 12** yang berjalan di atas runtime **PHP 8.4**, dengan mempertahankan integritas fungsionalitas dan tampilan antarmuka (UI/UX) 100% identik.
+Branch **`2026-lv13`** ini merupakan hasil penulisan ulang arsitektur (*modern framework rewrite*) dari basis legacy Laravel 5.8 (PHP 7.3) ke **Laravel 13** yang berjalan di atas runtime **PHP 8.4**, dengan mempertahankan integritas fungsionalitas dan tampilan antarmuka (UI/UX) 100% identik.
 
 ---
 
-## 🚀 Fitur & Peningkatan pada Versi Modern (Laravel 12 / PHP 8.4)
+## 🚀 Fitur & Peningkatan pada Versi Modern (Laravel 13 / PHP 8.4)
 
 1. **Modern Runtime & Security**:
    - Berjalan pada PHP 8.4 dengan strict typing, efisiensi JIT, dan proteksi memory leak.
