@@ -2,6 +2,10 @@
     $date_awal = date_create($jadwal->tgl_awal);
     $date_akhir = date_create($jadwal->tgl_akhir);
     $jum_hari = date_diff($date_awal, $date_akhir);
+    $cm = function ($v, $default) {
+        $v = str_replace(',', '.', trim((string) $v));
+        return number_format(is_numeric($v) ? (float) $v : $default, 2, '.', '');
+    };
 @endphp
 
 <html>
@@ -57,7 +61,7 @@
         }
 
         div {
-            margin: 0 15 0 15;
+            margin: 0 15pt;
         }
 
         p {
@@ -93,15 +97,15 @@
         @if(!is_null($sertifikat->spesimen))
         #tt2 {
             position: fixed;
-            bottom: {{ $sertPeserta->spesimen_bawah ?? 6.0 }}cm;
-            left: {{ $sertPeserta->spesimen_kiri ?? 12.0 }}cm;
+            bottom: {{ $cm($sertPeserta->spesimen_bawah, 6.0) }}cm;
+            left: {{ $cm($sertPeserta->spesimen_kiri, 12.0) }}cm;
         }
         @endif
         @if(!is_null($sertifikat->spesimen2))
         #tt4 {
             position: fixed;
-            bottom: {{ $sertPeserta->spesimen2_bawah ?? 9.0 }}cm;
-            left: {{ $sertPeserta->spesimen2_kiri ?? 12.0 }}cm;
+            bottom: {{ $cm($sertPeserta->spesimen2_bawah, 9.0) }}cm;
+            left: {{ $cm($sertPeserta->spesimen2_kiri, 12.0) }}cm;
         }
         @endif
     </style>
