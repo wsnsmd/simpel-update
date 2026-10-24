@@ -15,6 +15,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'version' => env('APP_VERSION', '2026.13.0.0'),
+
     'admin_path' => env('APP_ADMIN_PATH', 'backend'),
 
     /*

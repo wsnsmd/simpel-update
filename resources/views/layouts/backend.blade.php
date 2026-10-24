@@ -162,9 +162,12 @@
         <footer id="page-footer" class="bg-body-light">
             <div class="content py-0">
                 <div class="row font-size-sm">
-                    <div class="col-sm-6 order-sm-1 text-center text-sm-left">
+                    <div class="col-sm-6 order-sm-1 py-1 text-center text-sm-left">
                         <a class="font-w600" href="https://bpsdm.kaltimprov.go.id/" target="_blank">BPSDM Prov.
-                            Kaltim</a> &copy; <span data-toggle="year-copy">2019</span>.
+                            Kaltim</a> &copy; <span data-toggle="year-copy">2019</span>
+                    </div>
+                    <div class="col-sm-6 order-sm-2 py-1 text-center text-sm-right text-muted">
+                        SIMPel <span class="badge badge-primary font-w600 px-2 py-1">v{{ config('app.version', '2026.13.0.0') }}</span>
                     </div>
                 </div>
             </div>
