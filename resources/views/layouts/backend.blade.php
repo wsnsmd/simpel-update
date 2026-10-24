@@ -167,7 +167,7 @@
                             Kaltim</a> &copy; <span data-toggle="year-copy">2019</span>
                     </div>
                     <div class="col-sm-6 order-sm-2 py-1 text-center text-sm-right text-muted">
-                        SIMPel <span class="badge badge-primary font-w600 px-2 py-1">v{{ config('app.version', '2026.13.0.0') }}</span>
+                        <span class="badge badge-primary font-w600 px-2 py-1">v{{ config('app.version', '2026.13.0.0') }}</span>
                     </div>
                 </div>
             </div>
