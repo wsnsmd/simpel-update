@@ -93,6 +93,7 @@ class SurtuController extends Controller
                 'jid' => $input['jadwal_id'],
                 'tipe' => $input['tipe'],
                 'keterangan' => $input['keterangan'],
+                'nourut' => $nomor ?? 0,
                 'nomor'=> $nosurtu,
                 'tahun' => $this->tahun,
                 'created_at' => $created_at
