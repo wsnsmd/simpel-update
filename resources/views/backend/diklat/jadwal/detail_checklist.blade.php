@@ -316,7 +316,7 @@
                         <ol class="breadcrumb">
                             <li class="breadcrumb-item">Jadwal</li>
                             <li class="breadcrumb-item">Detail</li>
-                            <li class="breadcrumb-item active" aria-current="page">{{$jadwal->nama}}</li>
+                            <li class="breadcrumb-item active text-truncate d-inline-block" style="max-width: 300px; vertical-align: bottom;" aria-current="page" title="{{ $jadwal->nama }}">{{ $jadwal->nama }}</li>
                         </ol>
                     </nav>
                 </div>

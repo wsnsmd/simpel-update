@@ -95,10 +95,10 @@
                     <i class="fa fa-angle-right fa-fw text-primary"></i> Jadwal
                 </h1>
                 <nav class="flex-sm-00-auto ml-sm-3 font-size-sm" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
+                    <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><i class="fa fa-home"></i></li>
-                        <li class="breadcrumb-item">Jadwal</i></li>
-                        <li class="breadcrumb-item active" aria-current="page">{{ $jadwal->nama }}</li>
+                        <li class="breadcrumb-item"><a href="{{ route('jadwal.index') }}" class="text-muted">Jadwal</a></li>
+                        <li class="breadcrumb-item active text-truncate d-inline-block" style="max-width: 320px; vertical-align: bottom;" aria-current="page" title="{{ $jadwal->nama }}">{{ $jadwal->nama }}</li>
                     </ol>
                 </nav>
             </div>

@@ -4,10 +4,10 @@
             <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
                 <h1 class="flex-sm-fill font-size-h3 font-w400 mt-2 mb-0 mb-sm-2">{{$detail}}</h1>
                 <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
-                    <ol class="breadcrumb">
+                    <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item">Jadwal</li>
                         <li class="breadcrumb-item">Detail</li>
-                        <li class="breadcrumb-item active" aria-current="page">{{$jadwal->nama}}</li>
+                        <li class="breadcrumb-item active text-truncate d-inline-block" style="max-width: 300px; vertical-align: bottom;" aria-current="page" title="{{ $jadwal->nama }}">{{ $jadwal->nama }}</li>
                     </ol>
                 </nav>
             </div>
