@@ -155,7 +155,7 @@
                 <h3 class="block-title">Peserta - Edit</h3>
             </div>
             <div class="block-content block-content-full border-top">
-                <form class="mb-2" action="{{ route('backend.diklat.peserta.store', ['id' => $peserta->id]) }}"
+                <form class="mb-2" action="{{ route('backend.diklat.peserta.update', ['peserta' => $peserta->id]) }}"
                     method="POST" enctype="multipart/form-data" autocomplete="off">
                     @csrf
                     @method('PATCH')

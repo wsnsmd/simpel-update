@@ -140,7 +140,7 @@
             </div>
             <div class="block-content block-content-full border-top">
                 <form id="form-peserta" class="mb-2"
-                    action="{{ route('backend.diklat.peserta.update.simple', ['id' => $peserta->id]) }}" method="POST"
+                    action="{{ route('backend.diklat.peserta.update.simple', ['peserta' => $peserta->id]) }}" method="POST"
                     autocomplete="off">
                     @csrf
                     @method('PATCH')
