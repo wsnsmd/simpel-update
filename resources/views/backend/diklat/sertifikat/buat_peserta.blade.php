@@ -15,6 +15,48 @@
         jQuery(function(){ 
             Dashmix.helpers(['select2', 'table-tools-checkable']); 
         });   
+
+        @if (session('success'))
+            $.notify({
+                icon: "fa fa-check mr-1",
+                message: "{{ session('success') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'success',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
+        @elseif (session('error'))
+            $.notify({
+                icon: "fa fa-times mr-1",
+                message: "{{ session('error') }}"
+            }, {
+                allow_dismiss: false,
+                type: 'danger',
+                placement: {
+                    from: "top",
+                    align: "center"
+                }
+            });
+        @endif
+
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                $.notify({
+                    icon: "fa fa-exclamation-triangle mr-1",
+                    message: "{{ $error }}"
+                }, {
+                    allow_dismiss: true,
+                    type: 'danger',
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    }
+                });
+            @endforeach
+        @endif
     </script>
 @endsection
 

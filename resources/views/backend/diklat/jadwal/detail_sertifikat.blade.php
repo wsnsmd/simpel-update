@@ -233,12 +233,29 @@ $isLengkap = ($selisih <= 0);
             });
         @endif
 
+        @if ($errors->any())
+            @foreach ($errors->all() as $error)
+                $.notify({
+                    icon: "fa fa-exclamation-triangle mr-1",
+                    message: "{{ $error }}"
+                }, {
+                    allow_dismiss: true,
+                    type: 'danger',
+                    placement: {
+                        from: "top",
+                        align: "center"
+                    }
+                });
+            @endforeach
+        @endif
+
             jQuery(document).ready(function () {
                 jQuery.extend(jQuery.validator.messages, {
                     required: "Wajib diisi.",
                 });
 
                 var form_buat = $('#mdl-buat-form').validate({
+                    ignore: [],
                     errorElement: "em",
                     errorPlacement: function (error, element) {
                         // Add the `help-block` class to the error element
@@ -255,6 +272,16 @@ $isLengkap = ($selisih <= 0);
                     },
                     unhighlight: function (element, errorClass, validClass) {
                         $(element).addClass("valid").removeClass("is-invalid");
+                    }
+                });
+
+                $('#mdl-buat').on('show.bs.modal', function () {
+                    if ($('#is_generate').val() == '1') {
+                        $('#generate').removeClass('d-none');
+                        $('#generate').find('input, select').prop('disabled', false);
+                    } else {
+                        $('#generate').addClass('d-none');
+                        $('#generate').find('input, select').prop('disabled', true);
                     }
                 });
 
@@ -279,11 +306,13 @@ $isLengkap = ($selisih <= 0);
                 });
 
                 $('#is_generate').on('change', function () {
-                    if ($('#is_generate').val() == true) {
+                    if ($('#is_generate').val() == '1') {
                         $('#generate').removeClass('d-none');
+                        $('#generate').find('input, select').prop('disabled', false);
                     }
                     else {
                         $('#generate').addClass('d-none');
+                        $('#generate').find('input, select').prop('disabled', true);
                     }
                 });
 
@@ -469,8 +498,8 @@ $isLengkap = ($selisih <= 0);
                             </div>
                         @else
                             <div class="col-6 col-md-4 col-xl-2">
-                                <a class="block block-rounded block-link-pop text-center d-flex align-items-center" href="javascript:;"
-                                    onclick="event.preventDefault(); document.getElementById('buat-peserta-form').submit();">
+                                <a class="block block-rounded block-link-pop text-center d-flex align-items-center"
+                                    href="{{ route('backend.diklat.sertifikat.buat.peserta', ['jadwal' => $jadwal->id]) }}">
                                     <div class="block-content">
                                         <p class="mb-2 d-sm-block">
                                             <i class="fa fa-plus-circle text-success fa-2x"></i>
@@ -478,11 +507,6 @@ $isLengkap = ($selisih <= 0);
                                         <p class="font-w600 font-size-sm text-uppercase">Buat Sertifikat Peserta</p>
                                     </div>
                                 </a>
-                                <form id="buat-peserta-form"
-                                    action="{{ route('backend.diklat.sertifikat.buat.peserta', ['jadwal' => $jadwal->id]) }}" method="post"
-                                    style="display: none;">
-                                    @csrf
-                                </form>
                             </div>
                         @endif
                     @endif
@@ -1082,6 +1106,7 @@ $isLengkap = ($selisih <= 0);
                                                     class="text-danger">*</span></label>
                                             <select class="form-control" id="is_generate" name="is_generate"
                                                 style="width: 100%;" required>
+                                                <option value="" selected>-- Pilih Generate --</option>
                                                 <option value="0">Tidak</option>
                                                 <option value="1">Ya</option>
                                             </select>

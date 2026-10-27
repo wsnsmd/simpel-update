@@ -61,7 +61,7 @@ class SertifikatController extends Controller
             $validator = $request->validate([
                 'jadwal_id' => 'required',
                 'is_generate' => 'required',
-                'is_upload' => 'required|gt:0',
+                'is_upload' => 'required',
                 'is_import' => 'required',
                 'tempat' => 'required',
                 'tanggal' => 'required|date',
@@ -162,6 +162,18 @@ class SertifikatController extends Controller
         $search = array('{N}', '{m}', '{y}');
         $format = $sertifikat->format_nomor;
 
+        if ($sertifikat->is_generate && empty(trim($format ?? ''))) {
+            return redirect()->back()->with('error', 'Gagal membuat sertifikat: Format nomor sertifikat belum diatur pada jadwal ini!');
+        }
+
+        if (!$sertifikat->is_generate && $sertifikat->is_upload && is_array($pid)) {
+            foreach ($pid as $p) {
+                if (empty(trim($request['pid_nomor_' . $p] ?? ''))) {
+                    return redirect()->back()->with('error', 'Gagal membuat sertifikat: Nomor sertifikat wajib diisi untuk semua peserta yang dipilih!');
+                }
+            }
+        }
+
         $result = DB::table('sertifikat_peserta')
             ->where('tahun', $tahun)
             ->where('bidang', $jadwal->usergroup)
@@ -179,11 +191,11 @@ class SertifikatController extends Controller
             $bawah2 = $template->spesimen2_bawah;
         }
 
-        if (is_null($pid)) {
+        if (is_null($pid) || empty($pid)) {
             $notifikasi = 'Tidak ada data peserta yang dipilih!';
-            return redirect()->route('backend.diklat.jadwal.detail', ['jadwal' => $jadwal->id, 'slug' => str_slug($jadwal->nama), 'page' => 'sertifikat'])
+            return redirect()->back()
                 ->with([
-                    'success' => $notifikasi,
+                    'error' => $notifikasi,
                 ]);
         }
 
@@ -206,6 +218,10 @@ class SertifikatController extends Controller
                         $nomor = sprintf("%05s", $no);
                         $replace = array($nomor, $bulan, $tahun);
                         $no_sertifikat = str_replace($search, $replace, $format);
+                    }
+
+                    if (empty(trim($no_sertifikat ?? ''))) {
+                        throw new \Exception('Nomor sertifikat tidak boleh kosong!');
                     }
 
                     DB::table('sertifikat_peserta')->insert([
@@ -956,7 +972,7 @@ class SertifikatController extends Controller
         } else {
             $validator = $request->validate([
                 'is_generate' => 'required',
-                'is_upload' => 'required|gt:0',
+                'is_upload' => 'required',
                 'is_import' => 'required',
                 'is_final' => 'required',
                 'tempat' => 'required',
