@@ -174,6 +174,18 @@ class SertifikatController extends Controller
             }
         }
 
+        if ($sertifikat->is_generate && empty(trim($format ?? ''))) {
+            return redirect()->back()->with('error', 'Gagal membuat sertifikat: Format nomor sertifikat belum diatur pada jadwal ini!');
+        }
+
+        if (!$sertifikat->is_generate && $sertifikat->is_upload && is_array($pid)) {
+            foreach ($pid as $p) {
+                if (empty(trim($request['pid_nomor_' . $p] ?? ''))) {
+                    return redirect()->back()->with('error', 'Gagal membuat sertifikat: Nomor sertifikat wajib diisi untuk semua peserta yang dipilih!');
+                }
+            }
+        }
+
         $result = DB::table('sertifikat_peserta')
             ->where('tahun', $tahun)
             ->where('bidang', $jadwal->usergroup)

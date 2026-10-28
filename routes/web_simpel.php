@@ -244,7 +244,7 @@ Route::group(['prefix' => $admin_path, 'as' => $admin_path . '.', 'middleware' =
 
         // Sertifikat
         Route::post('sertifikat/store', 'Diklat\SertifikatController@store')->name('sertifikat.store');
-        Route::post('sertifikat/{jadwal}/peserta', 'Diklat\SertifikatController@buatPeserta')->name('sertifikat.buat.peserta');
+        Route::match(['get', 'post'], 'sertifikat/{jadwal}/peserta', 'Diklat\SertifikatController@buatPeserta')->name('sertifikat.buat.peserta');
         Route::post('sertifikat/{jadwal}/peserta/simpan', 'Diklat\SertifikatController@buatPesertaSimpan')->name('sertifikat.buat.peserta.simpan');
         Route::post('sertifikat/{id}/cetak', 'Diklat\SertifikatController@cetak')->name('sertifikat.cetak');
         Route::get('sertifikat/{id}/spesimen/posisi', 'Diklat\SertifikatController@getSpesimenPos')->name('sertifikat.spesimen.posisi');
