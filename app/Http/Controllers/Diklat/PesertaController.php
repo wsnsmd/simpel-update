@@ -583,9 +583,9 @@ class PesertaController extends Controller
 
         return redirect()
             ->route('backend.diklat.jadwal.detail', [
-                'id'   => $jadwalId,
-                'slug' => str_slug($jadwal->nama),
-                'page' => 'peserta',
+                'jadwal' => $jadwalId,
+                'slug'   => str_slug($jadwal->nama),
+                'page'   => 'peserta',
             ])
             ->with('success', $notifikasi);
     }
