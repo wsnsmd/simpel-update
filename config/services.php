@@ -49,6 +49,9 @@ return [
     ],
 
     'simasn' => [
+        'login_url' => env('SIMASN_LOGIN'),
+        'username' => env('SIMASN_USERNAME'),
+        'password' => env('SIMASN_PASSWORD'),
         'pegawai_url' => env('SIMASN_PEGAWAI'),
         'listopd_url' => env('SIMASN_LISTOPD'),
         'subkategori_url' => env('SIMASN_SUBKATEGORI'),
