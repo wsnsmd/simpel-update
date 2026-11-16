@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
 use App\Mail\DaftarMailable;
@@ -232,6 +233,10 @@ class JadwalController extends Controller
                 try {
                     // $req_pegawai = $client->get(env('SIMPEG_PNS') . $id . '/?api_token=' . env('SIMPEG_KEY'));
                     $tokenData = ApiToken::where('app_name', '=', 'SIMASN')->first();
+                    if (!$tokenData) {
+                        Log::error('SIMASN: token tidak ditemukan di tabel api_tokens');
+                        return redirect()->back()->with('error', 'Konfigurasi token SIMASN belum ada.');
+                    }
                     $headers = [
                         'Authorization' => 'Bearer ' . $tokenData->token,
                         'Accept' => 'application/json'
@@ -314,10 +319,17 @@ class JadwalController extends Controller
                             return view('frontend.daftar.2group1s', compact('jadwal', 'instansi', 'pegawai'));
                         }
                     }
-                } catch (\Exception $ex) {
-                    $notifikasi = 'Terjadi kesalahan, mohon cek kembali NIP Pegawai!';
-
-                    return redirect()->back()->with('error', $notifikasi);
+                }  catch (\GuzzleHttp\Exception\RequestException $ex) {
+                   Log::error('SIMASN request gagal', [
+                       'url'    => (string) $ex->getRequest()->getUri(),
+                       'status' => $ex->getResponse()?->getStatusCode(),
+                       'body'   => substr((string) $ex->getResponse()?->getBody(), 0, 300),
+                       'msg'    => $ex->getMessage(),
+                   ]);
+                   return redirect()->back()->with('error', 'Gagal terhubung ke SIMASN, silakan coba lagi.');
+                } catch (\Throwable $ex) {
+                    Log::error('SIMASN error', ['msg' => $ex->getMessage(), 'line' => $ex->getLine()]);
+                    return redirect()->back()->with('error', 'Terjadi kesalahan, mohon cek kembali NIP Pegawai!');
                 }
             } else {
                 $instansi = DB::table('instansi')->where('id', 1)->get();
