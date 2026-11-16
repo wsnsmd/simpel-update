@@ -106,7 +106,9 @@ Route::resource('/jadwal', 'JadwalController', [
 
 Route::post('/jadwal', 'JadwalController@cari')->name('jadwal.cari');
 Route::get('/jadwal/{jadwal}/{slug}/detail', 'JadwalController@detail')->name('jadwal.detail');
-Route::get('/tautan/{jadwal}/{hash}/', 'JadwalController@tautan')->name('jadwal.tautan');
+Route::get('/tautan/{hash}', 'JadwalController@tautanShort')
+    ->where('hash', '[a-zA-Z0-9]{6}')
+    ->name('jadwal.tautan.short');
 Route::post('/jadwal/peserta/datatable/{jadwal}', 'JadwalController@datatablePeserta')->name('jadwal.peserta.datatable');
 Route::get('/jadwal/widyaiswara', 'JadwalController@wi')->name('jadwal.wi');
 Route::post('/jadwal/widyaiswara', 'JadwalController@postWi')->name('jadwal.wi.post');

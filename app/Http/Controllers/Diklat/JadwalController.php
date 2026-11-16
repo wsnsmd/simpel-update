@@ -128,7 +128,7 @@ class JadwalController extends Controller
                 $path_lampiran = $request->lampiran->storeAs('public/files/lampiran', $nama_file);
             }
 
-            DB::table('diklat_jadwal')->insert([
+            $insertedId = DB::table('diklat_jadwal')->insertGetId([
                 'diklat_jenis_id' => $request->jenis_diklat,
                 'kurikulum_id' => $request->kurikulum,
                 'lokasi_id' => $request->lokasi,
@@ -159,6 +159,7 @@ class JadwalController extends Controller
                 'is_tampil' => $request->is_tampil,
                 'is_statistik' => $request->is_statistik,
                 'jenis_layanan' => $request->jenis_layanan,
+                'short_code' => substr(hash_hmac('sha256', 'tautan|' . time() . '|' . $request->nama, config('app.key')), 0, 6),
             ]);
 
             $notifikasi = 'Data jadwal diklat berhasil ditambahkan!';

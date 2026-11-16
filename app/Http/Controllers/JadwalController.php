@@ -705,19 +705,21 @@ class JadwalController extends Controller
         return view('frontend.wi_cari', compact('jadwal'));
     }
 
-    public function tautan($id, $hash)
+    public function tautanShort(string $hash)
     {
-        $jadwal = DB::table('v_front_jadwal')->where('id', $id)->where('tahun', $this->tahun)->first();
-        $shortCode = substr(md5($jadwal->nama), 0, 6);
+        $jadwal = DB::table('v_front_jadwal')
+            ->where('short_code', $hash)
+            ->where('tahun', $this->tahun)
+            ->first();
 
-
-        if (empty($jadwal))
+        if (!$jadwal) {
             abort(404);
+        }
 
-        if ($hash != $shortCode)
-            abort(404);
-
-        $tautan = DB::table('tautan')->where('jadwal_id', $jadwal->id)->where('is_active', 1)->get();
+        $tautan = DB::table('tautan')
+            ->where('jadwal_id', $jadwal->id)
+            ->where('is_active', 1)
+            ->get();
 
         return view('frontend.tautan', compact('jadwal', 'tautan'));
     }
