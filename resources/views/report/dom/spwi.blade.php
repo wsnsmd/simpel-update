@@ -138,7 +138,9 @@
             font-size: 11.5pt;
         }
 
-        table.paraf td, table.paraf th {
+        table.paraf th,
+        table.paraf td {
+            border: 1px solid black;
             font-size: 8pt;
             vertical-align: top;
             text-align: left;

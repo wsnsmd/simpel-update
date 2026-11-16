@@ -141,6 +141,7 @@
         }
 
         table.paraf td, table.paraf th {
+            border: 1px solid black;
             font-size: 8pt;
             vertical-align: top;
             text-align: left;
