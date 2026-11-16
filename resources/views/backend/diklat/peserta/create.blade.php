@@ -149,7 +149,7 @@
             </div>
             <div class="block-content block-content-full border-top">
                 <form id="form-peserta" class="mb-2"
-                    action="{{ route('backend.diklat.peserta.store', ['id' => $jadwal->id]) }}" method="POST"
+                    action="{{ route('backend.diklat.peserta.store', ['jadwal' => $jadwal->id]) }}" method="POST"
                     enctype="multipart/form-data" autocomplete="off">
                     @csrf
                     <h2 class="content-heading pt-0">Data Peserta</h2>
