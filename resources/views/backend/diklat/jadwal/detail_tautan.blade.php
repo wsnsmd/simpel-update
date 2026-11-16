@@ -1,6 +1,6 @@
 @php
-    $shortCode = substr(md5($jadwal->nama), 0, 6);
-    $qrcode = route('jadwal.tautan', ['jadwal' => $jadwal->id, 'hash' => $shortCode]);
+    $shortCode = $jadwal->short_code ?? substr(hash_hmac('sha256', 'tautan|' . $jadwal->id, config('app.key')), 0, 6);
+    $qrcode = route('jadwal.tautan.short', ['hash' => $shortCode]);
 @endphp
 
 @extends('layouts.backend')
