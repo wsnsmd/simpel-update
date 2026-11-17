@@ -285,7 +285,7 @@
                 <h3 class="block-title">Daftar Tautan</h3>
             </div>
             <div class="block-content block-content-full">
-                <div class="input-group mb-3">
+                <div class="input-group mb-2">
                     <input type="text" value="{!! $qrcode !!}" class="form-control" id="txtUrl" readonly>
                     <div class="input-group-append">
                         <button type="button" class="btn btn-primary" onclick="copyText()" title="Salin Tautan">
